@@ -16,79 +16,406 @@
       --highlight-color: #fff59d;
     }
     
-    body { font-family: Poppins, system-ui, Arial, sans-serif; margin: 0; background: var(--primary-color); color: var(--dark-color); line-height: 1.6; }
-    .wrap { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
-    .highlight { color: var(--highlight-color); }
+    body {
+      font-family: Poppins, system-ui, Arial, sans-serif;
+      margin: 0;
+      background: var(--primary-color);
+      color: var(--dark-color);
+      line-height: 1.6;
+    }
+    
+    .wrap {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
 
-    /* Header */
-    header { background-color: var(--primary-color); padding: 15px 0; box-shadow: 0 2px 10px rgba(0,0,0,0.3); position: sticky; top: 0; z-index: 100; }
-    .header-container { display: flex; align-items: center; justify-content: space-between; }
-    .logo-container { display: flex; align-items: center; gap: 12px; }
-    .logo-img { height: 60px; width: auto; }
-    .brand-text { font-size: 22px; font-weight: 800; color: var(--highlight-color); }
-    .brand-tagline { font-size: 13px; color: var(--text-light); }
-    nav { display: flex; gap: 25px; }
-    nav a { color: #fff; text-decoration: none; font-weight: 600; transition: color 0.3s; }
-    nav a:hover { color: var(--highlight-color); }
-
-    /* Hero */
-    .hero { background: linear-gradient(rgba(6,76,120,0.8), rgba(6,76,120,0.9)), url('assets/img/hero.png'); background-size: cover; background-position: center; color: white; padding: 80px 0; text-align: center; }
-    .hero h1 { font-size: 42px; margin-bottom: 20px; font-weight: 700; }
-    .hero h1 .highlight { color: var(--highlight-color); }
-    .hero p { font-size: 20px; max-width: 700px; margin: 0 auto 30px; color: #f5f5f5; }
-    .btn { display: inline-block; background-color: var(--highlight-color); color: var(--primary-color); padding: 12px 30px; border-radius: 30px; text-decoration: none; font-weight: 600; transition: all 0.3s; }
-    .btn:hover { background-color: #fff176; transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
-
+    .highlight {
+      color: var(--highlight-color);
+    }
+    
+    /* Header Styles */
+    header {
+      background-color: var(--primary-color);
+      padding: 15px 0;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    
+    .header-container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    
+    .logo-container {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .logo-img {
+      height: 60px;
+      width: auto;
+    }
+    
+    .brand-text {
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--highlight-color);
+    }
+    
+    .brand-tagline {
+      font-size: 13px;
+      color: var(--text-light);
+    }
+    
+    nav {
+      display: flex;
+      gap: 25px;
+    }
+    
+    nav a {
+      color: #fff;
+      text-decoration: none;
+      font-weight: 600;
+      transition: color 0.3s;
+    }
+    
+    nav a:hover {
+      color: var(--highlight-color);
+    }
+    
+    /* Hero Section */
+    .hero {
+      background: linear-gradient(rgba(6, 76, 120, 0.8), rgba(6, 76, 120, 0.9)), url('assets/img/hero.png');
+      background-size: cover;
+      background-position: center;
+      color: white;
+      padding: 80px 0;
+      text-align: center;
+    }
+    
+    .hero h1 {
+      font-size: 42px;
+      margin-bottom: 20px;
+      font-weight: 700;
+    }
+    
+    .hero h1 .highlight {
+      color: var(--highlight-color);
+    }
+    
+    .hero p {
+      font-size: 20px;
+      max-width: 700px;
+      margin: 0 auto 30px;
+      color: #f5f5f5;
+    }
+    
+    .btn {
+      display: inline-block;
+      background-color: var(--highlight-color);
+      color: var(--primary-color);
+      padding: 12px 30px;
+      border-radius: 30px;
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.3s;
+    }
+    
+    .btn:hover {
+      background-color: #fff176;
+      transform: translateY(-3px);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    }
+    
     /* Sections */
-    .section { padding: 80px 0; }
-    .section-title { text-align: center; margin-bottom: 50px; }
-    .section-title h2 { font-size: 36px; color: var(--highlight-color); margin-bottom: 15px; position: relative; display: inline-block; }
-    .section-title h2:after { content: ''; position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%); width: 80px; height: 3px; background-color: var(--highlight-color); }
-    .section-title p { color: var(--text-light); max-width: 700px; margin: 0 auto; }
-
-    /* About */
-    .about-content { display: flex; align-items: center; gap: 50px; }
-    .about-text { flex: 1; color: #fff; }
-    .about-image { flex: 1; border-radius: 10px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
-    .about-image img { width: 100%; height: auto; display: block; }
-
-    /* Services */
-    .services { background-color: rgba(255,255,255,0.05); }
-    .services-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; }
-    .service-card { background: rgba(255,255,255,0.1); border-radius: 10px; padding: 30px; text-align: center; color: #fff; box-shadow: 0 5px 15px rgba(0,0,0,0.2); transition: transform 0.3s; }
-    .service-card:hover { transform: translateY(-10px); }
-    .service-icon { font-size: 40px; color: var(--highlight-color); margin-bottom: 20px; }
-    .service-card h3 { color: var(--highlight-color); margin-bottom: 15px; }
-
-    /* Contact */
-    .contact-container { display: grid; grid-template-columns: 1fr 1fr; gap: 50px; }
-    .contact-info { display: flex; flex-direction: column; gap: 25px; color: #fff; }
-    .contact-item { display: flex; align-items: flex-start; gap: 15px; }
-    .contact-icon { background-color: rgba(255,255,255,0.1); color: var(--highlight-color); width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; }
-    .contact-details h4 { margin: 0 0 5px; color: var(--highlight-color); }
-    .contact-form { background-color: rgba(255,255,255,0.1); padding: 30px; border-radius: 10px; }
-    .form-group label { font-weight: 600; color: #fff; }
-    .form-control { width: 100%; padding: 12px 15px; border: 1px solid #ddd; border-radius: 5px; font-family: inherit; font-size: 16px; box-sizing: border-box; }
-    .btn-submit { background-color: var(--highlight-color); color: var(--primary-color); border: none; padding: 12px 30px; border-radius: 5px; font-size: 16px; font-weight: 600; cursor: pointer; transition: background-color 0.3s; }
-    .btn-submit:hover { background-color: #fff176; }
-
+    .section {
+      padding: 80px 0;
+    }
+    
+    .section-title {
+      text-align: center;
+      margin-bottom: 50px;
+    }
+    
+    .section-title h2 {
+      font-size: 36px;
+      color: var(--highlight-color);
+      margin-bottom: 15px;
+      position: relative;
+      display: inline-block;
+    }
+    
+    .section-title h2:after {
+      content: '';
+      position: absolute;
+      bottom: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80px;
+      height: 3px;
+      background-color: var(--highlight-color);
+    }
+    
+    .section-title p {
+      color: var(--text-light);
+      max-width: 700px;
+      margin: 0 auto;
+    }
+    
+    /* About Section */
+    .about-content {
+      display: flex;
+      align-items: center;
+      gap: 50px;
+    }
+    
+    .about-text {
+      flex: 1;
+      color: #fff;
+    }
+    
+    .about-image {
+      flex: 1;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+    
+    .about-image img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+    
+    /* Services Section */
+    .services {
+      background-color: rgba(255,255,255,0.05);
+    }
+    
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 30px;
+    }
+    
+    .service-card {
+      background: rgba(255,255,255,0.1);
+      border-radius: 10px;
+      padding: 30px;
+      text-align: center;
+      color: #fff;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+      transition: transform 0.3s;
+    }
+    
+    .service-card:hover {
+      transform: translateY(-10px);
+    }
+    
+    .service-icon {
+      font-size: 40px;
+      color: var(--highlight-color);
+      margin-bottom: 20px;
+    }
+    
+    .service-card h3 {
+      color: var(--highlight-color);
+      margin-bottom: 15px;
+    }
+    
+    /* Contact Section */
+    .contact-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 50px;
+    }
+    
+    .contact-info {
+      display: flex;
+      flex-direction: column;
+      gap: 25px;
+      color: #fff;
+    }
+    
+    .contact-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 15px;
+    }
+    
+    .contact-icon {
+      background-color: rgba(255,255,255,0.1);
+      color: var(--highlight-color);
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+    }
+    
+    .contact-details h4 {
+      margin: 0 0 5px;
+      color: var(--highlight-color);
+    }
+    
+    .contact-form {
+      background-color: rgba(255,255,255,0.1);
+      padding: 30px;
+      border-radius: 10px;
+    }
+    
+    .form-group label {
+      font-weight: 600;
+      color: #fff;
+    }
+    
+    .form-control {
+      width: 100%;
+      padding: 12px 15px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      font-family: inherit;
+      font-size: 16px;
+      box-sizing: border-box;
+    }
+    
+    .btn-submit {
+      background-color: var(--highlight-color);
+      color: var(--primary-color);
+      border: none;
+      padding: 12px 30px;
+      border-radius: 5px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    
+    .btn-submit:hover {
+      background-color: #fff176;
+    }
+    
     /* Footer */
-    footer { background-color: var(--primary-color); color: white; padding: 50px 0 20px; }
-    .footer-content { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 40px; margin-bottom: 40px; }
-    .footer-logo { height: 50px; width: auto; margin-bottom: 15px; }
-    .footer-about p { color: rgba(255,255,255,0.8); }
-    .footer-links h4, .footer-contact h4 { margin-bottom: 10px; position: relative; color: var(--highlight-color); }
-    .footer-links h4:after, .footer-contact h4:after { content: ''; position: absolute; bottom: -8px; left: 0; width: 40px; height: 2px; background-color: var(--highlight-color); }
-    .footer-links a { color: rgba(255,255,255,0.8); text-decoration: none; transition: color 0.3s; }
-    .footer-links a:hover { color: var(--highlight-color); }
-    .footer-contact p { color: rgba(255,255,255,0.8); margin-bottom: 10px; display: flex; align-items: flex-start; gap: 10px; }
-    .footer-contact i { color: var(--highlight-color); margin-top: 3px; }
-    .footer-bottom { border-top: 1px solid rgba(255,255,255,0.2); padding-top: 20px; text-align: center; color: rgba(255,255,255,0.6); font-size: 14px; }
-
+    footer {
+      background-color: var(--primary-color);
+      color: white;
+      padding: 50px 0 20px;
+    }
+    
+    .footer-content {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 40px;
+      margin-bottom: 40px;
+    }
+    
+    .footer-logo {
+      height: 50px;
+      width: auto;
+      margin-bottom: 15px;
+    }
+    
+    .footer-about p {
+      color: rgba(255,255,255,0.8);
+    }
+    
+    .footer-links h4, .footer-contact h4 {
+      margin-bottom: 20px;
+      position: relative;
+      color: var(--highlight-color);
+    }
+    
+    .footer-links h4:after, .footer-contact h4:after {
+      content: '';
+      position: absolute;
+      bottom: -8px;
+      left: 0;
+      width: 40px;
+      height: 2px;
+      background-color: var(--highlight-color);
+    }
+    
+    .footer-links a {
+      color: rgba(255,255,255,0.8);
+      text-decoration: none;
+      transition: color 0.3s;
+    }
+    
+    .footer-links a:hover {
+      color: var(--highlight-color);
+    }
+    
+    .footer-contact p {
+      color: rgba(255,255,255,0.8);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+    
+    .footer-contact i {
+      color: var(--highlight-color);
+      margin-top: 3px;
+    }
+    
+    .footer-bottom {
+      border-top: 1px solid rgba(255,255,255,0.2);
+      padding-top: 20px;
+      text-align: center;
+      color: rgba(255,255,255,0.6);
+      font-size: 14px;
+    }
+    
     /* Responsive */
-    @media (max-width: 992px) { .about-content { flex-direction: column; } .contact-container { grid-template-columns: 1fr; } }
-    @media (max-width: 768px) { .header-container { flex-direction: column; gap: 15px; } nav { gap: 15px; } .hero h1 { font-size: 32px; } .hero p { font-size: 18px; } .section { padding: 60px 0; } }
-    @media (max-width: 576px) { .services-grid { grid-template-columns: 1fr; } .footer-content { grid-template-columns: 1fr; } }
+    @media (max-width: 992px) {
+      .about-content {
+        flex-direction: column;
+      }
+      
+      .contact-container {
+        grid-template-columns: 1fr;
+      }
+    }
+    
+    @media (max-width: 768px) {
+      .header-container {
+        flex-direction: column;
+        gap: 15px;
+      }
+      
+      nav {
+        gap: 15px;
+      }
+      
+      .hero h1 {
+        font-size: 32px;
+      }
+      
+      .hero p {
+        font-size: 18px;
+      }
+      
+      .section {
+        padding: 60px 0;
+      }
+    }
+    
+    @media (max-width: 576px) {
+      .services-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .footer-content {
+        grid-template-columns: 1fr;
+      }
+    }
   </style>
 </head>
 <body>
@@ -110,7 +437,7 @@
     </div>
   </header>
 
-  <!-- Hero -->
+  <!-- Hero Section -->
   <section class="hero">
     <div class="wrap">
       <h1>Finanzas con <span class="highlight">visión</span>, decisiones con <span class="highlight">impacto</span></h1>
@@ -128,7 +455,9 @@
       </div>
       <div class="about-content">
         <div class="about-text">
-          <p>En Rizkora, nos especializamos en ofrecer asesoramiento financiero y consultoría estratégica personalizada...</p>
+          <p>En Rizkora, nos especializamos en ofrecer asesoramiento financiero y consultoría estratégica personalizada para individuos y pequeñas empresas. Nuestro equipo de expertos está comprometido con ayudarte a alcanzar tus metas financieras mediante soluciones innovadoras y efectivas.</p>
+          <p>Creemos que cada cliente es único, por lo que desarrollamos estrategias personalizadas que se adaptan a tus necesidades específicas, ya sea para proteger tus activos, optimizar tus inversiones o impulsar el crecimiento de tu negocio.</p>
+          <p>Con años de experiencia en el sector financiero, hemos ayudado a numerosos clientes a navegar por complejas decisiones financieras, ofreciendo claridad, confianza y resultados tangibles.</p>
         </div>
         <div class="about-image">
           <img src="assets/img/about.png" alt="Beneficios Rizkora">
@@ -146,17 +475,23 @@
       </div>
       <div class="services-grid">
         <div class="service-card">
-          <div class="service-icon"><i class="fas fa-shield-alt"></i></div>
+          <div class="service-icon">
+            <i class="fas fa-shield-alt"></i>
+          </div>
           <h3>Seguros</h3>
           <p>Protege lo que más importa con nuestras soluciones de seguros personalizadas para individuos y empresas.</p>
         </div>
         <div class="service-card">
-          <div class="service-icon"><i class="fas fa-chart-line"></i></div>
+          <div class="service-icon">
+            <i class="fas fa-chart-line"></i>
+          </div>
           <h3>Inversiones</h3>
           <p>Maximiza tu patrimonio con estrategias de inversión inteligentes adaptadas a tus objetivos y perfil de riesgo.</p>
         </div>
         <div class="service-card">
-          <div class="service-icon"><i class="fas fa-lightbulb"></i></div>
+          <div class="service-icon">
+            <i class="fas fa-lightbulb"></i>
+          </div>
           <h3>Consultoría Estratégica</h3>
           <p>Desarrollamos planes de negocio y estrategias financieras que impulsan el crecimiento sostenible de tu empresa.</p>
         </div>
@@ -173,14 +508,57 @@
       </div>
       <div class="contact-container">
         <div class="contact-info">
-          <!-- Contact Info Items ... -->
+          <div class="contact-item">
+            <div class="contact-icon">
+              <i class="fas fa-map-marker-alt"></i>
+            </div>
+            <div class="contact-details">
+              <h4>Ubicación</h4>
+              <p>Mérida, Yucatán</p>
+            </div>
+          </div>
+          <div class="contact-item">
+            <div class="contact-icon">
+              <i class="fas fa-phone-alt"></i>
+            </div>
+            <div class="contact-details">
+              <h4>Teléfono</h4>
+              <p>+52 999 269 3838</p>
+            </div>
+          </div>
+          <div class="contact-item">
+            <div class="contact-icon">
+              <i class="fas fa-envelope"></i>
+            </div>
+            <div class="contact-details">
+              <h4>Email</h4>
+              <p>contacto@rizkora.com</p>
+            </div>
+          </div>
+          <div class="contact-item">
+            <div class="contact-icon">
+              <i class="fas fa-clock"></i>
+            </div>
+            <div class="contact-details">
+              <h4>Horario</h4>
+              <p>Lun - Vie: 09:00 a.m. – 05:00 p.m.<br>Sáb - Dom: Cerrado</p>
+            </div>
+          </div>
+          <div class="contact-item">
+            <div class="contact-icon">
+              <i class="fab fa-whatsapp"></i>
+            </div>
+            <div class="contact-details">
+              <h4>WhatsApp</h4>
+              <p><a href="https://wa.me/+5219992693838" style="color: var(--highlight-color); text-decoration: none;">Envíanos un mensaje</a></p>
+            </div>
+          </div>
         </div>
-
-        <!-- Form with Formspree -->
         <div class="contact-form">
           <form action="https://formspree.io/f/mgvnylwy" method="POST">
+            <!-- Redirigir a página de gracias -->
             <input type="hidden" name="_next" value="gracias.html">
-
+        
             <div class="form-group">
               <label for="name">Nombre</label>
               <input type="text" id="name" name="name" class="form-control" required>
@@ -210,7 +588,21 @@
       <div class="footer-content">
         <div class="footer-about">
           <img src="assets/img/logo.png" alt="Rizkora" class="footer-logo">
-          <p>Rizkora ofrece consultoría estratégica y asesoría financiera...</p>
+          <p>Rizkora ofrece consultoría estratégica y asesoría financiera para individuos y pequeñas empresas, ayudándote a tomar decisiones inteligentes para proteger tu presente y anticipar tu futuro.</p>
+        </div>
+        <div class="footer-links">
+          <h4>Enlaces Rápidos</h4>
+          <ul>
+            <li><a href="#about">Nosotros</a></li>
+            <li><a href="#services">Servicios</a></li>
+            <li><a href="#contact">Contacto</a></li>
+          </ul>
+        </div>
+        <div class="footer-contact">
+          <h4>Contacto</h4>
+          <p><i class="fas fa-map-marker-alt"></i> Mérida, Yucatán</p>
+          <p><i class="fas fa-phone-alt"></i> +52 999 269 3838</p>
+          <p><i class="fas fa-envelope"></i> contacto@rizkora.com</p>
         </div>
       </div>
       <div class="footer-bottom">
