@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Contacto | Rizkora</title>
+<link rel="stylesheet" href="css/styles.css">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+<header>
+  <div class="wrap header-container">
+    <img src="assets/img/logo.png" class="logo-img">
+
+    <nav class="nav">
+      <a href="index.html">Inicio</a>
+      <a href="about.html">Nosotros</a>
+
+      <div class="dropdown">
+        <a href="services.html">Servicios ▾</a>
+        <div class="dropdown-menu">
+          <a href="seguros.html">Seguros</a>
+          <a href="inversiones.html">Inversiones</a>
+          <a href="consultoria.html">Consultoría</a>
+          <a href="pensiones.html">Pensiones</a>
+        </div>
+      </div>
+
+      <a href="contact.html">Contacto</a>
+    </nav>
+  </div>
+</header>
+
+<section class="section">
+  <div class="wrap">
+    <div class="section-title">
+      <h2>Contacto</h2>
+      <p>Agenda una asesoría gratuita con nosotros.</p>
+    </div>
+
+    <div class="contact-container">
+
+      <div>
+        <p><strong>Ubicación:</strong> Mérida, Yucatán</p>
+        <p><strong>Email:</strong> contacto@rizkora.com</p>
+        <p><strong>WhatsApp:</strong> 
+          <a href="https://wa.me/+5219992693838">Enviar mensaje</a>
+        </p>
+      </div>
+
+      <form action="https://formspree.io/f/mgvnylwy" method="POST">
+        <input type="text" name="name" placeholder="Nombre" class="form-control" required>
+        <input type="email" name="email" placeholder="Correo" class="form-control" required>
+        <textarea name="message" placeholder="Mensaje" class="form-control"></textarea>
+        <button class="btn-submit">Enviar</button>
+      </form>
+
+    </div>
+  </div>
+</section>
+
+</body>
+</html>
