@@ -1,18 +1,25 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<title>Rizkora</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Rizkora — Consultoría Estratégica</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 <link rel="stylesheet" href="css/styles.css">
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 </head>
 
 <body>
 
+<!-- HEADER -->
 <header>
   <div class="wrap header-container">
-    <img src="assets/img/logo.png" class="logo-img">
+    <div class="logo-container">
+      <img src="assets/img/logo.png" class="logo-img">
+      <div class="brand-tagline">Consultoría Estratégica y Asesoría Financiera</div>
+    </div>
 
     <nav class="nav">
       <a href="index.html">Inicio</a>
@@ -36,31 +43,95 @@
 <!-- HERO -->
 <section class="hero">
   <div class="wrap">
-    <h1>Finanzas con <span class="highlight">visión</span>, decisiones con impacto</h1>
-    <p>Empoderamos decisiones financieras inteligentes para proteger tu presente y construir tu futuro.</p>
-    <a href="contact.html" class="btn">Contáctanos</a>
+    <h1>Finanzas con <span class="highlight">visión</span>, decisiones con <span class="highlight">impacto</span></h1>
+    <p>Empoderamos a personas y empresas para tomar decisiones financieras inteligentes.</p>
+    <a href="contact.html" class="btn">Contáctanos Hoy</a>
   </div>
 </section>
 
-<!-- SERVICIOS RESUMEN -->
+<!-- ABOUT -->
 <section class="section">
+  <div class="wrap">
+    <div class="section-title">
+      <h2>Conoce a Rizkora</h2>
+    </div>
+
+    <div class="about-content">
+      <div class="about-text">
+        <p>En Rizkora ofrecemos asesoría financiera y consultoría estratégica personalizada.</p>
+        <p>Diseñamos soluciones a la medida para proteger tu patrimonio y hacer crecer tus oportunidades.</p>
+      </div>
+
+      <div class="about-image">
+        <img src="assets/img/about.png">
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SERVICIOS -->
+<section class="section services">
   <div class="wrap">
     <div class="section-title">
       <h2>Nuestros Servicios</h2>
     </div>
 
-    <div class="cards">
-      <a href="seguros.html">Seguros</a>
-      <a href="inversiones.html">Inversiones</a>
-      <a href="consultoria.html">Consultoría</a>
-      <a href="pensiones.html">Pensiones</a>
+    <div class="services-grid">
+
+      <a href="seguros.html" class="service-card">
+        <div class="service-icon"><i class="fas fa-shield-alt"></i></div>
+        <h3>Seguros</h3>
+        <p>Protección personalizada para tu patrimonio.</p>
+      </a>
+
+      <a href="inversiones.html" class="service-card">
+        <div class="service-icon"><i class="fas fa-chart-line"></i></div>
+        <h3>Inversiones</h3>
+        <p>Estrategias inteligentes para hacer crecer tu dinero.</p>
+      </a>
+
+      <a href="consultoria.html" class="service-card">
+        <div class="service-icon"><i class="fas fa-lightbulb"></i></div>
+        <h3>Consultoría</h3>
+        <p>Decisiones basadas en datos para tu negocio.</p>
+      </a>
+
     </div>
   </div>
 </section>
 
+<!-- CTA (IMPORTANTE para que no termine en contacto feo) -->
+<section class="section" style="text-align:center;">
+  <div class="wrap">
+    <h2>¿Listo para tomar mejores decisiones financieras?</h2>
+    <a href="contact.html" class="btn">Hablar con un asesor</a>
+  </div>
+</section>
+
 <!-- FOOTER -->
-<footer style="text-align:center;padding:20px;">
-  © 2025 Rizkora
+<footer>
+  <div class="wrap">
+    <div class="footer-content">
+
+      <div>
+        <img src="assets/img/logo.png" class="footer-logo">
+        <p>Consultoría financiera y estratégica.</p>
+      </div>
+
+      <div>
+        <h4>Servicios</h4>
+        <p><a href="seguros.html">Seguros</a></p>
+        <p><a href="inversiones.html">Inversiones</a></p>
+      </div>
+
+      <div>
+        <h4>Contacto</h4>
+        <p>Mérida, Yucatán</p>
+        <p>contacto@rizkora.com</p>
+      </div>
+
+    </div>
+  </div>
 </footer>
 
 </body>
