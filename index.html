@@ -114,7 +114,7 @@ nav a:hover {
 
 /* SECTION */
 .section {
-  padding: 70px 0;
+  padding: 50px 0;
 }
 
 .section-title {
@@ -130,14 +130,45 @@ nav a:hover {
 .cards {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 20px;
+  gap: 18px;
 }
 
-.cards div {
-  background: rgba(255,255,255,0.08);
-  padding: 25px;
-  border-radius: 10px;
+.card {
+  background: rgba(255,255,255,0.06);
+  padding: 22px;
+  border-radius: 12px;
   text-align: center;
+  transition: all 0.3s ease;
+  opacity: 0;
+  transform: translateY(20px);
+}
+.card h3 {
+  margin: 10px 0 5px;
+  font-size: 16px;
+}
+
+.card p {
+  font-size: 13px;
+  color: var(--text-light);
+}
+
+/* ICONO */
+.card i {
+  font-size: 26px;
+  color: var(--highlight-color);
+  margin-bottom: 10px;
+}
+
+/* HOVER */
+.card:hover {
+  transform: translateY(-6px);
+  background: rgba(255,255,255,0.1);
+}
+
+/* ANIMACIÓN AL CARGAR */
+.card.visible {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 /* FOOTER */
@@ -196,10 +227,31 @@ footer p {
     </div>
 
     <div class="cards">
-      <div><strong>1.</strong><br>Diagnóstico</div>
-      <div><strong>2.</strong><br>Estrategia</div>
-      <div><strong>3.</strong><br>Implementación</div>
-      <div><strong>4.</strong><br>Seguimiento</div>
+
+      <div class="card">
+        <i class="fas fa-search"></i>
+        <h3>Diagnóstico</h3>
+        <p>Entendemos tu situación actual.</p>
+      </div>
+    
+      <div class="card">
+        <i class="fas fa-chess"></i>
+        <h3>Estrategia</h3>
+        <p>Definimos el mejor camino.</p>
+      </div>
+    
+      <div class="card">
+        <i class="fas fa-cogs"></i>
+        <h3>Implementación</h3>
+        <p>Llevamos la estrategia a la acción.</p>
+      </div>
+    
+      <div class="card">
+        <i class="fas fa-chart-line"></i>
+        <h3>Seguimiento</h3>
+        <p>Medimos y optimizamos resultados.</p>
+      </div>
+
     </div>
   </div>
 </section>
@@ -231,6 +283,18 @@ footer p {
     <p>© 2025 Rizkora — Consultoría Estratégica</p>
   </div>
 </footer>
+<script>
+const cards = document.querySelectorAll('.card');
 
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+    }
+  });
+});
+
+cards.forEach(card => observer.observe(card));
+</script>
 </body>
 </html>
