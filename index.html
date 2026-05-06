@@ -5,10 +5,152 @@
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Rizkora — Consultoría Estratégica</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-<link rel="stylesheet" href="css/styles.css">
+<style>
+:root {
+  --primary-color: #064c78;
+  --highlight-color: #fff59d;
+  --text-light: #e0e0e0;
+}
+
+body {
+  font-family: Poppins, sans-serif;
+  margin: 0;
+  background: var(--primary-color);
+  color: white;
+}
+
+.wrap {
+  max-width: 1100px;
+  margin: auto;
+  padding: 0 20px;
+}
+
+/* HEADER */
+header {
+  padding: 15px 0;
+  position: sticky;
+  top: 0;
+  background: #064c78;
+}
+
+.header-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo-img {
+  height: 55px;
+}
+
+nav {
+  display: flex;
+  gap: 25px;
+}
+
+nav a {
+  color: white;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+nav a:hover {
+  color: var(--highlight-color);
+}
+
+/* DROPDOWN */
+.dropdown {
+  position: relative;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 25px;
+  left: 0;
+  background: #053a5c;
+  padding: 10px;
+  display: none;
+  flex-direction: column;
+}
+
+.dropdown-menu a {
+  padding: 5px 10px;
+}
+
+.dropdown:hover .dropdown-menu {
+  display: flex;
+}
+
+/* HERO */
+.hero {
+  text-align: center;
+  padding: 100px 20px 80px;
+}
+
+.hero h1 {
+  font-size: 42px;
+  margin-bottom: 15px;
+}
+
+.hero p {
+  color: var(--text-light);
+  max-width: 600px;
+  margin: auto;
+}
+
+.btn {
+  margin-top: 25px;
+  display: inline-block;
+  background: var(--highlight-color);
+  color: #064c78;
+  padding: 12px 30px;
+  border-radius: 25px;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+/* SECTION */
+.section {
+  padding: 70px 0;
+}
+
+.section-title {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.section-title h2 {
+  color: var(--highlight-color);
+}
+
+/* CARDS */
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+}
+
+.cards div {
+  background: rgba(255,255,255,0.08);
+  padding: 25px;
+  border-radius: 10px;
+  text-align: center;
+}
+
+/* FOOTER */
+footer {
+  padding: 40px 0;
+  background: rgba(0,0,0,0.2);
+  text-align: center;
+}
+
+footer p {
+  color: var(--text-light);
+}
+</style>
 </head>
 
 <body>
@@ -16,17 +158,14 @@
 <!-- HEADER -->
 <header>
   <div class="wrap header-container">
-    <div class="logo-container">
-      <img src="assets/img/logo.png" class="logo-img">
-      <div class="brand-tagline">Consultoría Estratégica y Asesoría Financiera</div>
-    </div>
+    <img src="assets/img/logo.png" class="logo-img">
 
-    <nav class="nav">
+    <nav>
       <a href="index.html">Inicio</a>
       <a href="about.html">Nosotros</a>
 
       <div class="dropdown">
-        <a href="services.html">Servicios ▾</a>
+        <a href="#">Servicios ▾</a>
         <div class="dropdown-menu">
           <a href="seguros.html">Seguros</a>
           <a href="inversiones.html">Inversiones</a>
@@ -43,94 +182,53 @@
 <!-- HERO -->
 <section class="hero">
   <div class="wrap">
-    <h1>Finanzas con <span class="highlight">visión</span>, decisiones con <span class="highlight">impacto</span></h1>
-    <p>Empoderamos a personas y empresas para tomar decisiones financieras inteligentes.</p>
-    <a href="contact.html" class="btn">Contáctanos Hoy</a>
+    <h1>Decisiones financieras basadas en estrategia</h1>
+    <p>Transformamos datos en acciones que generan valor sostenible para personas y empresas.</p>
+    <a href="contact.html" class="btn">Hablar con un asesor</a>
   </div>
 </section>
 
-<!-- ABOUT -->
+<!-- COMO TRABAJAMOS -->
 <section class="section">
   <div class="wrap">
     <div class="section-title">
-      <h2>Conoce a Rizkora</h2>
+      <h2>Cómo trabajamos</h2>
     </div>
 
-    <div class="about-content">
-      <div class="about-text">
-        <p>En Rizkora ofrecemos asesoría financiera y consultoría estratégica personalizada.</p>
-        <p>Diseñamos soluciones a la medida para proteger tu patrimonio y hacer crecer tus oportunidades.</p>
-      </div>
-
-      <div class="about-image">
-        <img src="assets/img/about.png">
-      </div>
+    <div class="cards">
+      <div><strong>1.</strong><br>Diagnóstico</div>
+      <div><strong>2.</strong><br>Estrategia</div>
+      <div><strong>3.</strong><br>Implementación</div>
+      <div><strong>4.</strong><br>Seguimiento</div>
     </div>
   </div>
 </section>
 
-<!-- SERVICIOS -->
-<section class="section services">
+<!-- ENFOQUE -->
+<section class="section">
   <div class="wrap">
     <div class="section-title">
-      <h2>Nuestros Servicios</h2>
+      <h2>Nuestro enfoque</h2>
     </div>
 
-    <div class="services-grid">
-
-      <a href="seguros.html" class="service-card">
-        <div class="service-icon"><i class="fas fa-shield-alt"></i></div>
-        <h3>Seguros</h3>
-        <p>Protección personalizada para tu patrimonio.</p>
-      </a>
-
-      <a href="inversiones.html" class="service-card">
-        <div class="service-icon"><i class="fas fa-chart-line"></i></div>
-        <h3>Inversiones</h3>
-        <p>Estrategias inteligentes para hacer crecer tu dinero.</p>
-      </a>
-
-      <a href="consultoria.html" class="service-card">
-        <div class="service-icon"><i class="fas fa-lightbulb"></i></div>
-        <h3>Consultoría</h3>
-        <p>Decisiones basadas en datos para tu negocio.</p>
-      </a>
-
-    </div>
+    <p style="text-align:center; max-width:700px; margin:auto; color:var(--text-light);">
+      Integramos análisis financiero, gestión de riesgos y planeación estratégica para generar soluciones claras, medibles y sostenibles en el tiempo.
+    </p>
   </div>
 </section>
 
-<!-- CTA (IMPORTANTE para que no termine en contacto feo) -->
+<!-- CTA -->
 <section class="section" style="text-align:center;">
   <div class="wrap">
-    <h2>¿Listo para tomar mejores decisiones financieras?</h2>
-    <a href="contact.html" class="btn">Hablar con un asesor</a>
+    <h2>Hablemos de tu caso</h2>
+    <a href="contact.html" class="btn">Contactar</a>
   </div>
 </section>
 
 <!-- FOOTER -->
 <footer>
   <div class="wrap">
-    <div class="footer-content">
-
-      <div>
-        <img src="assets/img/logo.png" class="footer-logo">
-        <p>Consultoría financiera y estratégica.</p>
-      </div>
-
-      <div>
-        <h4>Servicios</h4>
-        <p><a href="seguros.html">Seguros</a></p>
-        <p><a href="inversiones.html">Inversiones</a></p>
-      </div>
-
-      <div>
-        <h4>Contacto</h4>
-        <p>Mérida, Yucatán</p>
-        <p>contacto@rizkora.com</p>
-      </div>
-
-    </div>
+    <p>© 2025 Rizkora — Consultoría Estratégica</p>
   </div>
 </footer>
 
