@@ -51,8 +51,7 @@
   .page-hero h1{font-size:clamp(32px,5vw,52px);font-weight:800;line-height:1.1;margin-bottom:16px;}
   .page-hero h1 em{font-style:normal;color:var(--gold);}
   .page-hero .hero-sub{font-size:18px;color:var(--text-soft);max-width:580px;margin-bottom:32px;line-height:1.7;}
-  .page-hero-icon{font-size:120px;color:rgba(255,245,157,.1);position:relative;}
-  .page-hero-icon .top-icon{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:70px;color:var(--gold);filter:drop-shadow(0 4px 20px rgba(255,245,157,.4));}
+  .page-hero-icon{position:relative;display:flex;align-items:center;justify-content:center;}
 
   .services-section{padding:90px 0;}
   .s-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;}
@@ -146,9 +145,9 @@
         <p class="hero-sub">Firma especializada en liderazgo, talento y transformación organizacional. Acompañamos a organizaciones en el fortalecimiento de sus equipos, cultura y capacidades de ejecución, integrando estrategias humanas alineadas a los objetivos de negocio.</p>
         <a href="index.html#contacto" class="btn-gold"><i class="fas fa-calendar-alt"></i> Agenda una Consultoría</a>
       </div>
-      <div class="page-hero-icon">
-        <i class="fas fa-users"></i>
-        <i class="fas fa-users top-icon"></i>
+      <div class="page-hero-icon" style="display:flex;align-items:center;justify-content:center;">
+        <img src="assets/img/logo_amarillo.png" alt="Rizkora"
+          style="height:160px;width:auto;filter:drop-shadow(0 4px 24px rgba(255,245,157,0.35));object-fit:contain;">
       </div>
     </div>
   </div>
