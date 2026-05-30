@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Diagnóstico Financiero — Rizkora</title>
+  <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #f0f4f8;
+      min-height: 100vh;
+      padding: 0;
+    }
+
+    /* ── Navbar ── */
+    .navbar {
+      background: #064c78;
+      padding: 0.85rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .nav-logo {
+      width: 36px;
+      height: 36px;
+      background: #fff59d;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 16px;
+      color: #064c78;
+    }
+
+    .nav-title {
+      color: #fff;
+      font-size: 15px;
+      font-weight: 600;
+    }
+
+    .nav-title span {
+      color: #fff59d;
+    }
+
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .nav-user {
+      font-size: 13px;
+      color: rgba(255,255,255,0.8);
+    }
+
+    .btn-logout {
+      padding: 6px 14px;
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.25);
+      border-radius: 8px;
+      color: #fff;
+      font-size: 13px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn-logout:hover { background: rgba(255,255,255,0.2); }
+
+    /* ── Layout ── */
+    .container {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 1.5rem 1rem 3rem;
+    }
+
+    /* ── Steps bar ── */
+    .steps-bar {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 1.5rem;
+    }
+
+    .step-dot {
+      flex: 1;
+      height: 4px;
+      border-radius: 2px;
+      background: #d1dde8;
+      transition: background 0.2s;
+    }
+
+    .step-dot.done { background: #064c78; }
+    .step-dot.active { background: #fff59d; outline: 2px solid #064c78; outline-offset: 1px; }
+
+    /* ── Cards ── */
+    .card {
+      background: #fff;
+      border: 1px solid #e2eaf2;
+      border-radius: 14px;
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .section-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: #064c78;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* ── Form ── */
+    .field { margin-bottom: 1rem; }
+    .field:last-child { margin-bottom: 0; }
+
+    .field label {
+      display: block;
+      font-size: 13px;
+      color: #4b6280;
+      margin-bottom: 5px;
+      font-weight: 500;
+    }
+
+    .field input,
+    .field select {
+      width: 100%;
+      padding: 9px 12px;
+      border: 1px solid #d0dcea;
+      border-radius: 9px;
+      font-size: 14px;
+      color: #1a2e42;
+      background: #fff;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+
+    .field input:focus,
+    .field select:focus {
+      outline: none;
+      border-color: #064c78;
+      box-shadow: 0 0 0 3px rgba(6,76,120,0.12);
+    }
+
+    .row2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    /* ── Radio options ── */
+    .radio-group { display: flex; gap: 8px; flex-wrap: wrap; }
+
+    .radio-opt {
+      padding: 8px 16px;
+      border: 1px solid #d0dcea;
+      border-radius: 9px;
+      cursor: pointer;
+      font-size: 14px;
+      color: #1a2e42;
+      background: #f7fafd;
+      transition: all 0.15s;
+      user-select: none;
+    }
+
+    .radio-opt:hover { border-color: #064c78; }
+
+    .radio-opt.selected {
+      background: #064c78;
+      color: #fff59d;
+      border-color: #064c78;
+      font-weight: 500;
+    }
+
+    /* ── Buttons ── */
+    .btn {
+      padding: 10px 20px;
+      border-radius: 9px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.15s;
+    }
+
+    .btn-primary {
+      background: #064c78;
+      color: #fff59d;
+      border-color: #064c78;
+    }
+
+    .btn-primary:hover { background: #053a5c; }
+
+    .btn-secondary {
+      background: #f0f4f8;
+      color: #064c78;
+      border-color: #d0dcea;
+    }
+
+    .btn-secondary:hover { background: #e2eaf2; }
+
+    .btn-sm { padding: 6px 12px; font-size: 13px; }
+
+    .btn-danger {
+      background: #fef2f2;
+      color: #a32d2d;
+      border-color: #fca5a5;
+    }
+
+    .nav-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 1.25rem;
+      padding-top: 1rem;
+      border-top: 1px solid #e2eaf2;
+    }
+
+    /* ── Info / warn boxes ── */
+    .info-box {
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-radius: 9px;
+      padding: 10px 12px;
+      font-size: 13px;
+      color: #1d4ed8;
+      margin-bottom: 1rem;
+    }
+
+    .warn-box {
+      background: #fffbeb;
+      border: 1px solid #fcd34d;
+      border-radius: 9px;
+      padding: 10px 12px;
+      font-size: 13px;
+      color: #92400e;
+      margin-bottom: 1rem;
+    }
+
+    .err-box {
+      background: #fef2f2;
+      border: 1px solid #fca5a5;
+      border-radius: 9px;
+      padding: 10px 12px;
+      font-size: 13px;
+      color: #a32d2d;
+      margin-bottom: 1rem;
+      display: none;
+    }
+
+    /* ── Debt table ── */
+    .debt-add-row {
+      display: grid;
+      grid-template-columns: 2fr 1.4fr 1.4fr auto;
+      gap: 8px;
+      align-items: end;
+      margin-bottom: 10px;
+    }
+
+    .debt-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      margin-top: 8px;
+    }
+
+    .debt-table th {
+      background: #f0f4f8;
+      padding: 8px 10px;
+      text-align: left;
+      font-weight: 600;
+      color: #4b6280;
+      border-bottom: 1px solid #e2eaf2;
+    }
+
+    .debt-table td {
+      padding: 8px 10px;
+      border-bottom: 1px solid #f0f4f8;
+      color: #1a2e42;
+    }
+
+    .debt-table tr:last-child td { border-bottom: none; }
+
+    .debt-totals {
+      display: flex;
+      gap: 20px;
+      padding: 8px 10px;
+      background: #f7fafd;
+      border-radius: 8px;
+      font-size: 13px;
+      margin-top: 8px;
+    }
+
+    /* ── Semaforo ── */
+    .semaforo {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      padding: 14px 16px;
+      border-radius: 12px;
+      margin-bottom: 1rem;
+    }
+
+    .sem-ico { font-size: 32px; line-height: 1; flex-shrink: 0; }
+    .sem-info h3 { font-size: 15px; font-weight: 600; margin-bottom: 3px; }
+    .sem-info p { font-size: 13px; }
+
+    .sem-neg  { background: #fef2f2; border: 1px solid #fca5a5; }
+    .sem-crit { background: #fffbeb; border: 1px solid #fcd34d; }
+    .sem-aj   { background: #fffbeb; border: 1px solid #fcd34d; }
+    .sem-sal  { background: #f0fdf4; border: 1px solid #86efac; }
+    .sem-exc  { background: #f0fdf4; border: 1px solid #86efac; }
+
+    .sem-neg  .sem-info h3, .sem-neg  .sem-info p { color: #a32d2d; }
+    .sem-crit .sem-info h3, .sem-crit .sem-info p,
+    .sem-aj   .sem-info h3, .sem-aj   .sem-info p { color: #92400e; }
+    .sem-sal  .sem-info h3, .sem-sal  .sem-info p,
+    .sem-exc  .sem-info h3, .sem-exc  .sem-info p { color: #166534; }
+
+    /* ── Stat grid ── */
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 10px;
+      margin-bottom: 1rem;
+    }
+
+    .stat-card {
+      background: #f7fafd;
+      border-radius: 10px;
+      padding: 12px 14px;
+    }
+
+    .stat-card .slbl { font-size: 11px; color: #4b6280; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.4px; }
+    .stat-card .sval { font-size: 17px; font-weight: 600; color: #1a2e42; }
+
+    /* ── Progress bars ── */
+    .prog-wrap { height: 7px; background: #e2eaf2; border-radius: 4px; overflow: hidden; margin: 5px 0 12px; }
+    .prog-fill { height: 100%; border-radius: 4px; transition: width 0.5s ease; }
+
+    /* ── Chart ── */
+    .chart-wrap { position: relative; width: 100%; height: 240px; margin-bottom: 1rem; }
+
+    /* ── Recommendations ── */
+    .recom-list { list-style: none; padding: 0; }
+    .recom-list li {
+      padding: 10px 0;
+      border-bottom: 1px solid #f0f4f8;
+      font-size: 14px;
+      color: #1a2e42;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      line-height: 1.5;
+    }
+    .recom-list li:last-child { border-bottom: none; }
+    .recom-ico { color: #064c78; font-size: 17px; margin-top: 1px; flex-shrink: 0; }
+
+    /* ── Loading screen ── */
+    #authGate {
+      position: fixed;
+      inset: 0;
+      background: #064c78;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    #authGate .gate-logo {
+      width: 56px;
+      height: 56px;
+      background: #fff59d;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      font-weight: 700;
+      color: #064c78;
+    }
+
+    #authGate p { color: rgba(255,255,255,0.7); font-size: 14px; }
+
+    #mainApp { display: none; }
+
+    /* ── Responsive ── */
+    @media (max-width: 520px) {
+      .row2 { grid-template-columns: 1fr; }
+      .debt-add-row { grid-template-columns: 1fr 1fr; }
+      .debt-add-row .btn { grid-column: span 2; }
+      .nav-user { display: none; }
+    }
+
+    /* ── Section visibility ── */
+    .section { display: none; }
+    .section.active { display: block; }
+  </style>
+</head>
+<body>
+
+<!-- Pantalla de verificación de sesión -->
+<div id="authGate">
+  <div class="gate-logo">R</div>
+  <p>Verificando acceso...</p>
+</div>
+
+<!-- App principal (se muestra solo si hay sesión) -->
+<div id="mainApp">
+
+  <nav class="navbar">
+    <div class="nav-brand">
+      <div class="nav-logo">R</div>
+      <span class="nav-title">Rizkora <span>— Diagnóstico financiero</span></span>
+    </div>
+    <div class="nav-right">
+      <span class="nav-user" id="navUser"></span>
+      <button class="btn-logout" onclick="cerrarSesion()">Cerrar sesión</button>
+    </div>
+  </nav>
+
+  <div class="container">
+
+    <div class="steps-bar" id="stepsBar"></div>
+    <div class="err-box" id="errBox"></div>
+
+    <!-- ══ PASO 1: Datos básicos ══ -->
+    <div class="section active" id="s1">
+      <div class="card">
+        <div class="section-title"><i class="ti ti-user"></i> Datos básicos del cliente</div>
+        <div class="field">
+          <label>Nombre completo del cliente</label>
+          <input type="text" id="nombre" placeholder="Nombre completo...">
+        </div>
+        <div class="row2">
+          <div class="field">
+            <label>Fecha de nacimiento</label>
+            <input type="date" id="fechaNac" max="">
+          </div>
+          <div class="field">
+            <label>O ingresa la edad directamente</label>
+            <input type="number" id="edadDirecta" placeholder="Años" min="1" max="99">
+          </div>
+        </div>
+        <div class="field">
+          <label>¿Tiene dependientes? (hijos, pareja, familiares a su cargo)</label>
+          <div class="radio-group">
+            <div class="radio-opt" data-group="dep" data-val="si" onclick="pick(this)">Sí tiene dependientes</div>
+            <div class="radio-opt" data-group="dep" data-val="no" onclick="pick(this)">No tiene dependientes</div>
+          </div>
+        </div>
+      </div>
+      <div class="nav-row">
+        <span></span>
+        <button class="btn btn-primary" onclick="next(1)">Siguiente <i class="ti ti-arrow-right"></i></button>
+      </div>
+    </div>
+
+    <!-- ══ PASO 2: Ingresos ══ -->
+    <div class="section" id="s2">
+      <div class="card">
+        <div class="section-title"><i class="ti ti-briefcase"></i> Perfil laboral e ingresos</div>
+        <div class="field">
+          <label>¿Cómo describirías su situación laboral?</label>
+          <div class="radio-group">
+            <div class="radio-opt" data-group="tipo" data-val="godin" onclick="pick(this);tipoInfo()">Godín (empleado)</div>
+            <div class="radio-opt" data-group="tipo" data-val="empresario" onclick="pick(this);tipoInfo()">Empresario / freelance</div>
+          </div>
+        </div>
+        <div id="infoGodin" class="info-box" style="display:none">
+          <i class="ti ti-info-circle"></i> Para empleados: ¿cuánto entra a su cuenta mensualmente (ya descontados impuestos y IMSS)?
+        </div>
+        <div id="infoEmp" class="info-box" style="display:none">
+          <i class="ti ti-info-circle"></i> Para empresarios: ¿cuánto entra a su cuenta mensualmente? Sus impuestos se registran aparte.
+        </div>
+        <div class="field">
+          <label>Ingreso mensual en cuenta (MXN)</label>
+          <input type="number" id="ingreso" placeholder="0.00" min="0">
+        </div>
+      </div>
+      <div class="nav-row">
+        <button class="btn btn-secondary" onclick="back(2)"><i class="ti ti-arrow-left"></i> Atrás</button>
+        <button class="btn btn-primary" onclick="next(2)">Siguiente <i class="ti ti-arrow-right"></i></button>
+      </div>
+    </div>
+
+    <!-- ══ PASO 3: Deudas ══ -->
+    <div class="section" id="s3">
+      <div class="card">
+        <div class="section-title"><i class="ti ti-credit-card"></i> Deudas activas</div>
+        <div class="info-box">
+          <i class="ti ti-info-circle"></i> Incluye crédito hipotecario, automotriz, préstamos personales o tarjetas donde solo paga el mínimo.
+        </div>
+        <div class="field">
+          <label>¿Tiene deudas actualmente?</label>
+          <div class="radio-group">
+            <div class="radio-opt" data-group="tdeuda" data-val="si" onclick="pick(this);showDeudas(true)">Sí, tiene deudas</div>
+            <div class="radio-opt" data-group="tdeuda" data-val="no" onclick="pick(this);showDeudas(false)">No tiene deudas</div>
+          </div>
+        </div>
+
+        <div id="deudaPanel" style="display:none">
+          <p style="font-size:13px;color:#4b6280;margin-bottom:10px;font-weight:500">Agrega cada deuda:</p>
+          <div class="debt-add-row">
+            <div class="field" style="margin:0">
+              <label style="font-size:12px">Tipo de crédito</label>
+              <select id="dTipo">
+                <option value="">Selecciona...</option>
+                <option>Hipotecario</option>
+                <option>Automotriz</option>
+                <option>Tarjeta de crédito</option>
+                <option>Préstamo personal</option>
+                <option>Nómina</option>
+                <option>Otro</option>
+              </select>
+            </div>
+            <div class="field" style="margin:0">
+              <label style="font-size:12px">Pago / mes (MXN)</label>
+              <input type="number" id="dPago" placeholder="0" min="0">
+            </div>
+            <div class="field" style="margin:0">
+              <label style="font-size:12px">Deuda total (MXN)</label>
+              <input type="number" id="dTotal" placeholder="0" min="0">
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="addDeuda()" style="white-space:nowrap;align-self:end">
+              <i class="ti ti-plus"></i> Agregar
+            </button>
+          </div>
+
+          <div id="deudaTableWrap" style="display:none">
+            <table class="debt-table">
+              <thead><tr><th>Tipo</th><th>Pago / mes</th><th>Deuda total</th><th></th></tr></thead>
+              <tbody id="deudaTbody"></tbody>
+            </table>
+            <div class="debt-totals">
+              <span>Pagos/mes: <strong id="sumPagos">$0</strong></span>
+              <span>Total adeudado: <strong id="sumDeuda">$0</strong></span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="nav-row">
+        <button class="btn btn-secondary" onclick="back(3)"><i class="ti ti-arrow-left"></i> Atrás</button>
+        <button class="btn btn-primary" onclick="next(3)">Siguiente <i class="ti ti-arrow-right"></i></button>
+      </div>
+    </div>
+
+    <!-- ══ PASO 4: Gastos ══ -->
+    <div class="section" id="s4">
+      <div class="card">
+        <div class="section-title"><i class="ti ti-home"></i> Gastos fijos mensuales</div>
+        <div class="row2">
+          <div class="field"><label>Renta o hipoteca</label><input type="number" id="gRenta" placeholder="0" min="0"></div>
+          <div class="field"><label>Servicios (luz, agua, gas, internet)</label><input type="number" id="gServ" placeholder="0" min="0"></div>
+        </div>
+        <div class="row2">
+          <div class="field"><label>Transporte / gasolina</label><input type="number" id="gTrans" placeholder="0" min="0"></div>
+          <div class="field"><label>Alimentación (super / mercado)</label><input type="number" id="gAlim" placeholder="0" min="0"></div>
+        </div>
+        <div class="row2">
+          <div class="field"><label>Educación (colegiaturas, cursos)</label><input type="number" id="gEdu" placeholder="0" min="0"></div>
+          <div class="field"><label>Salud (seguros, consultas)</label><input type="number" id="gSalud" placeholder="0" min="0"></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="section-title"><i class="ti ti-shopping-cart"></i> Gastos variables / discrecionales</div>
+        <div class="row2">
+          <div class="field"><label>Entretenimiento y salidas</label><input type="number" id="gEnt" placeholder="0" min="0"></div>
+          <div class="field"><label>Ropa y cuidado personal</label><input type="number" id="gRopa" placeholder="0" min="0"></div>
+        </div>
+        <div class="row2">
+          <div class="field"><label>Suscripciones (streaming, apps)</label><input type="number" id="gSubs" placeholder="0" min="0"></div>
+          <div class="field"><label>Otros gastos variables</label><input type="number" id="gOtros" placeholder="0" min="0"></div>
+        </div>
+      </div>
+      <div class="nav-row">
+        <button class="btn btn-secondary" onclick="back(4)"><i class="ti ti-arrow-left"></i> Atrás</button>
+        <button class="btn btn-primary" onclick="next(4)">
+          <i class="ti ti-chart-bar"></i> Ver diagnóstico
+        </button>
+      </div>
+    </div>
+
+    <!-- ══ PASO 5: Diagnóstico ══ -->
+    <div class="section" id="s5">
+      <div id="diagContent"></div>
+      <div class="nav-row">
+        <button class="btn btn-secondary" onclick="back(5)"><i class="ti ti-arrow-left"></i> Ajustar datos</button>
+        <button class="btn btn-primary" onclick="nuevoCliente()">
+          <i class="ti ti-plus"></i> Nuevo cliente
+        </button>
+      </div>
+    </div>
+
+  </div><!-- /container -->
+</div><!-- /mainApp -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+/* ══════════════════════════════
+   AUTH
+══════════════════════════════ */
+netlifyIdentity.on('init', user => {
+  if (!user) {
+    window.location.href = '/login.html';
+  } else {
+    document.getElementById('authGate').style.display = 'none';
+    document.getElementById('mainApp').style.display = 'block';
+    const email = user.email || '';
+    const name = (user.user_metadata && user.user_metadata.full_name) || email;
+    document.getElementById('navUser').textContent = name;
+  }
+});
+
+function cerrarSesion() {
+  netlifyIdentity.logout();
+  window.location.href = '/login.html';
+}
+
+/* ══════════════════════════════
+   STATE
+══════════════════════════════ */
+let S = { nombre:'', edad:null, dep:null, tipo:null, ingreso:0, tdeuda:null, deudas:[], gastos:{} };
+let pieChart = null;
+
+/* ══════════════════════════════
+   STEPS
+══════════════════════════════ */
+const TOTAL = 5;
+
+function initBar() {
+  const bar = document.getElementById('stepsBar');
+  bar.innerHTML = '';
+  for (let i = 1; i <= TOTAL; i++) {
+    const d = document.createElement('div');
+    d.className = 'step-dot' + (i === 1 ? ' active' : '');
+    d.id = 'dot' + i;
+    bar.appendChild(d);
+  }
+}
+initBar();
+
+function updateBar(cur) {
+  for (let i = 1; i <= TOTAL; i++) {
+    const d = document.getElementById('dot' + i);
+    d.className = 'step-dot' + (i < cur ? ' done' : i === cur ? ' active' : '');
+  }
+}
+
+function showSection(n) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById('s' + n).classList.add('active');
+  updateBar(n);
+  document.getElementById('errBox').style.display = 'none';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function showErr(msg) {
+  const e = document.getElementById('errBox');
+  e.textContent = msg;
+  e.style.display = 'block';
+}
+
+/* ══════════════════════════════
+   UI HELPERS
+══════════════════════════════ */
+function pick(el) {
+  const g = el.dataset.group;
+  document.querySelectorAll(`.radio-opt[data-group="${g}"]`).forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  S[g] = el.dataset.val;
+}
+
+function tipoInfo() {
+  document.getElementById('infoGodin').style.display = S.tipo === 'godin' ? 'block' : 'none';
+  document.getElementById('infoEmp').style.display   = S.tipo === 'empresario' ? 'block' : 'none';
+}
+
+function showDeudas(v) {
+  document.getElementById('deudaPanel').style.display = v ? 'block' : 'none';
+}
+
+function getAge() {
+  const ed = parseFloat(document.getElementById('edadDirecta').value);
+  if (ed > 0) return ed;
+  const fn = document.getElementById('fechaNac').value;
+  if (!fn) return null;
+  const d = new Date(fn), h = new Date();
+  let a = h.getFullYear() - d.getFullYear();
+  if (h.getMonth() < d.getMonth() || (h.getMonth() === d.getMonth() && h.getDate() < d.getDate())) a--;
+  return a > 0 ? a : null;
+}
+
+const fmt = n => new Intl.NumberFormat('es-MX', { style:'currency', currency:'MXN', maximumFractionDigits:0 }).format(n);
+
+/* ══════════════════════════════
+   DEUDAS
+══════════════════════════════ */
+function addDeuda() {
+  const tipo = document.getElementById('dTipo').value;
+  const pago = parseFloat(document.getElementById('dPago').value) || 0;
+  const tot  = parseFloat(document.getElementById('dTotal').value) || 0;
+  if (!tipo) { showErr('Selecciona el tipo de crédito'); return; }
+  if (pago <= 0) { showErr('Ingresa el pago mensual'); return; }
+  document.getElementById('errBox').style.display = 'none';
+  S.deudas.push({ tipo, pago, tot });
+  renderDeudas();
+  document.getElementById('dTipo').value = '';
+  document.getElementById('dPago').value = '';
+  document.getElementById('dTotal').value = '';
+}
+
+function delDeuda(i) {
+  S.deudas.splice(i, 1);
+  renderDeudas();
+}
+
+function renderDeudas() {
+  const tb = document.getElementById('deudaTbody');
+  tb.innerHTML = '';
+  let sp = 0, sd = 0;
+  S.deudas.forEach((d, i) => {
+    sp += d.pago; sd += d.tot;
+    tb.innerHTML += `<tr>
+      <td>${d.tipo}</td>
+      <td>${fmt(d.pago)}/mes</td>
+      <td>${d.tot > 0 ? fmt(d.tot) : '—'}</td>
+      <td><button class="btn btn-danger btn-sm" onclick="delDeuda(${i})"><i class="ti ti-trash"></i></button></td>
+    </tr>`;
+  });
+  document.getElementById('sumPagos').textContent = fmt(sp);
+  document.getElementById('sumDeuda').textContent = fmt(sd);
+  document.getElementById('deudaTableWrap').style.display = S.deudas.length > 0 ? 'block' : 'none';
+}
+
+/* ══════════════════════════════
+   NAVIGATION
+══════════════════════════════ */
+function next(step) {
+  if (step === 1) {
+    const n = document.getElementById('nombre').value.trim();
+    const edad = getAge();
+    if (!n)    { showErr('Ingresa el nombre del cliente'); return; }
+    if (!edad) { showErr('Ingresa la fecha de nacimiento o edad'); return; }
+    if (!S.dep){ showErr('Indica si tiene dependientes'); return; }
+    S.nombre = n; S.edad = edad;
+    showSection(2);
+
+  } else if (step === 2) {
+    const ing = parseFloat(document.getElementById('ingreso').value) || 0;
+    if (!S.tipo)  { showErr('Selecciona el tipo de empleo'); return; }
+    if (ing <= 0) { showErr('Ingresa el ingreso mensual'); return; }
+    S.ingreso = ing;
+    showSection(3);
+
+  } else if (step === 3) {
+    if (!S.tdeuda) { showErr('Indica si tiene deudas activas'); return; }
+    if (S.tdeuda === 'si' && S.deudas.length === 0) {
+      showErr('Agrega al menos una deuda o selecciona "No tiene deudas"'); return;
+    }
+    showSection(4);
+
+  } else if (step === 4) {
+    S.gastos = {
+      renta:  parseFloat(document.getElementById('gRenta').value)  || 0,
+      serv:   parseFloat(document.getElementById('gServ').value)   || 0,
+      trans:  parseFloat(document.getElementById('gTrans').value)  || 0,
+      alim:   parseFloat(document.getElementById('gAlim').value)   || 0,
+      edu:    parseFloat(document.getElementById('gEdu').value)    || 0,
+      salud:  parseFloat(document.getElementById('gSalud').value)  || 0,
+      ent:    parseFloat(document.getElementById('gEnt').value)    || 0,
+      ropa:   parseFloat(document.getElementById('gRopa').value)   || 0,
+      subs:   parseFloat(document.getElementById('gSubs').value)   || 0,
+      otros:  parseFloat(document.getElementById('gOtros').value)  || 0,
+    };
+    renderDiag();
+    showSection(5);
+  }
+}
+
+function back(step) { showSection(step - 1); }
+
+function nuevoCliente() {
+  S = { nombre:'', edad:null, dep:null, tipo:null, ingreso:0, tdeuda:null, deudas:[], gastos:{} };
+  document.querySelectorAll('input[type=text], input[type=number], input[type=date]').forEach(i => i.value = '');
+  document.querySelectorAll('.radio-opt').forEach(o => o.classList.remove('selected'));
+  document.getElementById('deudaPanel').style.display = 'none';
+  document.getElementById('deudaTableWrap').style.display = 'none';
+  document.getElementById('deudaTbody').innerHTML = '';
+  document.getElementById('infoGodin').style.display = 'none';
+  document.getElementById('infoEmp').style.display = 'none';
+  if (pieChart) { pieChart.destroy(); pieChart = null; }
+  showSection(1);
+}
+
+/* ══════════════════════════════
+   DIAGNÓSTICO
+══════════════════════════════ */
+function renderDiag() {
+  const ing = S.ingreso;
+  const g = S.gastos;
+  const fijos     = g.renta + g.serv + g.trans + g.alim + g.edu + g.salud;
+  const variables = g.ent + g.ropa + g.subs + g.otros;
+  const deudaMes  = S.deudas.reduce((a, d) => a + d.pago, 0);
+  const totalGto  = fijos + variables + deudaMes;
+  const flujo     = ing - totalGto;
+  const pct       = ing > 0 ? Math.round((flujo / ing) * 100) : 0;
+
+  let semC, semI, semL, semD;
+  if (flujo < 0)        { semC='sem-neg';  semI='🔴'; semL='Flujo negativo';     semD='Los gastos superan los ingresos — se debe actuar de inmediato'; }
+  else if (pct <= 10)   { semC='sem-crit'; semI='🔴'; semL='Estado crítico';      semD='Menos del 10% disponible — situación muy ajustada'; }
+  else if (pct <= 20)   { semC='sem-aj';   semI='🟡'; semL='Estado ajustado';     semD='Hay algo de margen, pero con cuidado (10–20%)'; }
+  else if (pct <= 30)   { semC='sem-sal';  semI='🟢'; semL='Salud financiera';    semD='Buen equilibrio, flujo libre entre 20–30%'; }
+  else                  { semC='sem-exc';  semI='🟢'; semL='Finanzas excelentes'; semD='Más del 30% disponible — aprovecharlo al máximo'; }
+
+  const recom = [];
+  if (deudaMes > 0) {
+    recom.push({ ico:'ti-credit-card', txt:`Prioridad #1: eliminar deudas. Estrategia bola de nieve — pagar primero las más pequeñas para ganar impulso y liberar flujo.` });
+    const menor = [...S.deudas].sort((a,b) => a.tot - b.tot)[0];
+    if (menor) recom.push({ ico:'ti-target', txt:`Empezar por "${menor.tipo}" — es la deuda más pequeña. Destinar todo el excedente a liquidarla primero.` });
+  }
+  if (pct < 10) recom.push({ ico:'ti-trending-down', txt:'Revisar suscripciones y gastos variables de inmediato. Pequeños recortes suman rápido en flujo crítico.' });
+  if (g.renta > ing * 0.30) recom.push({ ico:'ti-home', txt:`La renta representa el ${Math.round(g.renta/ing*100)}% del ingreso, superando el 30% recomendado.` });
+  if (g.subs > 0) recom.push({ ico:'ti-device-tv', txt:`${fmt(g.subs)}/mes en suscripciones. Revisar cuáles se usan realmente y cancelar las innecesarias.` });
+  if (flujo > 0 && deudaMes === 0) recom.push({ ico:'ti-piggy-bank', txt:'Sin deudas activas, el siguiente paso es construir un fondo de emergencia de 3 a 6 meses de gastos.' });
+  if (pct >= 20) recom.push({ ico:'ti-chart-line', txt:'El flujo lo permite — considerar invertir aplicando la regla 50/30/20: necesidades, deseos y ahorro/inversión.' });
+  if (recom.length === 0) recom.push({ ico:'ti-check', txt:'La situación financiera luce equilibrada. Mantener el control de gastos y revisar opciones de inversión.' });
+
+  const pct5050 = Math.round(ing*0.50);
+  const pct5030 = Math.round(ing*0.30);
+  const pct5020 = Math.round(ing*0.20);
+
+  document.getElementById('diagContent').innerHTML = `
+    <div class="card">
+      <div class="section-title"><i class="ti ti-user-check"></i> Diagnóstico: ${S.nombre}, ${S.edad} años</div>
+      <div class="semaforo ${semC}">
+        <div class="sem-ico">${semI}</div>
+        <div class="sem-info"><h3>${semL}</h3><p>${semD}</p></div>
+      </div>
+      <div class="stat-grid">
+        <div class="stat-card"><div class="slbl">Ingreso mensual</div><div class="sval">${fmt(ing)}</div></div>
+        <div class="stat-card"><div class="slbl">Total gastos</div><div class="sval">${fmt(totalGto)}</div></div>
+        <div class="stat-card"><div class="slbl">Flujo libre</div><div class="sval" style="color:${flujo>=0?'#166534':'#a32d2d'}">${fmt(flujo)}</div></div>
+        <div class="stat-card"><div class="slbl">Deuda / mes</div><div class="sval" style="color:${deudaMes>0?'#a32d2d':'#1a2e42'}">${fmt(deudaMes)}</div></div>
+      </div>
+    </div>
+
+    ${deudaMes > 0 ? `
+    <div class="card">
+      <div class="section-title"><i class="ti ti-alert-triangle"></i> Análisis de deudas</div>
+      <div class="warn-box"><i class="ti ti-info-circle"></i> El ${Math.round(deudaMes/ing*100)}% del ingreso va a pagar deudas (${fmt(deudaMes)}/mes). Prioridad: desendeudarse antes de ahorrar.</div>
+      ${S.deudas.map(d=>`
+        <div style="margin-bottom:12px">
+          <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px">
+            <span style="font-weight:500">${d.tipo}</span>
+            <span style="color:#4b6280">${fmt(d.pago)}/mes${d.tot>0?' · '+fmt(d.tot)+' total':''}</span>
+          </div>
+          <div class="prog-wrap"><div class="prog-fill" style="width:${Math.min(100,Math.round(d.pago/ing*100))}%;background:#dc2626"></div></div>
+        </div>`).join('')}
+    </div>` : ''}
+
+    <div class="card">
+      <div class="section-title"><i class="ti ti-chart-pie"></i> Distribución del ingreso</div>
+      <div class="chart-wrap">
+        <canvas id="pieChart" role="img" aria-label="Gráfica de distribución del ingreso en gastos fijos, variables, deudas y flujo libre.">Fijos: ${fmt(fijos)}, Variables: ${fmt(variables)}, Deudas: ${fmt(deudaMes)}, Flujo: ${fmt(Math.max(0,flujo))}.</canvas>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-title"><i class="ti ti-scale"></i> Regla 50/30/20 — referencia ideal</div>
+      <div class="info-box" style="margin-bottom:14px"><i class="ti ti-bulb"></i> 50% a necesidades · 30% a deseos · 20% a ahorro e inversión.</div>
+      ${[
+        ['Necesidades (50%)', pct5050, fijos, '#185FA5'],
+        ['Deseos (30%)',       pct5030, variables, '#92400e'],
+        ['Ahorro / inversión (20%)', pct5020, Math.max(0,flujo-deudaMes), '#166534']
+      ].map(([lbl,ideal,real,col])=>`
+        <div style="margin-bottom:14px">
+          <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px">
+            <span style="font-weight:500;color:#1a2e42">${lbl}</span>
+            <span style="color:#4b6280">Ideal ${fmt(ideal)} · Real ${fmt(real)}</span>
+          </div>
+          <div class="prog-wrap"><div class="prog-fill" style="width:${Math.min(100,ing>0?Math.round(real/ing*100):0)}%;background:${col}"></div></div>
+        </div>`).join('')}
+    </div>
+
+    <div class="card">
+      <div class="section-title"><i class="ti ti-bulb"></i> Recomendaciones personalizadas</div>
+      <ul class="recom-list">
+        ${recom.map(r=>`<li><i class="ti ${r.ico} recom-ico"></i><span>${r.txt}</span></li>`).join('')}
+      </ul>
+    </div>
+  `;
+
+  if (pieChart) { pieChart.destroy(); pieChart = null; }
+  const ctx = document.getElementById('pieChart');
+  if (ctx) {
+    const rawD = [fijos, variables, deudaMes, Math.max(0, flujo)];
+    const rawL = ['Gastos fijos', 'Variables', 'Deudas', 'Flujo libre'];
+    const rawC = ['#185FA5', '#854F0B', '#dc2626', '#166534'];
+    const data = [], labels = [], colors = [];
+    rawD.forEach((v,i) => { if(v>0){data.push(v);labels.push(rawL[i]);colors.push(rawC[i]);} });
+    pieChart = new Chart(ctx, {
+      type: 'doughnut',
+      data: { labels, datasets: [{ data, backgroundColor: colors, borderWidth: 3, borderColor: '#fff' }] },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: true, position: 'bottom', labels: { padding: 16, font: { size: 12 } } },
+          tooltip: { callbacks: { label: c => `${c.label}: ${fmt(c.raw)} (${Math.round(c.raw/ing*100)}%)` } }
+        }
+      }
+    });
+  }
+}
+
+/* ── Init ── */
+document.getElementById('fechaNac').max = new Date().toISOString().split('T')[0];
+</script>
+</body>
+</html>
