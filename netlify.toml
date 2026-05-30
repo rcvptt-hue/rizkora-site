@@ -1,0 +1,10 @@
+[[redirects]]
+  from = "/asesoria/*"
+  to = "/asesoria/:splat"
+  status = 200
+  conditions = {Role = ["asesor", "admin"]}
+
+[[redirects]]
+  from = "/asesoria/*"
+  to = "/login.html"
+  status = 302
