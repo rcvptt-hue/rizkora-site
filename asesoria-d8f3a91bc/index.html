@@ -415,6 +415,7 @@
         </div>
       </div>
 
+      <div id="s3Err" style="display:none;background:#fef2f2;border:1px solid #fca5a5;border-radius:8px;padding:8px 12px;font-size:13px;color:#a32d2d;margin-top:10px"></div>
       <div class="nav-row">
         <button class="btn btn-secondary" onclick="back(3)"><i class="ti ti-arrow-left"></i> Atrás</button>
         <button class="btn btn-primary" onclick="next(3)">Siguiente <i class="ti ti-arrow-right"></i></button>
@@ -728,31 +729,68 @@ function addDepRow() {
 function renderDepRows() {
   const cont = document.getElementById('depRows');
   cont.innerHTML = '';
-  depRows.forEach((row,i)=>{
-    const isConyuge = row.tipo==='Cónyuge';
-    cont.innerHTML += `
-      <div class="dep-row" id="deprow${i}">
-        <div class="field" style="margin:0">
-          <select onchange="depTipo(${i},this.value)" style="width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:var(--radius);font-family:var(--font);font-size:14px">
-            ${DEP_TIPOS.map(t=>`<option ${t===row.tipo?'selected':''}>${t}</option>`).join('')}
-          </select>
-        </div>
-        <div class="field" style="margin:0;width:90px">
-          <input type="number" value="${row.cantidad}" min="1" max="20" ${isConyuge?'readonly':''}
-            onchange="depCantidad(${i},this.value)"
-            style="width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:var(--radius);font-size:14px;text-align:center;${isConyuge?'background:#f0f4f8':''}">
-        </div>
-        <button class="btn btn-danger btn-sm" onclick="removeDepRow(${i})"><i class="ti ti-trash"></i></button>
-      </div>`;
+  depRows.forEach((row, i) => {
+    const isConyuge = row.tipo === 'Conyuge' || row.tipo === 'Cónyuge';
+
+    // Wrapper
+    const wrap = document.createElement('div');
+    wrap.className = 'dep-row';
+    wrap.style.cssText = 'display:grid;grid-template-columns:1fr 90px auto;gap:8px;align-items:center;margin-bottom:8px';
+
+    // Select
+    const selWrap = document.createElement('div');
+    const sel = document.createElement('select');
+    sel.style.cssText = 'width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:var(--radius);font-family:var(--font);font-size:14px;background:#fff;color:var(--text)';
+    DEP_TIPOS.forEach(t => {
+      const opt = document.createElement('option');
+      opt.value = t;
+      opt.textContent = t;
+      if (t === row.tipo) opt.selected = true;
+      sel.appendChild(opt);
+    });
+    sel.addEventListener('change', function() {
+      depRows[i].tipo = this.value;
+      if (this.value === 'Cónyuge') { depRows[i].cantidad = 1; }
+      renderDepRows();
+    });
+    selWrap.appendChild(sel);
+
+    // Number input
+    const numWrap = document.createElement('div');
+    const num = document.createElement('input');
+    num.type = 'number';
+    num.value = row.cantidad;
+    num.min = 1;
+    num.max = 20;
+    num.style.cssText = 'width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:var(--radius);font-size:14px;text-align:center;font-family:var(--font);' + (isConyuge ? 'background:#f0f4f8;color:var(--muted)' : 'background:#fff;color:var(--text)');
+    if (isConyuge) num.readOnly = true;
+    num.addEventListener('change', function() {
+      depRows[i].cantidad = parseInt(this.value) || 1;
+    });
+    numWrap.appendChild(num);
+
+    // Delete button
+    const btn = document.createElement('button');
+    btn.className = 'btn btn-danger btn-sm';
+    btn.innerHTML = '<i class="ti ti-trash"></i>';
+    btn.addEventListener('click', function() {
+      depRows.splice(i, 1);
+      renderDepRows();
+    });
+
+    wrap.appendChild(selWrap);
+    wrap.appendChild(numWrap);
+    wrap.appendChild(btn);
+    cont.appendChild(wrap);
   });
 }
 
 function depTipo(i,v) {
-  depRows[i].tipo=v;
-  if(v==='Cónyuge') depRows[i].cantidad=1;
+  depRows[i].tipo = v;
+  if (v === 'Cónyuge') depRows[i].cantidad = 1;
   renderDepRows();
 }
-function depCantidad(i,v) { depRows[i].cantidad=parseInt(v)||1; }
+function depCantidad(i,v) { depRows[i].cantidad = parseInt(v) || 1; }
 function removeDepRow(i) { depRows.splice(i,1); renderDepRows(); }
 
 /* ══════════════════════════════════════
@@ -790,25 +828,52 @@ function toggleTCdetalle() {
 function renderTarjetaRows() {
   const cont = document.getElementById('tarjetaRows');
   cont.innerHTML = '';
-  S.tarjetas.forEach((t,i)=>{
-    cont.innerHTML += `
-      <div class="tc-block">
-        <div class="tc-label"><i class="ti ti-credit-card"></i> Tarjeta ${i+1}</div>
-        <div class="tc-grid">
-          <div class="field" style="margin:0"><label style="font-size:12px">Nombre / banco</label>
-            <input type="text" value="${t.nombre}" placeholder="Ej. Banamex oro" oninput="S.tarjetas[${i}].nombre=this.value"></div>
-          <div class="field" style="margin:0"><label style="font-size:12px">Pago mínimo + MSI/mes</label>
-            <input type="number" value="${t.pagoMin||''}" placeholder="0" oninput="S.tarjetas[${i}].pagoMin=parseFloat(this.value)||0;updateTCsums()"></div>
-          <div class="field" style="margin:0"><label style="font-size:12px">Saldo total de la deuda</label>
-            <input type="number" value="${t.total||''}" placeholder="0" oninput="S.tarjetas[${i}].total=parseFloat(this.value)||0;updateTCsums()"></div>
-        </div>
-      </div>`;
+  S.tarjetas.forEach(function(t, i) {
+    const block = document.createElement('div');
+    block.className = 'tc-block';
+
+    const lbl = document.createElement('div');
+    lbl.className = 'tc-label';
+    lbl.innerHTML = '<i class="ti ti-credit-card"></i> Tarjeta ' + (i + 1);
+    block.appendChild(lbl);
+
+    const grid = document.createElement('div');
+    grid.className = 'tc-grid';
+
+    function makeField(labelTxt, type, placeholder, val, onInputFn) {
+      const wrap = document.createElement('div');
+      wrap.className = 'field';
+      wrap.style.margin = '0';
+      const lbl = document.createElement('label');
+      lbl.style.fontSize = '12px';
+      lbl.textContent = labelTxt;
+      const inp = document.createElement('input');
+      inp.type = type;
+      inp.placeholder = placeholder;
+      if (val !== undefined && val !== 0) inp.value = val;
+      inp.addEventListener('input', onInputFn);
+      wrap.appendChild(lbl);
+      wrap.appendChild(inp);
+      return wrap;
+    }
+
+    grid.appendChild(makeField('Nombre / banco', 'text', 'Ej. Banamex oro', t.nombre, function() {
+      S.tarjetas[i].nombre = this.value;
+    }));
+    grid.appendChild(makeField('Pago minimo + MSI/mes', 'number', '0', t.pagoMin || '', function() {
+      S.tarjetas[i].pagoMin = parseFloat(this.value) || 0;
+    }));
+    grid.appendChild(makeField('Saldo total de la deuda', 'number', '0', t.total || '', function() {
+      S.tarjetas[i].total = parseFloat(this.value) || 0;
+    }));
+
+    block.appendChild(grid);
+    cont.appendChild(block);
   });
-  updateTCsums();
 }
 
 function updateTCsums() {
-  // called from inline inputs
+  // placeholder — sums are read directly from S.tarjetas at diagnosis time
 }
 
 /* ══════════════════════════════════════
@@ -818,33 +883,59 @@ function toggleCreditos(v) {
   document.getElementById('creditoPanel').style.display = v?'block':'none';
 }
 
-function addDeuda() {
-  const tipo=document.getElementById('dTipo').value;
-  const pago=parseFloat(document.getElementById('dPago').value)||0;
-  const tot =parseFloat(document.getElementById('dTotal').value)||0;
-  if(!tipo){showErr('Selecciona el tipo de crédito');return;}
-  if(pago<=0){showErr('Ingresa el pago mensual');return;}
-  document.getElementById('errBox').style.display='none';
-  S.deudas.push({tipo,pago,tot});
-  renderDeudas();
-  document.getElementById('dTipo').value='';
-  document.getElementById('dPago').value='';
-  document.getElementById('dTotal').value='';
+function showDeudaErr(msg) {
+  let el = document.getElementById('deudaErr');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'deudaErr';
+    el.style.cssText = 'background:#fef2f2;border:1px solid #fca5a5;border-radius:8px;padding:8px 12px;font-size:13px;color:#a32d2d;margin-bottom:8px';
+    const panel = document.getElementById('creditoPanel');
+    panel.insertBefore(el, panel.firstChild);
+  }
+  el.textContent = msg;
+  el.style.display = 'block';
+  setTimeout(function() { el.style.display = 'none'; }, 3000);
 }
 
-function delDeuda(i){S.deudas.splice(i,1);renderDeudas();}
+function addDeuda() {
+  const tipo = document.getElementById('dTipo').value;
+  const pago = parseFloat(document.getElementById('dPago').value) || 0;
+  const tot  = parseFloat(document.getElementById('dTotal').value) || 0;
+  if (!tipo) { showDeudaErr('Selecciona el tipo de credito'); return; }
+  if (pago <= 0) { showDeudaErr('Ingresa el pago mensual'); return; }
+  S.deudas.push({ tipo, pago, tot });
+  renderDeudas();
+  document.getElementById('dTipo').value = '';
+  document.getElementById('dPago').value = '';
+  document.getElementById('dTotal').value = '';
+}
+
+function delDeuda(i) { S.deudas.splice(i, 1); renderDeudas(); }
 
 function renderDeudas() {
-  const tb=document.getElementById('deudaTbody');
-  tb.innerHTML='';
-  let sp=0,sd=0;
-  S.deudas.forEach((d,i)=>{
-    sp+=d.pago;sd+=d.tot;
-    tb.innerHTML+=`<tr><td>${d.tipo}</td><td>${fmt(d.pago)}/mes</td><td>${d.tot>0?fmt(d.tot):'—'}</td><td><button class="btn btn-danger btn-sm" onclick="delDeuda(${i})"><i class="ti ti-trash"></i></button></td></tr>`;
+  const tb = document.getElementById('deudaTbody');
+  tb.innerHTML = '';
+  let sp = 0, sd = 0;
+  S.deudas.forEach(function(d, i) {
+    sp += d.pago; sd += d.tot;
+    const tr = document.createElement('tr');
+    const tdTipo = document.createElement('td'); tdTipo.textContent = d.tipo;
+    const tdPago = document.createElement('td'); tdPago.textContent = fmt(d.pago) + '/mes';
+    const tdTot  = document.createElement('td'); tdTot.textContent = d.tot > 0 ? fmt(d.tot) : '-';
+    const tdBtn  = document.createElement('td');
+    const btn = document.createElement('button');
+    btn.className = 'btn btn-danger btn-sm';
+    btn.innerHTML = '<i class="ti ti-trash"></i>';
+    (function(idx) {
+      btn.addEventListener('click', function() { S.deudas.splice(idx, 1); renderDeudas(); });
+    })(i);
+    tdBtn.appendChild(btn);
+    tr.appendChild(tdTipo); tr.appendChild(tdPago); tr.appendChild(tdTot); tr.appendChild(tdBtn);
+    tb.appendChild(tr);
   });
-  document.getElementById('sumPagos').textContent=fmt(sp);
-  document.getElementById('sumDeuda').textContent=fmt(sd);
-  document.getElementById('deudaTableWrap').style.display=S.deudas.length>0?'block':'none';
+  document.getElementById('sumPagos').textContent = fmt(sp);
+  document.getElementById('sumDeuda').textContent = fmt(sd);
+  document.getElementById('deudaTableWrap').style.display = S.deudas.length > 0 ? 'block' : 'none';
 }
 
 /* ══════════════════════════════════════
@@ -964,9 +1055,15 @@ function next(step) {
     }
     showSection(3);
   } else if(step===3){
-    if(!S.tieneTarjeta){showErr('Indica si tiene tarjetas de crédito');return;}
-    if(!S.tieneCredito){showErr('Indica si tiene créditos abiertos');return;}
-    if(S.tieneCredito==='si'&&S.deudas.length===0){showErr('Agrega al menos un crédito o selecciona "No"');return;}
+    function s3Err(msg) {
+      var el = document.getElementById('s3Err');
+      el.textContent = msg; el.style.display = 'block';
+      el.scrollIntoView({behavior:'smooth', block:'nearest'});
+    }
+    if(!S.tieneTarjeta){s3Err('Indica si tiene tarjetas de credito o departamentales');return;}
+    if(!S.tieneCredito){s3Err('Indica si tiene creditos abiertos');return;}
+    if(S.tieneCredito==='si'&&S.deudas.length===0){s3Err('Agrega al menos un credito o selecciona No');return;}
+    document.getElementById('s3Err').style.display='none';
     showSection(4);
   } else if(step===4){
     S.gastos={
@@ -1009,9 +1106,10 @@ function nuevoCliente(){
   document.querySelectorAll('input[type=text],input[type=number],input[type=date],input[type=email],input[type=tel]').forEach(i=>i.value='');
   document.querySelectorAll('.radio-opt').forEach(o=>o.classList.remove('selected'));
   document.querySelectorAll('select').forEach(s=>s.selectedIndex=0);
-  ['depPanel','tarjetaPanel','tarjetasDetalle','creditoPanel','deudaTableWrap','ingExtraPanel','invPanel','asesoriaPanel','citaConfirm'].forEach(id=>{ const el=document.getElementById(id); if(el) el.style.display='none'; });
+  ['depPanel','tarjetaPanel','tarjetasDetalle','creditoPanel','deudaTableWrap','ingExtraPanel','invPanel','asesoriaPanel','citaConfirm','deudaErr'].forEach(id=>{ const el=document.getElementById(id); if(el) el.style.display='none'; });
   document.getElementById('deudaTbody').innerHTML='';
   document.getElementById('depRows').innerHTML='';
+  const tarjetaRowsEl = document.getElementById('tarjetaRows'); if(tarjetaRowsEl) tarjetaRowsEl.innerHTML='';
   if(pieChart){pieChart.destroy();pieChart=null;}
   INV_OPTS.forEach(o=>{invState[o.id]={checked:false,monto:0};const inp=document.getElementById('invmonto_'+o.id);if(inp){inp.disabled=true;inp.value='';}const chk=document.getElementById('invchk_'+o.id);if(chk)chk.checked=false;});
   initMetas();renderMetas();
@@ -1197,10 +1295,24 @@ function agendarCita(){
   const endH=String(parseInt(hh)+1).padStart(2,'0');
   const end=`${yy}${mm}${dd}T${endH}${min}00`;
   const title=encodeURIComponent(`Asesoría financiera Rizkora — ${S.nombre}`);
-  const teamsUrl=`https://teams.microsoft.com/l/meeting/new?subject=${title}&startTime=${fechaStr}T${hora}:00&endTime=${fechaStr}T${endH}:${min}:00&attendees=${encodeURIComponent(email)}`;
+  // Teams deep-link para nueva reunion
+  const teamsUrl = "https://teams.microsoft.com/l/meeting/new?subject=" + title
+    + "&startTime=" + fechaStr + "T" + hora + ":00"
+    + "&endTime=" + fechaStr + "T" + endH + ":" + min + ":00"
+    + "&attendees=" + encodeURIComponent(email);
 
-  document.getElementById('citaConfirm').style.display='block';
-  document.getElementById('citaConfirm').innerHTML=`<i class="ti ti-check"></i> ¡Cita registrada para el <strong>${dd}/${mm}/${yy} a las ${hora} hrs</strong>! <a href="${teamsUrl}" target="_blank" style="color:var(--ok);font-weight:600;display:block;margin-top:6px"><i class="ti ti-brand-teams"></i> Crear reunión en Teams →</a>`;
+  // Mailto como fallback universal
+  const mailtoUrl = "mailto:" + encodeURIComponent(email)
+    + "?subject=" + encodeURIComponent("Asesoria financiera Rizkora - " + S.nombre)
+    + "&body=" + encodeURIComponent("Hola " + S.nombre + ",\n\nQuedo confirmada tu asesoria financiera con Rizkora.\n\nFecha: " + dd + "/" + mm + "/" + yy + "\nHora: " + hora + " hrs\n\nNos pondremos en contacto contigo pronto.\n\nEquipo Rizkora\ncontacto@rizkora.com");
+
+  const confirmEl = document.getElementById('citaConfirm');
+  confirmEl.style.display = 'block';
+  confirmEl.innerHTML = '<i class="ti ti-check"></i> Cita registrada para el <strong>' + dd + '/' + mm + '/' + yy + ' a las ' + hora + ' hrs</strong>'
+    + '<div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">'
+    + '<a href="' + teamsUrl + '" target="_blank" style="color:var(--ok);font-weight:600;font-size:13px;text-decoration:none;padding:6px 12px;border:1px solid var(--ok);border-radius:8px;display:inline-flex;align-items:center;gap:5px"><i class="ti ti-brand-teams"></i> Crear en Teams</a>'
+    + '<a href="' + mailtoUrl + '" style="color:var(--rz-dark);font-weight:600;font-size:13px;text-decoration:none;padding:6px 12px;border:1px solid var(--rz-dark);border-radius:8px;display:inline-flex;align-items:center;gap:5px"><i class="ti ti-mail"></i> Enviar confirmacion</a>'
+    + '</div>';
 }
 
 /* ══════════════════════════════════════
