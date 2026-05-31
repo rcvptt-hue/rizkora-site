@@ -729,19 +729,18 @@ function addDepRow() {
 function renderDepRows() {
   const cont = document.getElementById('depRows');
   cont.innerHTML = '';
-  depRows.forEach((row, i) => {
-    const isConyuge = row.tipo === 'Conyuge' || row.tipo === 'Cónyuge';
 
-    // Wrapper
+  depRows.forEach(function(row, i) {
+    const isConyuge = (row.tipo === 'Cónyuge');
+
+    // Row container
     const wrap = document.createElement('div');
-    wrap.className = 'dep-row';
-    wrap.style.cssText = 'display:grid;grid-template-columns:1fr 90px auto;gap:8px;align-items:center;margin-bottom:8px';
+    wrap.style.cssText = 'display:flex;gap:8px;align-items:center;margin-bottom:8px';
 
-    // Select
-    const selWrap = document.createElement('div');
+    // --- SELECT ---
     const sel = document.createElement('select');
-    sel.style.cssText = 'width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:var(--radius);font-family:var(--font);font-size:14px;background:#fff;color:var(--text)';
-    DEP_TIPOS.forEach(t => {
+    sel.style.cssText = 'flex:1;padding:8px 10px;border:1.5px solid #dde8f0;border-radius:12px;font-size:14px;background:#fff;color:#0d2535';
+    DEP_TIPOS.forEach(function(t) {
       const opt = document.createElement('option');
       opt.value = t;
       opt.textContent = t;
@@ -749,49 +748,49 @@ function renderDepRows() {
       sel.appendChild(opt);
     });
     sel.addEventListener('change', function() {
-      depRows[i].tipo = this.value;
-      if (this.value === 'Cónyuge') { depRows[i].cantidad = 1; }
+      var val = this.value;
+      depRows[i].tipo = val;
+      if (val === 'Cónyuge') depRows[i].cantidad = 1;
       renderDepRows();
     });
-    selWrap.appendChild(sel);
 
-    // Number input
-    const numWrap = document.createElement('div');
+    // --- NUMBER INPUT ---
+    var isCon = (row.tipo === 'Cónyuge');
     const num = document.createElement('input');
     num.type = 'number';
     num.value = row.cantidad;
     num.min = 1;
     num.max = 20;
-    num.style.cssText = 'width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:var(--radius);font-size:14px;text-align:center;font-family:var(--font);' + (isConyuge ? 'background:#f0f4f8;color:var(--muted)' : 'background:#fff;color:var(--text)');
-    if (isConyuge) num.readOnly = true;
-    num.addEventListener('change', function() {
+    num.style.cssText = 'width:80px;padding:8px 10px;border:1.5px solid #dde8f0;border-radius:12px;font-size:14px;text-align:center;background:' + (isCon ? '#f0f4f8' : '#fff') + ';color:' + (isCon ? '#527a93' : '#0d2535');
+    if (isCon) num.readOnly = true;
+    num.addEventListener('input', function() {
       depRows[i].cantidad = parseInt(this.value) || 1;
     });
-    numWrap.appendChild(num);
 
-    // Delete button
+    // --- DELETE BUTTON ---
     const btn = document.createElement('button');
-    btn.className = 'btn btn-danger btn-sm';
+    btn.type = 'button';
+    btn.style.cssText = 'padding:6px 10px;border-radius:8px;border:1px solid #fca5a5;background:#fef2f2;color:#d93025;cursor:pointer;font-size:13px;flex-shrink:0';
     btn.innerHTML = '<i class="ti ti-trash"></i>';
     btn.addEventListener('click', function() {
       depRows.splice(i, 1);
       renderDepRows();
     });
 
-    wrap.appendChild(selWrap);
-    wrap.appendChild(numWrap);
+    wrap.appendChild(sel);
+    wrap.appendChild(num);
     wrap.appendChild(btn);
     cont.appendChild(wrap);
   });
 }
 
-function depTipo(i,v) {
+function depTipo(i, v) {
   depRows[i].tipo = v;
-  if (v === 'Cónyuge') depRows[i].cantidad = 1;
+  if (v === 'Conyuge') depRows[i].cantidad = 1;
   renderDepRows();
 }
-function depCantidad(i,v) { depRows[i].cantidad = parseInt(v) || 1; }
-function removeDepRow(i) { depRows.splice(i,1); renderDepRows(); }
+function depCantidad(i, v) { depRows[i].cantidad = parseInt(v) || 1; }
+function removeDepRow(i) { depRows.splice(i, 1); renderDepRows(); }
 
 /* ══════════════════════════════════════
    INGRESOS EXTRA
