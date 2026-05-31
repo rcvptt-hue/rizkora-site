@@ -1,272 +1,210 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="robots" content="noindex, nofollow">
-  <title>Rizkora — Diagnóstico Financiero</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
-  <style>
-    :root {
-      --rz-dark:   #064c78;
-      --rz-mid:    #0a6699;
-      --rz-accent: #fff59d;
-      --rz-light:  #e8f4fb;
-      --bg:        #f2f6fa;
-      --surface:   #ffffff;
-      --border:    #dde8f0;
-      --text:      #0d2535;
-      --muted:     #527a93;
-      --danger:    #d93025;
-      --warn:      #e67e00;
-      --ok:        #1a7f45;
-      --font:      'DM Sans', sans-serif;
-      --font-head: 'DM Serif Display', serif;
-      --radius:    12px;
-      --shadow:    0 2px 12px rgba(6,76,120,.08);
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Rizkora — Diagnóstico Financiero</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+:root{
+  --rz-dark:#064c78; --rz-mid:#0a6699; --rz-accent:#fff59d; --rz-light:#e8f4fb;
+  --bg:#f2f6fa; --surface:#fff; --border:#dde8f0; --text:#0d2535; --muted:#527a93;
+  --danger:#d93025; --warn:#e67e00; --ok:#1a7f45;
+  --font:'DM Sans',sans-serif; --font-head:'DM Serif Display',serif;
+  --radius:12px; --shadow:0 2px 12px rgba(6,76,120,.08);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;font-size:14px;line-height:1.5}
 
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+/* GATE */
+#gate{position:fixed;inset:0;background:var(--rz-dark);display:flex;align-items:center;justify-content:center;z-index:9999;padding:1rem}
+.gate-card{background:#fff;border-radius:20px;padding:2.5rem 2rem;width:100%;max-width:380px;text-align:center}
+.gate-logo{width:64px;height:64px;background:var(--rz-dark);border-radius:16px;display:inline-flex;align-items:center;justify-content:center;margin-bottom:1rem}
+.gate-logo span{color:var(--rz-accent);font-family:var(--font-head);font-size:28px}
+.gate-card h1{font-family:var(--font-head);font-size:22px;color:var(--rz-dark);margin-bottom:6px}
+.gate-card p{font-size:13px;color:var(--muted);margin-bottom:1.5rem}
+.gate-input{width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:var(--radius);font-size:15px;text-align:center;letter-spacing:3px;margin-bottom:10px;font-family:var(--font)}
+.gate-input:focus{outline:none;border-color:var(--rz-dark);box-shadow:0 0 0 3px rgba(6,76,120,.12)}
+.gate-btn{width:100%;padding:12px;background:var(--rz-dark);color:var(--rz-accent);border:none;border-radius:var(--radius);font-size:15px;font-weight:600;cursor:pointer;font-family:var(--font)}
+.gate-btn:hover{background:#053a5c}
+.gate-error{font-size:13px;color:var(--danger);background:#fef2f2;border-radius:8px;padding:8px;display:none;margin-top:8px}
 
-    body { font-family: var(--font); background: var(--bg); color: var(--text); min-height: 100vh; font-size: 14px; line-height: 1.5; }
+/* NAVBAR */
+#app{display:none}
+.navbar{background:var(--rz-dark);padding:.85rem 1.5rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.nav-brand{display:flex;align-items:center;gap:10px}
+.nav-logo{width:34px;height:34px;background:var(--rz-accent);border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:var(--font-head);font-size:16px;color:var(--rz-dark)}
+.nav-title{color:#fff;font-size:14px;font-weight:600}
+.nav-title span{color:var(--rz-accent)}
+.btn-salir{padding:6px 14px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);border-radius:8px;color:#fff;font-size:13px;cursor:pointer;font-family:var(--font)}
+.btn-salir:hover{background:rgba(255,255,255,.2)}
 
-    /* ═══ GATE ═══ */
-    #gate {
-      position: fixed; inset: 0; background: var(--rz-dark);
-      display: flex; align-items: center; justify-content: center; z-index: 9999; padding: 1rem;
-    }
-    .gate-card { background: #fff; border-radius: 20px; padding: 2.5rem 2rem; width: 100%; max-width: 380px; text-align: center; }
-    .gate-logo { width: 64px; height: 64px; background: var(--rz-dark); border-radius: 16px; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 1rem; }
-    .gate-logo span { color: var(--rz-accent); font-family: var(--font-head); font-size: 28px; }
-    .gate-card h1 { font-family: var(--font-head); font-size: 22px; color: var(--rz-dark); margin-bottom: 6px; }
-    .gate-card p  { font-size: 13px; color: var(--muted); margin-bottom: 1.5rem; }
-    .gate-input {
-      width: 100%; padding: 12px 14px; border: 1.5px solid var(--border);
-      border-radius: var(--radius); font-size: 15px; text-align: center; letter-spacing: 3px;
-      transition: border-color .15s, box-shadow .15s; margin-bottom: 10px;
-    }
-    .gate-input:focus { outline: none; border-color: var(--rz-dark); box-shadow: 0 0 0 3px rgba(6,76,120,.12); }
-    .gate-btn { width: 100%; padding: 12px; background: var(--rz-dark); color: var(--rz-accent); border: none; border-radius: var(--radius); font-size: 15px; font-weight: 600; cursor: pointer; font-family: var(--font); }
-    .gate-btn:hover { background: #053a5c; }
-    .gate-error { font-size: 13px; color: var(--danger); background: #fef2f2; border-radius: 8px; padding: 8px; display: none; margin-top: 8px; }
+/* LAYOUT */
+.container{max-width:700px;margin:0 auto;padding:1.5rem 1rem 4rem}
+.steps-wrap{margin-bottom:1.25rem}
+.steps-bar{display:flex;gap:4px;margin-bottom:6px}
+.step-dot{flex:1;height:4px;border-radius:2px;background:var(--border);transition:background .2s}
+.step-dot.done{background:var(--rz-dark)}
+.step-dot.active{background:var(--rz-accent);outline:2px solid var(--rz-dark);outline-offset:1px}
+.step-label{font-size:12px;color:var(--muted);font-weight:500}
 
-    /* ═══ NAVBAR ═══ */
-    #app { display: none; }
-    .navbar {
-      background: var(--rz-dark); padding: .85rem 1.5rem;
-      display: flex; align-items: center; justify-content: space-between;
-      position: sticky; top: 0; z-index: 100;
-    }
-    .nav-brand { display: flex; align-items: center; gap: 10px; }
-    .nav-logo  { width: 34px; height: 34px; background: var(--rz-accent); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-family: var(--font-head); font-size: 16px; color: var(--rz-dark); }
-    .nav-title { color: #fff; font-size: 14px; font-weight: 600; }
-    .nav-title span { color: var(--rz-accent); }
-    .btn-salir { padding: 6px 14px; background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.25); border-radius: 8px; color: #fff; font-size: 13px; cursor: pointer; font-family: var(--font); }
-    .btn-salir:hover { background: rgba(255,255,255,.2); }
+/* CARDS */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:1.25rem 1.5rem;margin-bottom:1rem;box-shadow:var(--shadow)}
+.section-title{font-size:15px;font-weight:600;color:var(--rz-dark);margin-bottom:1rem;display:flex;align-items:center;gap:8px}
+.section-title i{font-size:18px}
 
-    /* ═══ LAYOUT ═══ */
-    .container { max-width: 700px; margin: 0 auto; padding: 1.5rem 1rem 4rem; }
+/* FORM */
+.field{margin-bottom:1rem}
+.field:last-child{margin-bottom:0}
+.field label{display:block;font-size:13px;color:var(--muted);margin-bottom:5px;font-weight:500}
+.field input,.field select,.field textarea{width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:var(--radius);font-size:14px;color:var(--text);background:var(--surface);font-family:var(--font)}
+.field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--rz-dark);box-shadow:0 0 0 3px rgba(6,76,120,.1)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 
-    /* ═══ STEPS ═══ */
-    .steps-wrap { margin-bottom: 1.25rem; }
-    .steps-bar  { display: flex; gap: 4px; margin-bottom: 6px; }
-    .step-dot   { flex: 1; height: 4px; border-radius: 2px; background: var(--border); transition: background .2s; }
-    .step-dot.done   { background: var(--rz-dark); }
-    .step-dot.active { background: var(--rz-accent); outline: 2px solid var(--rz-dark); outline-offset: 1px; }
-    .step-label { font-size: 12px; color: var(--muted); font-weight: 500; }
+/* RADIO */
+.radio-group{display:flex;gap:8px;flex-wrap:wrap}
+.radio-opt{padding:8px 16px;border:1.5px solid var(--border);border-radius:var(--radius);cursor:pointer;font-size:14px;color:var(--text);background:#f7fafd;transition:all .15s;user-select:none}
+.radio-opt:hover{border-color:var(--rz-dark)}
+.radio-opt.selected{background:var(--rz-dark);color:var(--rz-accent);border-color:var(--rz-dark);font-weight:500}
 
-    /* ═══ CARDS ═══ */
-    .card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 1.25rem 1.5rem; margin-bottom: 1rem; box-shadow: var(--shadow); }
-    .section-title { font-size: 15px; font-weight: 600; color: var(--rz-dark); margin-bottom: 1rem; display: flex; align-items: center; gap: 8px; }
-    .section-title i { font-size: 18px; }
+/* BUTTONS */
+.btn{padding:10px 20px;border-radius:var(--radius);font-size:14px;font-weight:600;cursor:pointer;border:1.5px solid transparent;transition:all .15s;font-family:var(--font)}
+.btn-primary{background:var(--rz-dark);color:var(--rz-accent);border-color:var(--rz-dark)}
+.btn-primary:hover{background:#053a5c}
+.btn-secondary{background:var(--bg);color:var(--rz-dark);border-color:var(--border)}
+.btn-secondary:hover{background:#e0eaf4}
+.btn-danger{background:#fef2f2;color:var(--danger);border-color:#fca5a5}
+.btn-sm{padding:6px 12px;font-size:13px}
+.btn-lg{padding:13px 28px;font-size:15px}
+.nav-row{display:flex;justify-content:space-between;align-items:center;margin-top:1.25rem;padding-top:1rem;border-top:1px solid var(--border)}
 
-    /* ═══ FORM ═══ */
-    .field { margin-bottom: 1rem; }
-    .field:last-child { margin-bottom: 0; }
-    .field label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 5px; font-weight: 500; }
-    .field input, .field select, .field textarea {
-      width: 100%; padding: 9px 12px; border: 1.5px solid var(--border);
-      border-radius: var(--radius); font-size: 14px; color: var(--text); background: var(--surface);
-      font-family: var(--font); transition: border-color .15s, box-shadow .15s;
-    }
-    .field input:focus, .field select:focus, .field textarea:focus {
-      outline: none; border-color: var(--rz-dark); box-shadow: 0 0 0 3px rgba(6,76,120,.1);
-    }
-    .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    .row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+/* BOXES */
+.info-box{background:#eff6ff;border:1px solid #bfdbfe;border-radius:var(--radius);padding:10px 12px;font-size:13px;color:#1d4ed8;margin-bottom:1rem}
+.warn-box{background:#fffbeb;border:1px solid #fcd34d;border-radius:var(--radius);padding:10px 12px;font-size:13px;color:#92400e;margin-bottom:1rem}
+.ok-box{background:#f0fdf4;border:1px solid #86efac;border-radius:var(--radius);padding:10px 12px;font-size:13px;color:var(--ok);margin-bottom:1rem}
+.err-box{background:#fef2f2;border:1px solid #fca5a5;border-radius:var(--radius);padding:10px 12px;font-size:13px;color:var(--danger);margin-bottom:1rem;display:none}
+.note-box{background:var(--rz-light);border:1px solid #b8d9ed;border-radius:var(--radius);padding:10px 12px;font-size:12px;color:var(--rz-dark);margin-bottom:1rem}
 
-    /* ═══ RADIO ═══ */
-    .radio-group { display: flex; gap: 8px; flex-wrap: wrap; }
-    .radio-opt {
-      padding: 8px 16px; border: 1.5px solid var(--border); border-radius: var(--radius);
-      cursor: pointer; font-size: 14px; color: var(--text); background: #f7fafd;
-      transition: all .15s; user-select: none;
-    }
-    .radio-opt:hover { border-color: var(--rz-dark); }
-    .radio-opt.selected { background: var(--rz-dark); color: var(--rz-accent); border-color: var(--rz-dark); font-weight: 500; }
+/* DYNAMIC ROWS (dep, tarjetas, deudas) */
+.dyn-row{display:flex;gap:8px;align-items:center;margin-bottom:8px}
+.dyn-row select,.dyn-row input{padding:8px 10px;border:1.5px solid var(--border);border-radius:var(--radius);font-size:14px;font-family:var(--font);background:#fff;color:var(--text)}
+.dyn-del{padding:8px 11px;border-radius:8px;border:1px solid #fca5a5;background:#fef2f2;color:var(--danger);cursor:pointer;font-size:14px;flex-shrink:0}
 
-    /* ═══ BUTTONS ═══ */
-    .btn { padding: 10px 20px; border-radius: var(--radius); font-size: 14px; font-weight: 600; cursor: pointer; border: 1.5px solid transparent; transition: all .15s; font-family: var(--font); }
-    .btn-primary   { background: var(--rz-dark); color: var(--rz-accent); border-color: var(--rz-dark); }
-    .btn-primary:hover { background: #053a5c; }
-    .btn-secondary { background: var(--bg); color: var(--rz-dark); border-color: var(--border); }
-    .btn-secondary:hover { background: #e0eaf4; }
-    .btn-danger { background: #fef2f2; color: var(--danger); border-color: #fca5a5; }
-    .btn-success { background: #f0fdf4; color: var(--ok); border-color: #86efac; }
-    .btn-sm { padding: 6px 12px; font-size: 13px; }
-    .btn-lg { padding: 13px 28px; font-size: 15px; }
+.tc-block{background:#f7fafd;border:1px solid var(--border);border-radius:var(--radius);padding:1rem;margin-bottom:10px}
+.tc-block .tc-label{font-size:13px;font-weight:600;color:var(--rz-dark);margin-bottom:10px}
+.tc-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
 
-    .nav-row { display: flex; justify-content: space-between; align-items: center; margin-top: 1.25rem; padding-top: 1rem; border-top: 1px solid var(--border); }
+.debt-add-row{display:grid;grid-template-columns:2fr 1.3fr 1.3fr auto;gap:8px;align-items:end;margin-bottom:10px}
+.debt-table{width:100%;border-collapse:collapse;font-size:13px}
+.debt-table th{background:#f0f4f8;padding:8px 10px;text-align:left;font-weight:600;color:var(--muted);border-bottom:1px solid var(--border)}
+.debt-table td{padding:8px 10px;border-bottom:1px solid #f0f4f8}
+.debt-table tr:last-child td{border-bottom:none}
+.debt-totals{display:flex;gap:20px;padding:8px 10px;background:#f0f4f8;border-radius:8px;font-size:13px;margin-top:8px}
 
-    /* ═══ BOXES ═══ */
-    .info-box  { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: var(--radius); padding: 10px 12px; font-size: 13px; color: #1d4ed8; margin-bottom: 1rem; }
-    .warn-box  { background: #fffbeb; border: 1px solid #fcd34d; border-radius: var(--radius); padding: 10px 12px; font-size: 13px; color: #92400e; margin-bottom: 1rem; }
-    .ok-box    { background: #f0fdf4; border: 1px solid #86efac; border-radius: var(--radius); padding: 10px 12px; font-size: 13px; color: var(--ok); margin-bottom: 1rem; }
-    .err-box   { background: #fef2f2; border: 1px solid #fca5a5; border-radius: var(--radius); padding: 10px 12px; font-size: 13px; color: var(--danger); margin-bottom: 1rem; display: none; }
-    .note-box  { background: var(--rz-light); border: 1px solid #b8d9ed; border-radius: var(--radius); padding: 10px 12px; font-size: 12px; color: var(--rz-dark); margin-bottom: 1rem; }
+/* INVERSIONES */
+.inv-row{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:10px;background:#f7fafd;border:1px solid var(--border);border-radius:var(--radius);margin-bottom:8px}
+.inv-row.checked{background:#eff6ff;border-color:#bfdbfe}
+.inv-check{display:flex;align-items:center;gap:8px;cursor:pointer;font-size:14px;flex:1}
+.inv-check input{width:16px;height:16px;accent-color:var(--rz-dark);cursor:pointer}
+.inv-amount{width:130px;padding:7px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:var(--font)}
 
-    /* ═══ DEPENDIENTES ═══ */
-    .dep-row { display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: end; margin-bottom: 8px; }
-    .dep-row .field { margin: 0; }
+/* METAS */
+.meta-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.meta-opt{padding:10px 8px;border:1.5px solid var(--border);border-radius:var(--radius);cursor:pointer;text-align:center;font-size:13px;font-weight:500;background:#f7fafd;transition:all .15s;user-select:none;position:relative}
+.meta-opt:hover{border-color:var(--rz-dark)}
+.meta-opt.selected{background:var(--rz-dark);color:var(--rz-accent);border-color:var(--rz-dark)}
+.meta-opt .meta-num{position:absolute;top:5px;right:7px;width:18px;height:18px;background:var(--rz-accent);color:var(--rz-dark);border-radius:50%;font-size:11px;font-weight:700;display:none;align-items:center;justify-content:center}
+.meta-opt.selected .meta-num{display:flex}
+.meta-ico{font-size:22px;margin-bottom:4px;display:block}
 
-    /* ═══ TARJETAS ═══ */
-    .tc-block { background: #f7fafd; border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem; margin-bottom: 10px; }
-    .tc-block .tc-label { font-size: 13px; font-weight: 600; color: var(--rz-dark); margin-bottom: 10px; }
-    .tc-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+/* SEMAFORO */
+.semaforo{display:flex;gap:12px;align-items:center;padding:14px 16px;border-radius:14px;margin-bottom:1rem}
+.sem-ico{font-size:36px;line-height:1;flex-shrink:0}
+.sem-info h3{font-family:var(--font-head);font-size:17px;margin-bottom:3px}
+.sem-info p{font-size:13px}
+.sem-neg{background:#fef2f2;border:1px solid #fca5a5}
+.sem-crit,.sem-aj{background:#fffbeb;border:1px solid #fcd34d}
+.sem-sal,.sem-exc{background:#f0fdf4;border:1px solid #86efac}
+.sem-neg .sem-info h3,.sem-neg .sem-info p{color:var(--danger)}
+.sem-crit .sem-info h3,.sem-crit .sem-info p,.sem-aj .sem-info h3,.sem-aj .sem-info p{color:var(--warn)}
+.sem-sal .sem-info h3,.sem-sal .sem-info p,.sem-exc .sem-info h3,.sem-exc .sem-info p{color:var(--ok)}
 
-    /* ═══ DEUDA TABLE ═══ */
-    .debt-add-row { display: grid; grid-template-columns: 2fr 1.3fr 1.3fr auto; gap: 8px; align-items: end; margin-bottom: 10px; }
-    .debt-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-    .debt-table th { background: #f0f4f8; padding: 8px 10px; text-align: left; font-weight: 600; color: var(--muted); border-bottom: 1px solid var(--border); }
-    .debt-table td { padding: 8px 10px; border-bottom: 1px solid #f0f4f8; }
-    .debt-table tr:last-child td { border-bottom: none; }
-    .debt-totals { display: flex; gap: 20px; padding: 8px 10px; background: #f0f4f8; border-radius: 8px; font-size: 13px; margin-top: 8px; }
+/* STATS */
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:1rem}
+.stat-card{background:#f7fafd;border-radius:var(--radius);padding:12px 14px;border:1px solid var(--border)}
+.stat-card .slbl{font-size:11px;color:var(--muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:.4px}
+.stat-card .sval{font-size:17px;font-weight:700;color:var(--text);font-family:var(--font-head)}
 
-    /* ═══ INVERSIONES ═══ */
-    .inv-row { display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: center; padding: 10px; background: #f7fafd; border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 8px; }
-    .inv-row.checked { background: #eff6ff; border-color: #bfdbfe; }
-    .inv-check { display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 14px; }
-    .inv-check input[type=checkbox] { width: 16px; height: 16px; accent-color: var(--rz-dark); cursor: pointer; }
-    .inv-amount { width: 130px; }
+/* PROGRESS */
+.prog-row{margin-bottom:14px}
+.prog-row-head{display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px}
+.prog-row-head span:first-child{font-weight:600;color:var(--text)}
+.prog-row-head span:last-child{color:var(--muted)}
+.prog-wrap{height:7px;background:#e2eaf2;border-radius:4px;overflow:hidden}
+.prog-fill{height:100%;border-radius:4px;transition:width .5s ease}
 
-    /* ═══ METAS ═══ */
-    .meta-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-    .meta-opt {
-      padding: 10px 8px; border: 1.5px solid var(--border); border-radius: var(--radius);
-      cursor: pointer; text-align: center; font-size: 13px; font-weight: 500; background: #f7fafd;
-      transition: all .15s; user-select: none; position: relative;
-    }
-    .meta-opt:hover { border-color: var(--rz-dark); }
-    .meta-opt.selected { background: var(--rz-dark); color: var(--rz-accent); border-color: var(--rz-dark); }
-    .meta-opt .meta-num { position: absolute; top: 5px; right: 7px; width: 18px; height: 18px; background: var(--rz-accent); color: var(--rz-dark); border-radius: 50%; font-size: 11px; font-weight: 700; display: none; align-items: center; justify-content: center; }
-    .meta-opt.selected .meta-num { display: flex; }
-    .meta-ico { font-size: 22px; margin-bottom: 4px; display: block; }
+/* CHART */
+.chart-wrap{position:relative;width:100%;height:260px;margin-bottom:.5rem}
 
-    /* ═══ SEMAFORO ═══ */
-    .semaforo { display: flex; gap: 12px; align-items: center; padding: 14px 16px; border-radius: 14px; margin-bottom: 1rem; }
-    .sem-ico { font-size: 36px; line-height: 1; flex-shrink: 0; }
-    .sem-info h3 { font-family: var(--font-head); font-size: 17px; margin-bottom: 3px; }
-    .sem-info p { font-size: 13px; }
-    .sem-neg  { background: #fef2f2; border: 1px solid #fca5a5; }
-    .sem-crit { background: #fffbeb; border: 1px solid #fcd34d; }
-    .sem-aj   { background: #fffbeb; border: 1px solid #fcd34d; }
-    .sem-sal  { background: #f0fdf4; border: 1px solid #86efac; }
-    .sem-exc  { background: #f0fdf4; border: 1px solid #86efac; }
-    .sem-neg  .sem-info h3,.sem-neg  .sem-info p { color: var(--danger); }
-    .sem-crit .sem-info h3,.sem-crit .sem-info p,
-    .sem-aj   .sem-info h3,.sem-aj   .sem-info p { color: var(--warn); }
-    .sem-sal  .sem-info h3,.sem-sal  .sem-info p,
-    .sem-exc  .sem-info h3,.sem-exc  .sem-info p { color: var(--ok); }
+/* TIPS */
+.ruta-title{font-family:var(--font-head);font-size:17px;color:var(--rz-dark);margin-bottom:1rem;padding-bottom:.5rem;border-bottom:2px solid var(--rz-accent)}
+.tip-item{padding:12px 0;border-bottom:1px solid #f0f4f8;display:flex;gap:10px;align-items:flex-start;font-size:14px;line-height:1.55}
+.tip-item:last-child{border-bottom:none}
+.tip-ico{color:var(--rz-dark);font-size:18px;margin-top:1px;flex-shrink:0}
 
-    /* ═══ STATS ═══ */
-    .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; margin-bottom: 1rem; }
-    .stat-card { background: #f7fafd; border-radius: var(--radius); padding: 12px 14px; border: 1px solid var(--border); }
-    .stat-card .slbl { font-size: 11px; color: var(--muted); margin-bottom: 4px; text-transform: uppercase; letter-spacing: .4px; }
-    .stat-card .sval { font-size: 17px; font-weight: 700; color: var(--text); font-family: var(--font-head); }
+/* CONTACT */
+.contact-card{background:linear-gradient(135deg,var(--rz-dark) 0%,var(--rz-mid) 100%);border-radius:16px;padding:1.5rem;color:#fff;margin-bottom:1rem}
+.contact-card h3{font-family:var(--font-head);font-size:18px;color:var(--rz-accent);margin-bottom:6px}
+.contact-card p{font-size:13px;color:rgba(255,255,255,.8);margin-bottom:1.25rem}
+.contact-form .field label{color:rgba(255,255,255,.8)}
+.contact-form .field input,.contact-form .field select{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.25);color:#fff}
+.contact-form .field input::placeholder{color:rgba(255,255,255,.4)}
+.contact-form .field select option{background:var(--rz-dark);color:#fff}
+.download-area{text-align:center;padding:1.5rem;background:var(--surface);border:1.5px dashed var(--border);border-radius:16px;margin-bottom:1rem}
+.download-area p{font-size:13px;color:var(--muted);margin-bottom:1rem}
 
-    /* ═══ PROGRESS ═══ */
-    .prog-row { margin-bottom: 14px; }
-    .prog-row-head { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 4px; }
-    .prog-row-head span:first-child { font-weight: 600; color: var(--text); }
-    .prog-row-head span:last-child  { color: var(--muted); }
-    .prog-wrap { height: 7px; background: #e2eaf2; border-radius: 4px; overflow: hidden; }
-    .prog-fill { height: 100%; border-radius: 4px; transition: width .5s ease; }
+.section{display:none}
+.section.active{display:block}
+.divider{border:none;border-top:1px solid var(--border);margin:1rem 0}
 
-    /* ═══ CHART ═══ */
-    .chart-wrap { position: relative; width: 100%; height: 260px; margin-bottom: .5rem; }
-
-    /* ═══ RECOMENDACIONES ═══ */
-    .ruta-title { font-family: var(--font-head); font-size: 17px; color: var(--rz-dark); margin-bottom: 1rem; padding-bottom: .5rem; border-bottom: 2px solid var(--rz-accent); }
-    .tip-item { padding: 12px 0; border-bottom: 1px solid #f0f4f8; display: flex; gap: 10px; align-items: flex-start; font-size: 14px; line-height: 1.55; }
-    .tip-item:last-child { border-bottom: none; }
-    .tip-ico { color: var(--rz-dark); font-size: 18px; margin-top: 1px; flex-shrink: 0; }
-
-    /* ═══ CONTACTO ═══ */
-    .contact-card { background: linear-gradient(135deg, var(--rz-dark) 0%, var(--rz-mid) 100%); border-radius: 16px; padding: 1.5rem; color: #fff; margin-bottom: 1rem; }
-    .contact-card h3 { font-family: var(--font-head); font-size: 18px; color: var(--rz-accent); margin-bottom: 6px; }
-    .contact-card p { font-size: 13px; color: rgba(255,255,255,.8); margin-bottom: 1.25rem; }
-    .contact-form .field label { color: rgba(255,255,255,.8); }
-    .contact-form .field input,
-    .contact-form .field select { background: rgba(255,255,255,.12); border-color: rgba(255,255,255,.25); color: #fff; }
-    .contact-form .field input::placeholder { color: rgba(255,255,255,.4); }
-    .contact-form .field input:focus,
-    .contact-form .field select:focus { border-color: var(--rz-accent); box-shadow: 0 0 0 3px rgba(255,245,157,.2); }
-    .contact-form .field select option { background: var(--rz-dark); color: #fff; }
-
-    .download-area { text-align: center; padding: 1.5rem; background: var(--surface); border: 1.5px dashed var(--border); border-radius: 16px; margin-bottom: 1rem; }
-    .download-area p { font-size: 13px; color: var(--muted); margin-bottom: 1rem; }
-
-    /* ═══ SECTIONS ═══ */
-    .section { display: none; }
-    .section.active { display: block; }
-
-    /* ═══ DIVIDER ═══ */
-    .divider { border: none; border-top: 1px solid var(--border); margin: 1rem 0; }
-
-    /* ═══ BADGE ═══ */
-    .badge { display: inline-flex; align-items: center; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; }
-    .badge-blue { background: #dbeafe; color: #1e40af; }
-    .badge-red  { background: #fee2e2; color: #991b1b; }
-    .badge-green{ background: #dcfce7; color: #166534; }
-
-    @media (max-width: 540px) {
-      .row2,.row3 { grid-template-columns: 1fr; }
-      .meta-grid { grid-template-columns: repeat(2,1fr); }
-      .tc-grid   { grid-template-columns: 1fr; }
-      .debt-add-row { grid-template-columns: 1fr 1fr; }
-      .debt-add-row .btn { grid-column: span 2; }
-      .inv-row { grid-template-columns: 1fr; }
-      .inv-amount { width: 100%; }
-    }
-  </style>
+@media(max-width:540px){
+  .row2{grid-template-columns:1fr}
+  .meta-grid{grid-template-columns:repeat(2,1fr)}
+  .tc-grid{grid-template-columns:1fr}
+  .debt-add-row{grid-template-columns:1fr 1fr}
+  .debt-add-row .btn{grid-column:span 2}
+  .inv-row{flex-direction:column;align-items:stretch}
+  .inv-amount{width:100%}
+}
+</style>
 </head>
 <body>
 
-<!-- ══ GATE ══ -->
+<!-- GATE -->
 <div id="gate">
   <div class="gate-card">
     <div class="gate-logo"><span>R</span></div>
     <h1>Portal de Asesores</h1>
     <p>Ingresa tu clave de acceso para continuar</p>
-    <input class="gate-input" type="password" id="gateInput" placeholder="••••••••"
-      onkeydown="if(event.key==='Enter') verificar()" autocomplete="off">
-    <button class="gate-btn" onclick="verificar()">Entrar</button>
+    <input class="gate-input" type="password" id="gateInput" placeholder="••••••••" autocomplete="off">
+    <button class="gate-btn" id="gateBtn">Entrar</button>
     <div class="gate-error" id="gateError">Clave incorrecta. Inténtalo de nuevo.</div>
   </div>
 </div>
 
-<!-- ══ APP ══ -->
+<!-- APP -->
 <div id="app">
   <nav class="navbar">
     <div class="nav-brand">
       <div class="nav-logo">R</div>
       <span class="nav-title">Rizkora <span>— Diagnóstico Financiero</span></span>
     </div>
-    <button class="btn-salir" onclick="salir()">Cerrar sesión</button>
+    <button class="btn-salir" id="btnSalir">Cerrar sesión</button>
   </nav>
 
   <div class="container">
@@ -276,102 +214,98 @@
     </div>
     <div class="err-box" id="errBox"></div>
 
-    <!-- ══════════ PASO 1: DATOS BÁSICOS ══════════ -->
+    <!-- PASO 1: DATOS BÁSICOS -->
     <div class="section active" id="s1">
       <div class="card">
         <div class="section-title"><i class="ti ti-user"></i> Datos básicos del cliente</div>
         <div class="field"><label>Nombre completo</label><input type="text" id="nombre" placeholder="Nombre completo..."></div>
         <div class="row2">
-          <div class="field"><label>Fecha de nacimiento</label><input type="date" id="fechaNac" max=""></div>
+          <div class="field"><label>Fecha de nacimiento</label><input type="date" id="fechaNac"></div>
           <div class="field"><label>O ingresa la edad directamente</label><input type="number" id="edadDirecta" placeholder="Años" min="1" max="99"></div>
         </div>
         <div class="field">
           <label>¿Tiene dependientes económicos?</label>
-          <div class="radio-group">
-            <div class="radio-opt" data-group="dep" data-val="si" onclick="pick(this);toggleDep(true)">Sí</div>
-            <div class="radio-opt" data-group="dep" data-val="no" onclick="pick(this);toggleDep(false)">No</div>
+          <div class="radio-group" data-group="dep">
+            <div class="radio-opt" data-val="si">Sí</div>
+            <div class="radio-opt" data-val="no">No</div>
           </div>
         </div>
         <div id="depPanel" style="display:none">
           <p style="font-size:13px;color:var(--muted);margin-bottom:10px;font-weight:500">Indica quiénes y cuántos:</p>
           <div id="depRows"></div>
-          <button class="btn btn-secondary btn-sm" onclick="addDepRow()" style="margin-top:4px"><i class="ti ti-plus"></i> Agregar tipo</button>
+          <button class="btn btn-secondary btn-sm" id="btnAddDep" style="margin-top:4px"><i class="ti ti-plus"></i> Agregar tipo</button>
         </div>
       </div>
-      <div class="nav-row"><span></span><button class="btn btn-primary" onclick="next(1)">Siguiente <i class="ti ti-arrow-right"></i></button></div>
+      <div class="nav-row"><span></span><button class="btn btn-primary" data-next="1">Siguiente <i class="ti ti-arrow-right"></i></button></div>
     </div>
 
-    <!-- ══════════ PASO 2: INGRESOS ══════════ -->
+    <!-- PASO 2: INGRESOS -->
     <div class="section" id="s2">
       <div class="card">
         <div class="section-title"><i class="ti ti-briefcase"></i> Perfil laboral e ingresos</div>
         <div class="field">
           <label>¿Cómo describirías su situación laboral?</label>
-          <div class="radio-group">
-            <div class="radio-opt" data-group="tipo" data-val="godin"     onclick="pick(this);tipoInfo()">Godín (empleado)</div>
-            <div class="radio-opt" data-group="tipo" data-val="empresario" onclick="pick(this);tipoInfo()">Empresario / Freelance</div>
+          <div class="radio-group" data-group="tipo">
+            <div class="radio-opt" data-val="godin">Godín (empleado)</div>
+            <div class="radio-opt" data-val="empresario">Empresario / Freelance</div>
           </div>
         </div>
-        <div id="infoGodin" class="info-box" style="display:none"><i class="ti ti-info-circle"></i> Para empleados: monto que entra a su cuenta ya descontados impuestos y IMSS.</div>
-        <div id="infoEmp"   class="info-box" style="display:none"><i class="ti ti-info-circle"></i> Para empresarios: monto que entra a su cuenta. Impuestos se registran aparte.</div>
+        <div id="infoGodin" class="info-box" style="display:none"><i class="ti ti-info-circle"></i> Para empleados: monto que entra a su cuenta ya descontados impuestos e IMSS.</div>
+        <div id="infoEmp" class="info-box" style="display:none"><i class="ti ti-info-circle"></i> Para empresarios: monto que entra a su cuenta. Impuestos se registran aparte.</div>
         <div class="field"><label>Ingreso mensual en cuenta (MXN)</label><input type="number" id="ingreso" placeholder="0.00" min="0"></div>
         <hr class="divider">
         <div class="field">
           <label>¿Cuenta con ingresos adicionales?</label>
-          <div class="radio-group">
-            <div class="radio-opt" data-group="ingExtra" data-val="si" onclick="pick(this);toggleIngExtra(true)">Sí</div>
-            <div class="radio-opt" data-group="ingExtra" data-val="no" onclick="pick(this);toggleIngExtra(false)">No</div>
+          <div class="radio-group" data-group="ingExtra">
+            <div class="radio-opt" data-val="si">Sí</div>
+            <div class="radio-opt" data-val="no">No</div>
           </div>
         </div>
         <div id="ingExtraPanel" style="display:none">
-          <div class="field"><label>Monto mensual aproximado de ingresos adicionales (MXN)</label><input type="number" id="ingExtraMonto" placeholder="0.00" min="0"></div>
+          <div class="field"><label>Monto mensual aproximado (MXN)</label><input type="number" id="ingExtraMonto" placeholder="0.00" min="0"></div>
           <div class="field"><label>Descripción (opcional)</label><input type="text" id="ingExtraDesc" placeholder="Freelance, rentas, comisiones..."></div>
         </div>
       </div>
       <div class="nav-row">
-        <button class="btn btn-secondary" onclick="back(2)"><i class="ti ti-arrow-left"></i> Atrás</button>
-        <button class="btn btn-primary" onclick="next(2)">Siguiente <i class="ti ti-arrow-right"></i></button>
+        <button class="btn btn-secondary" data-back="2"><i class="ti ti-arrow-left"></i> Atrás</button>
+        <button class="btn btn-primary" data-next="2">Siguiente <i class="ti ti-arrow-right"></i></button>
       </div>
     </div>
 
-    <!-- ══════════ PASO 3: DEUDAS ══════════ -->
+    <!-- PASO 3: DEUDAS -->
     <div class="section" id="s3">
       <div class="card">
         <div class="section-title"><i class="ti ti-credit-card"></i> Tarjetas de crédito y departamentales</div>
-
         <div class="field">
           <label>¿Tiene tarjetas de crédito o departamentales?</label>
-          <div class="radio-group">
-            <div class="radio-opt" data-group="tieneTarjeta" data-val="si" onclick="pick(this);toggleTarjetas(true)">Sí</div>
-            <div class="radio-opt" data-group="tieneTarjeta" data-val="no" onclick="pick(this);toggleTarjetas(false)">No</div>
+          <div class="radio-group" data-group="tieneTarjeta">
+            <div class="radio-opt" data-val="si">Sí</div>
+            <div class="radio-opt" data-val="no">No</div>
           </div>
         </div>
-
         <div id="tarjetaPanel" style="display:none">
           <div class="row2" style="margin-bottom:1rem">
             <div class="field" style="margin:0">
               <label>¿Cuántas tarjetas tiene?</label>
-              <input type="number" id="numTarjetas" placeholder="0" min="1" max="20" oninput="generarTarjetas()">
+              <input type="number" id="numTarjetas" placeholder="0" min="1" max="20">
             </div>
             <div class="field" style="margin:0">
-              <label>¿Tiene pagos a Meses Sin Intereses (MSI)?</label>
-              <div class="radio-group" style="margin-top:6px">
-                <div class="radio-opt" data-group="tieneMSI" data-val="si" onclick="pick(this)">Sí</div>
-                <div class="radio-opt" data-group="tieneMSI" data-val="no" onclick="pick(this)">No</div>
+              <label>¿Tiene pagos a MSI?</label>
+              <div class="radio-group" data-group="tieneMSI" style="margin-top:6px">
+                <div class="radio-opt" data-val="si">Sí</div>
+                <div class="radio-opt" data-val="no">No</div>
               </div>
             </div>
           </div>
-
           <div class="field">
             <label>¿Cómo paga mensualmente sus tarjetas?</label>
-            <select id="formaPagoTC" onchange="toggleTCdetalle()">
+            <select id="formaPagoTC">
               <option value="">Selecciona...</option>
               <option value="total">Pago total cada mes</option>
               <option value="minimo">Pago mínimo (+ MSI si aplica)</option>
               <option value="otra">Otra cantidad</option>
             </select>
           </div>
-
           <div id="tarjetasDetalle" style="display:none">
             <p style="font-size:13px;font-weight:600;color:var(--rz-dark);margin-bottom:10px">Detalle por tarjeta:</p>
             <div id="tarjetaRows"></div>
@@ -381,15 +315,16 @@
 
       <div class="card">
         <div class="section-title"><i class="ti ti-wallet"></i> Créditos abiertos</div>
-        <div class="info-box"><i class="ti ti-info-circle"></i> Incluye automotriz, préstamos personales, nómina u otros créditos con pago mensual fijo. El hipotecario se captura en gastos fijos.</div>
+        <div class="info-box"><i class="ti ti-info-circle"></i> Incluye automotriz, préstamos personales, nómina u otros. El hipotecario se captura en gastos fijos.</div>
         <div class="field">
           <label>¿Tiene créditos abiertos?</label>
-          <div class="radio-group">
-            <div class="radio-opt" data-group="tieneCredito" data-val="si" onclick="pick(this);toggleCreditos(true)">Sí</div>
-            <div class="radio-opt" data-group="tieneCredito" data-val="no" onclick="pick(this);toggleCreditos(false)">No</div>
+          <div class="radio-group" data-group="tieneCredito">
+            <div class="radio-opt" data-val="si">Sí</div>
+            <div class="radio-opt" data-val="no">No</div>
           </div>
         </div>
         <div id="creditoPanel" style="display:none">
+          <div id="creditoErr" class="err-box"></div>
           <div class="debt-add-row">
             <div class="field" style="margin:0"><label style="font-size:12px">Tipo</label>
               <select id="dTipo">
@@ -400,7 +335,7 @@
             </div>
             <div class="field" style="margin:0"><label style="font-size:12px">Pago/mes</label><input type="number" id="dPago" placeholder="0" min="0"></div>
             <div class="field" style="margin:0"><label style="font-size:12px">Deuda total</label><input type="number" id="dTotal" placeholder="0" min="0"></div>
-            <button class="btn btn-primary btn-sm" onclick="addDeuda()" style="white-space:nowrap;align-self:end"><i class="ti ti-plus"></i></button>
+            <button class="btn btn-primary btn-sm" id="btnAddDeuda" style="align-self:end"><i class="ti ti-plus"></i></button>
           </div>
           <div id="deudaTableWrap" style="display:none">
             <table class="debt-table">
@@ -409,20 +344,20 @@
             </table>
             <div class="debt-totals">
               <span>Pagos/mes: <strong id="sumPagos">$0</strong></span>
-              <span>Total adeudado: <strong id="sumDeuda">$0</strong></span>
+              <span>Total: <strong id="sumDeuda">$0</strong></span>
             </div>
           </div>
         </div>
       </div>
 
-      <div id="s3Err" style="display:none;background:#fef2f2;border:1px solid #fca5a5;border-radius:8px;padding:8px 12px;font-size:13px;color:#a32d2d;margin-top:10px"></div>
+      <div id="s3Err" class="err-box"></div>
       <div class="nav-row">
-        <button class="btn btn-secondary" onclick="back(3)"><i class="ti ti-arrow-left"></i> Atrás</button>
-        <button class="btn btn-primary" onclick="next(3)">Siguiente <i class="ti ti-arrow-right"></i></button>
+        <button class="btn btn-secondary" data-back="3"><i class="ti ti-arrow-left"></i> Atrás</button>
+        <button class="btn btn-primary" data-next="3">Siguiente <i class="ti ti-arrow-right"></i></button>
       </div>
     </div>
 
-    <!-- ══════════ PASO 4: GASTOS ══════════ -->
+    <!-- PASO 4: GASTOS -->
     <div class="section" id="s4">
       <div class="card">
         <div class="section-title"><i class="ti ti-home"></i> Gastos fijos mensuales</div>
@@ -456,85 +391,80 @@
         <div class="field"><label>Otros gastos variables</label><input type="number" id="gOtros" placeholder="0" min="0"></div>
       </div>
       <div class="nav-row">
-        <button class="btn btn-secondary" onclick="back(4)"><i class="ti ti-arrow-left"></i> Atrás</button>
-        <button class="btn btn-primary" onclick="next(4)">Siguiente <i class="ti ti-arrow-right"></i></button>
+        <button class="btn btn-secondary" data-back="4"><i class="ti ti-arrow-left"></i> Atrás</button>
+        <button class="btn btn-primary" data-next="4">Siguiente <i class="ti ti-arrow-right"></i></button>
       </div>
     </div>
 
-    <!-- ══════════ PASO 5: AHORROS E INVERSIONES ══════════ -->
+    <!-- PASO 5: AHORROS E INVERSIONES -->
     <div class="section" id="s5">
       <div class="card">
         <div class="section-title"><i class="ti ti-piggy-bank"></i> Ahorros e Inversiones</div>
-
         <div class="field">
           <label>¿Cuenta con un fondo de emergencias?</label>
-          <div class="radio-group">
-            <div class="radio-opt" data-group="fondoEm" data-val="si" onclick="pick(this)">Sí</div>
-            <div class="radio-opt" data-group="fondoEm" data-val="no" onclick="pick(this)">No</div>
+          <div class="radio-group" data-group="fondoEm">
+            <div class="radio-opt" data-val="si">Sí</div>
+            <div class="radio-opt" data-val="no">No</div>
           </div>
         </div>
-
         <div class="field">
           <label>¿Ahorra o invierte habitualmente?</label>
-          <div class="radio-group">
-            <div class="radio-opt" data-group="ahorrHab" data-val="cada_mes" onclick="pick(this)">Cada mes</div>
-            <div class="radio-opt" data-group="ahorrHab" data-val="a_veces"  onclick="pick(this)">De vez en cuando</div>
-            <div class="radio-opt" data-group="ahorrHab" data-val="no"       onclick="pick(this)">No ahorro</div>
+          <div class="radio-group" data-group="ahorrHab">
+            <div class="radio-opt" data-val="cada_mes">Cada mes</div>
+            <div class="radio-opt" data-val="a_veces">De vez en cuando</div>
+            <div class="radio-opt" data-val="no">No ahorro</div>
           </div>
         </div>
-
         <div class="field">
-          <label>¿Tiene algún ahorro o inversión activa actualmente?</label>
-          <div class="radio-group">
-            <div class="radio-opt" data-group="tieneInv" data-val="si" onclick="pick(this);toggleInversiones(true)">Sí</div>
-            <div class="radio-opt" data-group="tieneInv" data-val="no" onclick="pick(this);toggleInversiones(false)">No</div>
+          <label>¿Tiene algún ahorro o inversión activa?</label>
+          <div class="radio-group" data-group="tieneInv">
+            <div class="radio-opt" data-val="si">Sí</div>
+            <div class="radio-opt" data-val="no">No</div>
           </div>
         </div>
-
         <div id="invPanel" style="display:none">
-          <p style="font-size:13px;font-weight:600;color:var(--rz-dark);margin-bottom:10px">Selecciona e indica cuánto aportas al mes:</p>
-          <div id="invRows">
-            <!-- generado dinámicamente -->
-          </div>
+          <p style="font-size:13px;font-weight:600;color:var(--rz-dark);margin-bottom:10px">Selecciona e indica cuánto aporta al mes:</p>
+          <div id="invRows"></div>
         </div>
       </div>
       <div class="nav-row">
-        <button class="btn btn-secondary" onclick="back(5)"><i class="ti ti-arrow-left"></i> Atrás</button>
-        <button class="btn btn-primary" onclick="next(5)">Siguiente <i class="ti ti-arrow-right"></i></button>
+        <button class="btn btn-secondary" data-back="5"><i class="ti ti-arrow-left"></i> Atrás</button>
+        <button class="btn btn-primary" data-next="5">Siguiente <i class="ti ti-arrow-right"></i></button>
       </div>
     </div>
 
-    <!-- ══════════ PASO 6: METAS ══════════ -->
+    <!-- PASO 6: METAS -->
     <div class="section" id="s6">
       <div class="card">
         <div class="section-title"><i class="ti ti-target"></i> Metas y objetivos financieros</div>
         <div class="info-box"><i class="ti ti-star"></i> Selecciona tus <strong>3 principales motivaciones</strong> para ahorrar o invertir, en orden de prioridad.</div>
         <div class="meta-grid" id="metaGrid"></div>
         <p style="font-size:12px;color:var(--muted);margin-top:10px" id="metaCounter">Seleccionadas: 0 / 3</p>
+        <div id="metaErr" class="err-box" style="margin-top:10px"></div>
       </div>
       <div class="nav-row">
-        <button class="btn btn-secondary" onclick="back(6)"><i class="ti ti-arrow-left"></i> Atrás</button>
-        <button class="btn btn-primary" onclick="next(6)"><i class="ti ti-chart-bar"></i> Ver diagnóstico</button>
+        <button class="btn btn-secondary" data-back="6"><i class="ti ti-arrow-left"></i> Atrás</button>
+        <button class="btn btn-primary" data-next="6"><i class="ti ti-chart-bar"></i> Ver diagnóstico</button>
       </div>
     </div>
 
-    <!-- ══════════ PASO 7: DIAGNÓSTICO ══════════ -->
+    <!-- PASO 7: DIAGNÓSTICO -->
     <div class="section" id="s7">
       <div id="diagContent"></div>
       <div class="nav-row">
-        <button class="btn btn-secondary" onclick="back(7)"><i class="ti ti-arrow-left"></i> Ajustar datos</button>
-        <button class="btn btn-primary" onclick="showSection(8)">Continuar <i class="ti ti-arrow-right"></i></button>
+        <button class="btn btn-secondary" data-back="7"><i class="ti ti-arrow-left"></i> Ajustar datos</button>
+        <button class="btn btn-primary" id="btnContinuar">Continuar <i class="ti ti-arrow-right"></i></button>
       </div>
     </div>
 
-    <!-- ══════════ PASO 8: CONTACTO Y DESCARGA ══════════ -->
+    <!-- PASO 8: CONTACTO -->
     <div class="section" id="s8">
       <div class="contact-card">
         <h3>¿Te gustaría recibir una asesoría individual detallada?</h3>
         <p>Agenda una sesión personalizada con un asesor Rizkora y recibe un plan financiero a tu medida.</p>
-        <div class="radio-group">
-          <div class="radio-opt" data-group="quiereAsesoria" data-val="si" onclick="pick(this);toggleAsesoria(true)" style="background:rgba(255,255,255,.15);border-color:rgba(255,255,255,.3);color:#fff">Sí, quiero agendar</div>
-          <div class="radio-opt" data-group="quiereAsesoria" data-val="no" onclick="pick(this);toggleAsesoria(false)" style="background:rgba(255,255,255,.15);border-color:rgba(255,255,255,.3);color:#fff">No por ahora</div>
+        <div class="radio-group" data-group="quiereAsesoria">
+          <div class="radio-opt" data-val="si" style="background:rgba(255,255,255,.15);border-color:rgba(255,255,255,.3);color:#fff">Sí, quiero agendar</div>
+          <div class="radio-opt" data-val="no" style="background:rgba(255,255,255,.15);border-color:rgba(255,255,255,.3);color:#fff">No por ahora</div>
         </div>
       </div>
 
@@ -550,7 +480,7 @@
             <div class="field">
               <label>Fecha preferida</label>
               <select id="ctFecha">
-                <option value="">Selecciona una fecha...</option>
+                <option value="">Selecciona...</option>
                 <option value="2025-06-22">Domingo 22 de junio</option>
                 <option value="2025-06-23">Lunes 23 de junio</option>
                 <option value="2025-06-24">Martes 24 de junio</option>
@@ -562,923 +492,781 @@
             <div class="field">
               <label>Hora preferida</label>
               <select id="ctHora">
-                <option value="">Selecciona una hora...</option>
+                <option value="">Selecciona...</option>
                 <option>09:00</option><option>10:00</option><option>11:00</option>
                 <option>12:00</option><option>13:00</option><option>16:00</option>
                 <option>17:00</option><option>18:00</option>
               </select>
             </div>
           </div>
-          <button class="btn btn-primary" onclick="agendarCita()"><i class="ti ti-calendar-check"></i> Confirmar y agendar</button>
-          <div id="citaConfirm" class="ok-box" style="display:none;margin-top:10px"><i class="ti ti-check"></i> ¡Cita agendada! Recibirás una invitación por correo.</div>
-          <div id="citaError" class="err-box" style="display:none;margin-top:10px"></div>
+          <button class="btn btn-primary" id="btnAgendar"><i class="ti ti-calendar-check"></i> Confirmar y agendar</button>
+          <div id="citaConfirm" class="ok-box" style="display:none;margin-top:10px"></div>
+          <div id="citaError" class="err-box" style="margin-top:10px"></div>
         </div>
       </div>
 
       <div class="download-area">
-        <p>Descarga tu diagnóstico financiero en PDF para tener tu resumen personalizado.</p>
-        <button class="btn btn-primary btn-lg" onclick="generarPDF()"><i class="ti ti-file-download"></i> Descargar diagnóstico PDF</button>
+        <p>Descarga tu diagnóstico financiero en PDF.</p>
+        <button class="btn btn-primary btn-lg" id="btnPDF"><i class="ti ti-file-download"></i> Descargar diagnóstico PDF</button>
       </div>
-
       <div style="text-align:center;margin-top:1rem">
-        <button class="btn btn-secondary" onclick="nuevoCliente()"><i class="ti ti-plus"></i> Nuevo cliente</button>
+        <button class="btn btn-secondary" id="btnNuevo"><i class="ti ti-plus"></i> Nuevo cliente</button>
       </div>
     </div>
 
-  </div><!-- /container -->
-</div><!-- /app -->
+  </div>
+</div>
 
 <script>
-/* ══════════════════════════════════════
-   CLAVE DE ACCESO
-   Cambia la contraseña aquí:
-══════════════════════════════════════ */
-const CLAVE = 'rizkora2025';
-let intentos = 0;
+"use strict";
 
-function verificar() {
-  const val = document.getElementById('gateInput').value;
-  if (val === CLAVE) {
-    document.getElementById('gate').style.display = 'none';
-    document.getElementById('app').style.display = 'block';
-    sessionStorage.setItem('rzk_auth','1');
+/* ════════ CLAVE DE ACCESO ════════ */
+var CLAVE = "rizkora2025";
+var intentos = 0;
+
+document.getElementById("gateBtn").addEventListener("click", verificar);
+document.getElementById("gateInput").addEventListener("keydown", function(e){ if(e.key==="Enter") verificar(); });
+
+function verificar(){
+  var val = document.getElementById("gateInput").value;
+  if(val === CLAVE){
+    document.getElementById("gate").style.display = "none";
+    document.getElementById("app").style.display = "block";
+    sessionStorage.setItem("rzk_auth","1");
   } else {
     intentos++;
-    const err = document.getElementById('gateError');
-    err.style.display = 'block';
-    document.getElementById('gateInput').value = '';
-    if (intentos >= 5) {
-      err.textContent = 'Demasiados intentos. Recarga la página.';
-      document.getElementById('gateInput').disabled = true;
-      document.querySelector('.gate-btn').disabled = true;
+    var err = document.getElementById("gateError");
+    err.style.display = "block";
+    document.getElementById("gateInput").value = "";
+    if(intentos >= 5){
+      err.textContent = "Demasiados intentos. Recarga la página.";
+      document.getElementById("gateInput").disabled = true;
+      document.getElementById("gateBtn").disabled = true;
     }
   }
 }
-function salir() {
-  sessionStorage.removeItem('rzk_auth');
+document.getElementById("btnSalir").addEventListener("click", function(){
+  sessionStorage.removeItem("rzk_auth");
   location.reload();
+});
+if(sessionStorage.getItem("rzk_auth") === "1"){
+  document.getElementById("gate").style.display = "none";
+  document.getElementById("app").style.display = "block";
 }
-if (sessionStorage.getItem('rzk_auth') === '1') {
-  document.getElementById('gate').style.display = 'none';
-  document.getElementById('app').style.display = 'block';
+
+/* ════════ STATE ════════ */
+var S = newState();
+function newState(){
+  return {
+    nombre:"", edad:null, dep:null, dependientes:[],
+    tipo:null, ingreso:0, ingExtra:null, ingExtraMonto:0, ingExtraDesc:"",
+    tieneTarjeta:null, numTarjetas:0, tieneMSI:null, formaPagoTC:"", tarjetas:[],
+    tieneCredito:null, deudas:[],
+    gastos:{},
+    fondoEm:null, ahorrHab:null, tieneInv:null, inversiones:[],
+    metas:[], quiereAsesoria:null
+  };
+}
+var pieChart = null;
+
+/* ════════ CONSTANTS ════════ */
+var DEP_TIPOS = ["Hijos","Cónyuge","Padres","Mascotas","Otros"];
+var INV_OPTS = [
+  {id:"pagare",  label:"Ahorro programado (Pagarés, CETES)"},
+  {id:"seguro",  label:"Seguro de ahorro para el retiro"},
+  {id:"afore",   label:"Aportaciones a la AFORE"},
+  {id:"bolsa",   label:"Inversión en bolsa"},
+  {id:"inmueble",label:"Inversión inmobiliaria"},
+  {id:"otras",   label:"Otras inversiones"}
+];
+var META_OPTS = [
+  {id:"casa",label:"Casa",ico:"🏠"},{id:"carro",label:"Carro",ico:"🚗"},
+  {id:"viajes",label:"Viajes",ico:"✈️"},{id:"negocio",label:"Negocio",ico:"💼"},
+  {id:"familia",label:"Familia",ico:"👨‍👩‍👧"},{id:"estudiar",label:"Estudiar",ico:"🎓"},
+  {id:"retiro",label:"Retiro",ico:"🌅"},{id:"salud",label:"Solvencia salud",ico:"🏥"},
+  {id:"otro",label:"Otro",ico:"⭐"}
+];
+var STEP_LABELS = ["","Datos básicos","Ingresos","Deudas","Gastos","Ahorros","Metas","Diagnóstico","Resultado"];
+var TOTAL = 8;
+
+var depRows = [];
+var invState = {};
+var metasSelected = [];
+
+/* ════════ HELPERS ════════ */
+function fmt(n){ return new Intl.NumberFormat("es-MX",{style:"currency",currency:"MXN",maximumFractionDigits:0}).format(n||0); }
+function $(id){ return document.getElementById(id); }
+
+function showErr(msg, boxId){
+  var e = $(boxId || "errBox");
+  e.textContent = msg;
+  e.style.display = "block";
+  e.scrollIntoView({behavior:"smooth",block:"nearest"});
+  setTimeout(function(){ e.style.display="none"; }, 4000);
 }
 
-/* ══════════════════════════════════════
-   STATE
-══════════════════════════════════════ */
-let S = {
-  nombre:'', edad:null, dep:null, dependientes:[],
-  tipo:null, ingreso:0, ingExtra:null, ingExtraMonto:0, ingExtraDesc:'',
-  tieneTarjeta:null, numTarjetas:0, tieneMSI:null, formaPagoTC:'',
-  tarjetas:[], // [{nombre, pagoMin, msi, total}]
-  tieneCredito:null, deudas:[],
-  gastos:{},
-  fondoEm:null, ahorrHab:null, tieneInv:null, inversiones:[],
-  metas:[],
-  quiereAsesoria:null
-};
-let pieChart = null;
+/* ════════ RADIO GROUPS (event delegation) ════════ */
+document.querySelectorAll(".radio-group").forEach(function(group){
+  var key = group.getAttribute("data-group");
+  group.querySelectorAll(".radio-opt").forEach(function(opt){
+    opt.addEventListener("click", function(){
+      group.querySelectorAll(".radio-opt").forEach(function(o){ o.classList.remove("selected"); });
+      opt.classList.add("selected");
+      S[key] = opt.getAttribute("data-val");
+      onRadioChange(key, S[key]);
+    });
+  });
+});
 
-/* ══════════════════════════════════════
-   STEPS
-══════════════════════════════════════ */
-const TOTAL = 8;
-const STEP_LABELS = ['','Datos básicos','Ingresos','Deudas','Gastos fijos','Ahorros e inversiones','Metas','Diagnóstico','Resultado'];
-
-function initBar() {
-  const bar = document.getElementById('stepsBar');
-  bar.innerHTML = '';
-  for (let i = 1; i <= TOTAL; i++) {
-    const d = document.createElement('div');
-    d.id = 'dot'+i;
-    d.className = 'step-dot' + (i===1?' active':'');
-    bar.appendChild(d);
+function onRadioChange(key, val){
+  if(key === "dep"){
+    $("depPanel").style.display = (val==="si") ? "block" : "none";
+    if(val==="si" && depRows.length===0) addDepRow();
   }
-}
-initBar();
-initInversiones();
-initMetas();
-
-function updateBar(cur) {
-  for (let i = 1; i <= TOTAL; i++) {
-    const d = document.getElementById('dot'+i);
-    d.className = 'step-dot'+(i<cur?' done':i===cur?' active':'');
+  if(key === "tipo"){
+    $("infoGodin").style.display = (val==="godin") ? "block" : "none";
+    $("infoEmp").style.display   = (val==="empresario") ? "block" : "none";
   }
-  document.getElementById('stepLabel').textContent = `Paso ${cur} de ${TOTAL} — ${STEP_LABELS[cur]}`;
+  if(key === "ingExtra"){ $("ingExtraPanel").style.display = (val==="si") ? "block" : "none"; }
+  if(key === "tieneTarjeta"){ $("tarjetaPanel").style.display = (val==="si") ? "block" : "none"; }
+  if(key === "tieneCredito"){ $("creditoPanel").style.display = (val==="si") ? "block" : "none"; }
+  if(key === "tieneInv"){ $("invPanel").style.display = (val==="si") ? "block" : "none"; }
+  if(key === "quiereAsesoria"){ $("asesoriaPanel").style.display = (val==="si") ? "block" : "none"; }
 }
 
-function showSection(n) {
-  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
-  document.getElementById('s'+n).classList.add('active');
-  updateBar(n);
-  document.getElementById('errBox').style.display='none';
-  window.scrollTo({top:0,behavior:'smooth'});
-}
+/* ════════ DEPENDIENTES ════════ */
+$("btnAddDep").addEventListener("click", addDepRow);
 
-function showErr(msg) {
-  const e = document.getElementById('errBox');
-  e.textContent = msg; e.style.display = 'block';
-  e.scrollIntoView({behavior:'smooth',block:'nearest'});
-}
-
-/* ══════════════════════════════════════
-   HELPERS
-══════════════════════════════════════ */
-function pick(el) {
-  const g = el.dataset.group;
-  document.querySelectorAll(`.radio-opt[data-group="${g}"]`).forEach(o=>o.classList.remove('selected'));
-  el.classList.add('selected');
-  S[g] = el.dataset.val;
-}
-
-const fmt = n => new Intl.NumberFormat('es-MX',{style:'currency',currency:'MXN',maximumFractionDigits:0}).format(n||0);
-
-function getAge() {
-  const ed = parseFloat(document.getElementById('edadDirecta').value);
-  if (ed>0) return ed;
-  const fn = document.getElementById('fechaNac').value;
-  if (!fn) return null;
-  const d=new Date(fn),h=new Date();
-  let a=h.getFullYear()-d.getFullYear();
-  if(h.getMonth()<d.getMonth()||(h.getMonth()===d.getMonth()&&h.getDate()<d.getDate())) a--;
-  return a>0?a:null;
-}
-
-function tipoInfo() {
-  document.getElementById('infoGodin').style.display = S.tipo==='godin'?'block':'none';
-  document.getElementById('infoEmp').style.display   = S.tipo==='empresario'?'block':'none';
-}
-
-/* ══════════════════════════════════════
-   DEPENDIENTES
-══════════════════════════════════════ */
-const DEP_TIPOS = ['Hijos','Cónyuge','Padres','Mascotas','Otros'];
-let depRows = [];
-
-function toggleDep(v) {
-  document.getElementById('depPanel').style.display = v?'block':'none';
-  if (v && depRows.length===0) addDepRow();
-}
-
-function addDepRow() {
-  const idx = depRows.length;
-  depRows.push({tipo:'Hijos',cantidad:1});
+function addDepRow(){
+  depRows.push({tipo:"Hijos", cantidad:1});
   renderDepRows();
 }
+function renderDepRows(){
+  var cont = $("depRows");
+  cont.innerHTML = "";
+  depRows.forEach(function(row, i){
+    var isCon = (row.tipo === "Cónyuge");
+    var wrap = document.createElement("div");
+    wrap.className = "dyn-row";
 
-function renderDepRows() {
-  const cont = document.getElementById('depRows');
-  cont.innerHTML = '';
-
-  depRows.forEach(function(row, i) {
-    const isConyuge = (row.tipo === 'Cónyuge');
-
-    // Row container
-    const wrap = document.createElement('div');
-    wrap.style.cssText = 'display:flex;gap:8px;align-items:center;margin-bottom:8px';
-
-    // --- SELECT ---
-    const sel = document.createElement('select');
-    sel.style.cssText = 'flex:1;padding:8px 10px;border:1.5px solid #dde8f0;border-radius:12px;font-size:14px;background:#fff;color:#0d2535';
-    DEP_TIPOS.forEach(function(t) {
-      const opt = document.createElement('option');
-      opt.value = t;
-      opt.textContent = t;
-      if (t === row.tipo) opt.selected = true;
-      sel.appendChild(opt);
+    var sel = document.createElement("select");
+    sel.style.flex = "1";
+    DEP_TIPOS.forEach(function(t){
+      var o = document.createElement("option");
+      o.value = t; o.textContent = t;
+      if(t === row.tipo) o.selected = true;
+      sel.appendChild(o);
     });
-    sel.addEventListener('change', function() {
-      var val = this.value;
-      depRows[i].tipo = val;
-      if (val === 'Cónyuge') depRows[i].cantidad = 1;
+    sel.addEventListener("change", function(){
+      depRows[i].tipo = sel.value;
+      if(sel.value === "Cónyuge") depRows[i].cantidad = 1;
       renderDepRows();
     });
 
-    // --- NUMBER INPUT ---
-    var isCon = (row.tipo === 'Cónyuge');
-    const num = document.createElement('input');
-    num.type = 'number';
-    num.value = row.cantidad;
-    num.min = 1;
-    num.max = 20;
-    num.style.cssText = 'width:80px;padding:8px 10px;border:1.5px solid #dde8f0;border-radius:12px;font-size:14px;text-align:center;background:' + (isCon ? '#f0f4f8' : '#fff') + ';color:' + (isCon ? '#527a93' : '#0d2535');
-    if (isCon) num.readOnly = true;
-    num.addEventListener('input', function() {
-      depRows[i].cantidad = parseInt(this.value) || 1;
-    });
+    var num = document.createElement("input");
+    num.type = "number"; num.value = row.cantidad; num.min = 1; num.max = 20;
+    num.style.width = "80px"; num.style.textAlign = "center";
+    if(isCon){ num.readOnly = true; num.style.background = "#f0f4f8"; num.style.color = "var(--muted)"; }
+    num.addEventListener("input", function(){ depRows[i].cantidad = parseInt(num.value) || 1; });
 
-    // --- DELETE BUTTON ---
-    const btn = document.createElement('button');
-    btn.type = 'button';
-    btn.style.cssText = 'padding:6px 10px;border-radius:8px;border:1px solid #fca5a5;background:#fef2f2;color:#d93025;cursor:pointer;font-size:13px;flex-shrink:0';
-    btn.innerHTML = '<i class="ti ti-trash"></i>';
-    btn.addEventListener('click', function() {
-      depRows.splice(i, 1);
-      renderDepRows();
-    });
+    var del = document.createElement("button");
+    del.type = "button"; del.className = "dyn-del";
+    del.innerHTML = '<i class="ti ti-trash"></i>';
+    del.addEventListener("click", function(){ depRows.splice(i,1); renderDepRows(); });
 
-    wrap.appendChild(sel);
-    wrap.appendChild(num);
-    wrap.appendChild(btn);
+    wrap.appendChild(sel); wrap.appendChild(num); wrap.appendChild(del);
     cont.appendChild(wrap);
   });
 }
 
-function depTipo(i, v) {
-  depRows[i].tipo = v;
-  if (v === 'Conyuge') depRows[i].cantidad = 1;
-  renderDepRows();
-}
-function depCantidad(i, v) { depRows[i].cantidad = parseInt(v) || 1; }
-function removeDepRow(i) { depRows.splice(i, 1); renderDepRows(); }
-
-/* ══════════════════════════════════════
-   INGRESOS EXTRA
-══════════════════════════════════════ */
-function toggleIngExtra(v) {
-  document.getElementById('ingExtraPanel').style.display = v?'block':'none';
-}
-
-/* ══════════════════════════════════════
-   TARJETAS DE CRÉDITO
-══════════════════════════════════════ */
-function toggleTarjetas(v) {
-  document.getElementById('tarjetaPanel').style.display = v?'block':'none';
-}
-
-function generarTarjetas() {
-  const n = parseInt(document.getElementById('numTarjetas').value)||0;
+/* ════════ TARJETAS ════════ */
+$("numTarjetas").addEventListener("input", function(){
+  var n = parseInt(this.value) || 0;
   S.numTarjetas = n;
-  const cont = document.getElementById('tarjetaRows');
-  // rebuild array
-  while(S.tarjetas.length < n) S.tarjetas.push({nombre:`Tarjeta ${S.tarjetas.length+1}`,pagoMin:0,msi:0,total:0});
+  while(S.tarjetas.length < n) S.tarjetas.push({nombre:"", pagoMin:0, total:0});
   if(S.tarjetas.length > n) S.tarjetas.length = n;
-  toggleTCdetalle();
-}
-
-function toggleTCdetalle() {
-  const forma = document.getElementById('formaPagoTC').value;
-  S.formaPagoTC = forma;
-  const show = (forma==='minimo'||forma==='otra') && S.numTarjetas > 0;
-  document.getElementById('tarjetasDetalle').style.display = show?'block':'none';
+  refreshTCdetalle();
+});
+$("formaPagoTC").addEventListener("change", function(){
+  S.formaPagoTC = this.value;
+  refreshTCdetalle();
+});
+function refreshTCdetalle(){
+  var show = (S.formaPagoTC === "minimo" || S.formaPagoTC === "otra") && S.numTarjetas > 0;
+  $("tarjetasDetalle").style.display = show ? "block" : "none";
   if(show) renderTarjetaRows();
 }
+function renderTarjetaRows(){
+  var cont = $("tarjetaRows");
+  cont.innerHTML = "";
+  S.tarjetas.forEach(function(t, i){
+    var block = document.createElement("div");
+    block.className = "tc-block";
 
-function renderTarjetaRows() {
-  const cont = document.getElementById('tarjetaRows');
-  cont.innerHTML = '';
-  S.tarjetas.forEach(function(t, i) {
-    const block = document.createElement('div');
-    block.className = 'tc-block';
-
-    const lbl = document.createElement('div');
-    lbl.className = 'tc-label';
-    lbl.innerHTML = '<i class="ti ti-credit-card"></i> Tarjeta ' + (i + 1);
+    var lbl = document.createElement("div");
+    lbl.className = "tc-label";
+    lbl.innerHTML = '<i class="ti ti-credit-card"></i> Tarjeta ' + (i+1);
     block.appendChild(lbl);
 
-    const grid = document.createElement('div');
-    grid.className = 'tc-grid';
+    var grid = document.createElement("div");
+    grid.className = "tc-grid";
 
-    function makeField(labelTxt, type, placeholder, val, onInputFn) {
-      const wrap = document.createElement('div');
-      wrap.className = 'field';
-      wrap.style.margin = '0';
-      const lbl = document.createElement('label');
-      lbl.style.fontSize = '12px';
-      lbl.textContent = labelTxt;
-      const inp = document.createElement('input');
-      inp.type = type;
-      inp.placeholder = placeholder;
-      if (val !== undefined && val !== 0) inp.value = val;
-      inp.addEventListener('input', onInputFn);
-      wrap.appendChild(lbl);
-      wrap.appendChild(inp);
-      return wrap;
-    }
-
-    grid.appendChild(makeField('Nombre / banco', 'text', 'Ej. Banamex oro', t.nombre, function() {
-      S.tarjetas[i].nombre = this.value;
-    }));
-    grid.appendChild(makeField('Pago minimo + MSI/mes', 'number', '0', t.pagoMin || '', function() {
-      S.tarjetas[i].pagoMin = parseFloat(this.value) || 0;
-    }));
-    grid.appendChild(makeField('Saldo total de la deuda', 'number', '0', t.total || '', function() {
-      S.tarjetas[i].total = parseFloat(this.value) || 0;
-    }));
+    grid.appendChild(makeTCField("Nombre / banco", "text", "Ej. Banamex", t.nombre, function(v){ S.tarjetas[i].nombre = v; }));
+    grid.appendChild(makeTCField("Pago mín + MSI/mes", "number", "0", t.pagoMin || "", function(v){ S.tarjetas[i].pagoMin = parseFloat(v)||0; }));
+    grid.appendChild(makeTCField("Saldo total deuda", "number", "0", t.total || "", function(v){ S.tarjetas[i].total = parseFloat(v)||0; }));
 
     block.appendChild(grid);
     cont.appendChild(block);
   });
 }
-
-function updateTCsums() {
-  // placeholder — sums are read directly from S.tarjetas at diagnosis time
+function makeTCField(labelTxt, type, ph, val, onInput){
+  var wrap = document.createElement("div");
+  wrap.className = "field"; wrap.style.margin = "0";
+  var l = document.createElement("label");
+  l.style.fontSize = "12px"; l.textContent = labelTxt;
+  var inp = document.createElement("input");
+  inp.type = type; inp.placeholder = ph;
+  if(val !== "" && val !== undefined) inp.value = val;
+  inp.addEventListener("input", function(){ onInput(inp.value); });
+  wrap.appendChild(l); wrap.appendChild(inp);
+  return wrap;
 }
 
-/* ══════════════════════════════════════
-   CRÉDITOS ABIERTOS
-══════════════════════════════════════ */
-function toggleCreditos(v) {
-  document.getElementById('creditoPanel').style.display = v?'block':'none';
-}
-
-function showDeudaErr(msg) {
-  let el = document.getElementById('deudaErr');
-  if (!el) {
-    el = document.createElement('div');
-    el.id = 'deudaErr';
-    el.style.cssText = 'background:#fef2f2;border:1px solid #fca5a5;border-radius:8px;padding:8px 12px;font-size:13px;color:#a32d2d;margin-bottom:8px';
-    const panel = document.getElementById('creditoPanel');
-    panel.insertBefore(el, panel.firstChild);
-  }
-  el.textContent = msg;
-  el.style.display = 'block';
-  setTimeout(function() { el.style.display = 'none'; }, 3000);
-}
-
-function addDeuda() {
-  const tipo = document.getElementById('dTipo').value;
-  const pago = parseFloat(document.getElementById('dPago').value) || 0;
-  const tot  = parseFloat(document.getElementById('dTotal').value) || 0;
-  if (!tipo) { showDeudaErr('Selecciona el tipo de credito'); return; }
-  if (pago <= 0) { showDeudaErr('Ingresa el pago mensual'); return; }
-  S.deudas.push({ tipo, pago, tot });
+/* ════════ CRÉDITOS ABIERTOS ════════ */
+$("btnAddDeuda").addEventListener("click", addDeuda);
+function addDeuda(){
+  var tipo = $("dTipo").value;
+  var pago = parseFloat($("dPago").value) || 0;
+  var tot  = parseFloat($("dTotal").value) || 0;
+  if(!tipo){ showErr("Selecciona el tipo de crédito", "creditoErr"); return; }
+  if(pago <= 0){ showErr("Ingresa el pago mensual", "creditoErr"); return; }
+  S.deudas.push({tipo:tipo, pago:pago, tot:tot});
   renderDeudas();
-  document.getElementById('dTipo').value = '';
-  document.getElementById('dPago').value = '';
-  document.getElementById('dTotal').value = '';
+  $("dTipo").value = ""; $("dPago").value = ""; $("dTotal").value = "";
 }
-
-function delDeuda(i) { S.deudas.splice(i, 1); renderDeudas(); }
-
-function renderDeudas() {
-  const tb = document.getElementById('deudaTbody');
-  tb.innerHTML = '';
-  let sp = 0, sd = 0;
-  S.deudas.forEach(function(d, i) {
+function renderDeudas(){
+  var tb = $("deudaTbody");
+  tb.innerHTML = "";
+  var sp = 0, sd = 0;
+  S.deudas.forEach(function(d, i){
     sp += d.pago; sd += d.tot;
-    const tr = document.createElement('tr');
-    const tdTipo = document.createElement('td'); tdTipo.textContent = d.tipo;
-    const tdPago = document.createElement('td'); tdPago.textContent = fmt(d.pago) + '/mes';
-    const tdTot  = document.createElement('td'); tdTot.textContent = d.tot > 0 ? fmt(d.tot) : '-';
-    const tdBtn  = document.createElement('td');
-    const btn = document.createElement('button');
-    btn.className = 'btn btn-danger btn-sm';
+    var tr = document.createElement("tr");
+    var a = document.createElement("td"); a.textContent = d.tipo;
+    var b = document.createElement("td"); b.textContent = fmt(d.pago) + "/mes";
+    var c = document.createElement("td"); c.textContent = d.tot > 0 ? fmt(d.tot) : "—";
+    var e = document.createElement("td");
+    var btn = document.createElement("button");
+    btn.type = "button"; btn.className = "dyn-del";
     btn.innerHTML = '<i class="ti ti-trash"></i>';
-    (function(idx) {
-      btn.addEventListener('click', function() { S.deudas.splice(idx, 1); renderDeudas(); });
-    })(i);
-    tdBtn.appendChild(btn);
-    tr.appendChild(tdTipo); tr.appendChild(tdPago); tr.appendChild(tdTot); tr.appendChild(tdBtn);
+    btn.addEventListener("click", function(){ S.deudas.splice(i,1); renderDeudas(); });
+    e.appendChild(btn);
+    tr.appendChild(a); tr.appendChild(b); tr.appendChild(c); tr.appendChild(e);
     tb.appendChild(tr);
   });
-  document.getElementById('sumPagos').textContent = fmt(sp);
-  document.getElementById('sumDeuda').textContent = fmt(sd);
-  document.getElementById('deudaTableWrap').style.display = S.deudas.length > 0 ? 'block' : 'none';
+  $("sumPagos").textContent = fmt(sp);
+  $("sumDeuda").textContent = fmt(sd);
+  $("deudaTableWrap").style.display = S.deudas.length > 0 ? "block" : "none";
 }
 
-/* ══════════════════════════════════════
-   INVERSIONES
-══════════════════════════════════════ */
-const INV_OPTS = [
-  {id:'pagare',  label:'Ahorro programado (Pagarés, CETES)'},
-  {id:'seguro',  label:'Seguro de ahorro para el retiro'},
-  {id:'afore',   label:'Aportaciones a la AFORE'},
-  {id:'bolsa',   label:'Inversión en bolsa'},
-  {id:'inmueble',label:'Inversión inmobiliaria'},
-  {id:'otras',   label:'Otras inversiones'},
-];
-let invState = {}; // {id: {checked, monto}}
+/* ════════ INVERSIONES ════════ */
+function initInversiones(){
+  INV_OPTS.forEach(function(o){ invState[o.id] = {checked:false, monto:0}; });
+  var cont = $("invRows");
+  cont.innerHTML = "";
+  INV_OPTS.forEach(function(o){
+    var row = document.createElement("div");
+    row.className = "inv-row";
 
-function initInversiones() {
-  INV_OPTS.forEach(o=>{ invState[o.id]={checked:false,monto:0}; });
-  const cont = document.getElementById('invRows');
-  cont.innerHTML = INV_OPTS.map(o=>`
-    <div class="inv-row" id="invrow_${o.id}">
-      <label class="inv-check">
-        <input type="checkbox" id="invchk_${o.id}" onchange="toggleInv('${o.id}',this.checked)">
-        <span>${o.label}</span>
-      </label>
-      <div class="inv-amount">
-        <input type="number" id="invmonto_${o.id}" placeholder="$/mes" min="0"
-          style="width:100%;padding:7px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:var(--font)"
-          oninput="invState['${o.id}'].monto=parseFloat(this.value)||0" disabled>
-      </div>
-    </div>`).join('');
+    var label = document.createElement("label");
+    label.className = "inv-check";
+    var chk = document.createElement("input");
+    chk.type = "checkbox";
+    var span = document.createElement("span");
+    span.textContent = o.label;
+    label.appendChild(chk); label.appendChild(span);
+
+    var amount = document.createElement("input");
+    amount.type = "number"; amount.placeholder = "$/mes"; amount.min = 0;
+    amount.className = "inv-amount"; amount.disabled = true;
+
+    chk.addEventListener("change", function(){
+      invState[o.id].checked = chk.checked;
+      amount.disabled = !chk.checked;
+      row.classList.toggle("checked", chk.checked);
+      if(!chk.checked){ amount.value = ""; invState[o.id].monto = 0; }
+    });
+    amount.addEventListener("input", function(){ invState[o.id].monto = parseFloat(amount.value) || 0; });
+
+    row.appendChild(label); row.appendChild(amount);
+    cont.appendChild(row);
+  });
 }
 
-function toggleInversiones(v) {
-  document.getElementById('invPanel').style.display=v?'block':'none';
+/* ════════ METAS ════════ */
+function initMetas(){
+  var grid = $("metaGrid");
+  grid.innerHTML = "";
+  META_OPTS.forEach(function(m){
+    var opt = document.createElement("div");
+    opt.className = "meta-opt";
+    opt.innerHTML = '<span class="meta-num"></span><span class="meta-ico">' + m.ico + '</span>' + m.label;
+    opt.addEventListener("click", function(){ toggleMeta(m.id, opt); });
+    opt.setAttribute("data-mid", m.id);
+    grid.appendChild(opt);
+  });
 }
-
-function toggleInv(id,checked) {
-  invState[id].checked=checked;
-  const inp=document.getElementById('invmonto_'+id);
-  const row=document.getElementById('invrow_'+id);
-  inp.disabled=!checked;
-  row.classList.toggle('checked',checked);
-  if(!checked){inp.value='';invState[id].monto=0;}
-}
-
-/* ══════════════════════════════════════
-   METAS
-══════════════════════════════════════ */
-const META_OPTS = [
-  {id:'casa',       label:'Casa',         ico:'🏠'},
-  {id:'carro',      label:'Carro',        ico:'🚗'},
-  {id:'viajes',     label:'Viajes',       ico:'✈️'},
-  {id:'negocio',    label:'Negocio',      ico:'💼'},
-  {id:'familia',    label:'Familia',      ico:'👨‍👩‍👧'},
-  {id:'estudiar',   label:'Estudiar',     ico:'🎓'},
-  {id:'retiro',     label:'Retiro',       ico:'🌅'},
-  {id:'salud',      label:'Solvencia salud',ico:'🏥'},
-  {id:'otro',       label:'Otro',         ico:'⭐'},
-];
-let metasSelected = [];
-
-function initMetas() {
-  const grid = document.getElementById('metaGrid');
-  grid.innerHTML = META_OPTS.map(m=>`
-    <div class="meta-opt" id="meta_${m.id}" onclick="toggleMeta('${m.id}')">
-      <span class="meta-num" id="metanum_${m.id}"></span>
-      <span class="meta-ico">${m.ico}</span>
-      ${m.label}
-    </div>`).join('');
-}
-
-function toggleMeta(id) {
-  const idx = metasSelected.indexOf(id);
-  if(idx>=0) {
-    metasSelected.splice(idx,1);
+function toggleMeta(id, el){
+  var idx = metasSelected.indexOf(id);
+  if(idx >= 0){
+    metasSelected.splice(idx, 1);
   } else {
-    if(metasSelected.length>=3){showErr('Solo puedes seleccionar 3 motivaciones');return;}
+    if(metasSelected.length >= 3){ showErr("Solo puedes seleccionar 3 motivaciones", "metaErr"); return; }
     metasSelected.push(id);
   }
-  document.getElementById('errBox').style.display='none';
   renderMetas();
 }
-
-function renderMetas() {
-  META_OPTS.forEach(m=>{
-    const el=document.getElementById('meta_'+m.id);
-    const num=document.getElementById('metanum_'+m.id);
-    const idx=metasSelected.indexOf(m.id);
-    el.classList.toggle('selected',idx>=0);
-    num.textContent=idx>=0?idx+1:'';
+function renderMetas(){
+  document.querySelectorAll(".meta-opt").forEach(function(el){
+    var id = el.getAttribute("data-mid");
+    var idx = metasSelected.indexOf(id);
+    el.classList.toggle("selected", idx >= 0);
+    el.querySelector(".meta-num").textContent = idx >= 0 ? (idx+1) : "";
   });
-  document.getElementById('metaCounter').textContent=`Seleccionadas: ${metasSelected.length} / 3`;
+  $("metaCounter").textContent = "Seleccionadas: " + metasSelected.length + " / 3";
 }
 
-/* ══════════════════════════════════════
-   NAVEGACIÓN
-══════════════════════════════════════ */
-function next(step) {
-  if(step===1){
-    const n=document.getElementById('nombre').value.trim();
-    const edad=getAge();
-    if(!n){showErr('Ingresa el nombre del cliente');return;}
-    if(!edad){showErr('Ingresa la fecha de nacimiento o edad');return;}
-    if(!S.dep){showErr('Indica si tiene dependientes');return;}
-    S.nombre=n; S.edad=edad;
-    if(S.dep==='si') S.dependientes=[...depRows];
+/* ════════ NAVIGATION ════════ */
+function initBar(){
+  var bar = $("stepsBar");
+  bar.innerHTML = "";
+  for(var i=1; i<=TOTAL; i++){
+    var d = document.createElement("div");
+    d.id = "dot"+i;
+    d.className = "step-dot" + (i===1 ? " active" : "");
+    bar.appendChild(d);
+  }
+}
+function updateBar(cur){
+  for(var i=1; i<=TOTAL; i++){
+    $("dot"+i).className = "step-dot" + (i<cur ? " done" : i===cur ? " active" : "");
+  }
+  $("stepLabel").textContent = "Paso " + cur + " de " + TOTAL + " — " + STEP_LABELS[cur];
+}
+function showSection(n){
+  document.querySelectorAll(".section").forEach(function(s){ s.classList.remove("active"); });
+  $("s"+n).classList.add("active");
+  updateBar(n);
+  $("errBox").style.display = "none";
+  window.scrollTo({top:0, behavior:"smooth"});
+}
+
+document.querySelectorAll("[data-next]").forEach(function(btn){
+  btn.addEventListener("click", function(){ next(parseInt(btn.getAttribute("data-next"))); });
+});
+document.querySelectorAll("[data-back]").forEach(function(btn){
+  btn.addEventListener("click", function(){ showSection(parseInt(btn.getAttribute("data-back")) - 1); });
+});
+$("btnContinuar").addEventListener("click", function(){ showSection(8); });
+$("btnNuevo").addEventListener("click", nuevoCliente);
+
+function getAge(){
+  var ed = parseFloat($("edadDirecta").value);
+  if(ed > 0) return ed;
+  var fn = $("fechaNac").value;
+  if(!fn) return null;
+  var d = new Date(fn), h = new Date();
+  var a = h.getFullYear() - d.getFullYear();
+  if(h.getMonth() < d.getMonth() || (h.getMonth()===d.getMonth() && h.getDate()<d.getDate())) a--;
+  return a > 0 ? a : null;
+}
+
+function next(step){
+  if(step === 1){
+    var n = $("nombre").value.trim();
+    var edad = getAge();
+    if(!n){ showErr("Ingresa el nombre del cliente"); return; }
+    if(!edad){ showErr("Ingresa la fecha de nacimiento o edad"); return; }
+    if(!S.dep){ showErr("Indica si tiene dependientes"); return; }
+    S.nombre = n; S.edad = edad;
+    if(S.dep === "si") S.dependientes = depRows.slice();
     showSection(2);
-  } else if(step===2){
-    const ing=parseFloat(document.getElementById('ingreso').value)||0;
-    if(!S.tipo){showErr('Selecciona el tipo de empleo');return;}
-    if(ing<=0){showErr('Ingresa el ingreso mensual');return;}
-    if(!S.ingExtra){showErr('Indica si tiene ingresos adicionales');return;}
-    S.ingreso=ing;
-    if(S.ingExtra==='si'){
-      S.ingExtraMonto=parseFloat(document.getElementById('ingExtraMonto').value)||0;
-      S.ingExtraDesc=document.getElementById('ingExtraDesc').value;
+
+  } else if(step === 2){
+    var ing = parseFloat($("ingreso").value) || 0;
+    if(!S.tipo){ showErr("Selecciona el tipo de empleo"); return; }
+    if(ing <= 0){ showErr("Ingresa el ingreso mensual"); return; }
+    if(!S.ingExtra){ showErr("Indica si tiene ingresos adicionales"); return; }
+    S.ingreso = ing;
+    if(S.ingExtra === "si"){
+      S.ingExtraMonto = parseFloat($("ingExtraMonto").value) || 0;
+      S.ingExtraDesc = $("ingExtraDesc").value;
     }
     showSection(3);
-  } else if(step===3){
-    function s3Err(msg) {
-      var el = document.getElementById('s3Err');
-      el.textContent = msg; el.style.display = 'block';
-      el.scrollIntoView({behavior:'smooth', block:'nearest'});
-    }
-    if(!S.tieneTarjeta){s3Err('Indica si tiene tarjetas de credito o departamentales');return;}
-    if(!S.tieneCredito){s3Err('Indica si tiene creditos abiertos');return;}
-    if(S.tieneCredito==='si'&&S.deudas.length===0){s3Err('Agrega al menos un credito o selecciona No');return;}
-    document.getElementById('s3Err').style.display='none';
+
+  } else if(step === 3){
+    if(!S.tieneTarjeta){ showErr("Indica si tiene tarjetas de crédito", "s3Err"); return; }
+    if(!S.tieneCredito){ showErr("Indica si tiene créditos abiertos", "s3Err"); return; }
+    if(S.tieneCredito === "si" && S.deudas.length === 0){ showErr("Agrega al menos un crédito o selecciona No", "s3Err"); return; }
     showSection(4);
-  } else if(step===4){
-    S.gastos={
-      renta:  parseFloat(document.getElementById('gRenta').value)||0,
-      serv:   parseFloat(document.getElementById('gServ').value)||0,
-      trans:  parseFloat(document.getElementById('gTrans').value)||0,
-      alim:   parseFloat(document.getElementById('gAlim').value)||0,
-      edu:    parseFloat(document.getElementById('gEdu').value)||0,
-      salud:  parseFloat(document.getElementById('gSalud').value)||0,
-      seguros:parseFloat(document.getElementById('gSeguros').value)||0,
-      subs:   parseFloat(document.getElementById('gSubs').value)||0,
-      ent:    parseFloat(document.getElementById('gEnt').value)||0,
-      ropa:   parseFloat(document.getElementById('gRopa').value)||0,
-      mant:   parseFloat(document.getElementById('gMant').value)||0,
-      elec:   parseFloat(document.getElementById('gElec').value)||0,
-      otros:  parseFloat(document.getElementById('gOtros').value)||0,
+
+  } else if(step === 4){
+    S.gastos = {
+      renta:num("gRenta"), serv:num("gServ"), trans:num("gTrans"), alim:num("gAlim"),
+      edu:num("gEdu"), salud:num("gSalud"), seguros:num("gSeguros"), subs:num("gSubs"),
+      ent:num("gEnt"), ropa:num("gRopa"), mant:num("gMant"), elec:num("gElec"), otros:num("gOtros")
     };
     showSection(5);
-  } else if(step===5){
-    if(!S.fondoEm){showErr('Indica si tiene fondo de emergencias');return;}
-    if(!S.ahorrHab){showErr('Indica si ahorra habitualmente');return;}
-    if(!S.tieneInv){showErr('Indica si tiene inversiones activas');return;}
-    if(S.tieneInv==='si'){
-      S.inversiones=INV_OPTS.filter(o=>invState[o.id].checked).map(o=>({...o,monto:invState[o.id].monto}));
+
+  } else if(step === 5){
+    if(!S.fondoEm){ showErr("Indica si tiene fondo de emergencias"); return; }
+    if(!S.ahorrHab){ showErr("Indica si ahorra habitualmente"); return; }
+    if(!S.tieneInv){ showErr("Indica si tiene inversiones activas"); return; }
+    if(S.tieneInv === "si"){
+      S.inversiones = INV_OPTS.filter(function(o){ return invState[o.id].checked; })
+        .map(function(o){ return {id:o.id, label:o.label, monto:invState[o.id].monto}; });
     }
     showSection(6);
-  } else if(step===6){
-    if(metasSelected.length<3){showErr('Selecciona exactamente 3 motivaciones');return;}
-    S.metas=metasSelected.map(id=>META_OPTS.find(m=>m.id===id));
+
+  } else if(step === 6){
+    if(metasSelected.length < 3){ showErr("Selecciona exactamente 3 motivaciones", "metaErr"); return; }
+    S.metas = metasSelected.map(function(id){ return META_OPTS.find(function(m){ return m.id===id; }); });
     renderDiag();
     showSection(7);
   }
 }
-
-function back(step){showSection(step-1);}
+function num(id){ return parseFloat($(id).value) || 0; }
 
 function nuevoCliente(){
-  S={nombre:'',edad:null,dep:null,dependientes:[],tipo:null,ingreso:0,ingExtra:null,ingExtraMonto:0,ingExtraDesc:'',tieneTarjeta:null,numTarjetas:0,tieneMSI:null,formaPagoTC:'',tarjetas:[],tieneCredito:null,deudas:[],gastos:{},fondoEm:null,ahorrHab:null,tieneInv:null,inversiones:[],metas:[],quiereAsesoria:null};
-  depRows=[];metasSelected=[];
-  document.querySelectorAll('input[type=text],input[type=number],input[type=date],input[type=email],input[type=tel]').forEach(i=>i.value='');
-  document.querySelectorAll('.radio-opt').forEach(o=>o.classList.remove('selected'));
-  document.querySelectorAll('select').forEach(s=>s.selectedIndex=0);
-  ['depPanel','tarjetaPanel','tarjetasDetalle','creditoPanel','deudaTableWrap','ingExtraPanel','invPanel','asesoriaPanel','citaConfirm','deudaErr'].forEach(id=>{ const el=document.getElementById(id); if(el) el.style.display='none'; });
-  document.getElementById('deudaTbody').innerHTML='';
-  document.getElementById('depRows').innerHTML='';
-  const tarjetaRowsEl = document.getElementById('tarjetaRows'); if(tarjetaRowsEl) tarjetaRowsEl.innerHTML='';
-  if(pieChart){pieChart.destroy();pieChart=null;}
-  INV_OPTS.forEach(o=>{invState[o.id]={checked:false,monto:0};const inp=document.getElementById('invmonto_'+o.id);if(inp){inp.disabled=true;inp.value='';}const chk=document.getElementById('invchk_'+o.id);if(chk)chk.checked=false;});
-  initMetas();renderMetas();
+  S = newState();
+  depRows = []; metasSelected = [];
+  document.querySelectorAll("input").forEach(function(i){
+    if(i.type === "checkbox"){ i.checked = false; i.disabled = (i.className==="inv-amount"); }
+    else if(i.id !== "gateInput"){ i.value = ""; }
+  });
+  document.querySelectorAll("select").forEach(function(s){ s.selectedIndex = 0; });
+  document.querySelectorAll(".radio-opt").forEach(function(o){ o.classList.remove("selected"); });
+  ["depPanel","tarjetaPanel","tarjetasDetalle","creditoPanel","deudaTableWrap","ingExtraPanel","invPanel","asesoriaPanel","citaConfirm","infoGodin","infoEmp"].forEach(function(id){
+    var el = $(id); if(el) el.style.display = "none";
+  });
+  $("depRows").innerHTML = "";
+  $("tarjetaRows").innerHTML = "";
+  $("deudaTbody").innerHTML = "";
+  if(pieChart){ pieChart.destroy(); pieChart = null; }
+  initInversiones();
+  initMetas();
+  renderMetas();
   showSection(1);
 }
 
-/* ══════════════════════════════════════
-   DIAGNÓSTICO
-══════════════════════════════════════ */
-function renderDiag() {
-  const ing = S.ingreso + (S.ingExtra==='si'?S.ingExtraMonto:0);
-  const ingBase = S.ingreso;
-  const g = S.gastos;
+/* ════════ DIAGNÓSTICO ════════ */
+function calcData(){
+  var ingTotal = S.ingreso + (S.ingExtra === "si" ? S.ingExtraMonto : 0);
+  var g = S.gastos;
+  var fijos = g.renta+g.serv+g.trans+g.alim+g.edu+g.salud+g.seguros+g.subs;
+  var variables = g.ent+g.ropa+g.mant+g.elec+g.otros;
+  var deudaFija = S.deudas.reduce(function(a,d){ return a + d.pago; }, 0);
+  var tcPagos = (S.tieneTarjeta==="si" && (S.formaPagoTC==="minimo"||S.formaPagoTC==="otra"))
+    ? S.tarjetas.reduce(function(a,t){ return a + t.pagoMin; }, 0) : 0;
+  var tcTotal = S.tarjetas.reduce(function(a,t){ return a + t.total; }, 0);
+  var totalGto = fijos + variables + deudaFija + tcPagos;
+  var flujo = ingTotal - totalGto;
+  var pct = ingTotal > 0 ? Math.round((flujo/ingTotal)*100) : 0;
+  return {ingTotal:ingTotal, fijos:fijos, variables:variables, deudaFija:deudaFija,
+          tcPagos:tcPagos, tcTotal:tcTotal, totalGto:totalGto, flujo:flujo, pct:pct};
+}
 
-  const fijos = g.renta+g.serv+g.trans+g.alim+g.edu+g.salud+g.seguros+g.subs;
-  const variables = g.ent+g.ropa+g.mant+g.elec+g.otros;
-  const deudaFija = S.deudas.reduce((a,d)=>a+d.pago,0);
-  // tarjetas: si paga total, no son deuda "fija" para la gráfica
-  const tcPagos = (S.tieneTarjeta==='si'&&(S.formaPagoTC==='minimo'||S.formaPagoTC==='otra'))
-    ? S.tarjetas.reduce((a,t)=>a+t.pagoMin,0) : 0;
-  const tcTotal = S.tarjetas.reduce((a,t)=>a+t.total,0);
-  const totalDeudaTC = S.tarjetas.reduce((a,t)=>a+t.total,0);
+function resultadoTexto(){
+  var d = calcData();
+  if(d.flujo < 0) return "Flujo negativo";
+  if(d.pct <= 10) return "Estado crítico";
+  if(d.pct <= 20) return "Estado ajustado";
+  if(d.pct <= 30) return "Salud financiera";
+  return "Finanzas excelentes";
+}
 
-  // Para gráfica: fijos+deudaFija, variables, flujo. NO se incluye TC en gráfica
-  const totalGto = fijos + variables + deudaFija + tcPagos;
-  const flujo = ing - totalGto;
-  const pct = ing>0?Math.round((flujo/ing)*100):0;
+function renderDiag(){
+  var d = calcData();
+  var ing = d.ingTotal, ingBase = S.ingreso;
 
-  let semC,semI,semL,semD;
-  if(flujo<0)       {semC='sem-neg'; semI='🔴';semL='Flujo negativo';    semD='Los gastos superan los ingresos — requiere acción inmediata';}
-  else if(pct<=10)  {semC='sem-crit';semI='🔴';semL='Estado crítico';     semD='Menos del 10% de flujo libre disponible';}
-  else if(pct<=20)  {semC='sem-aj';  semI='🟡';semL='Estado ajustado';    semD='Hay margen pero limitado (10–20%)';}
-  else if(pct<=30)  {semC='sem-sal'; semI='🟢';semL='Salud financiera';   semD='Buen equilibrio, flujo libre 20–30%';}
-  else              {semC='sem-exc'; semI='🟢';semL='Finanzas excelentes';semD='Más del 30% disponible';}
+  var semC, semI, semL, semD;
+  if(d.flujo < 0){ semC="sem-neg"; semI="🔴"; semL="Flujo negativo"; semD="Los gastos superan los ingresos — requiere acción inmediata"; }
+  else if(d.pct <= 10){ semC="sem-crit"; semI="🔴"; semL="Estado crítico"; semD="Menos del 10% de flujo libre disponible"; }
+  else if(d.pct <= 20){ semC="sem-aj"; semI="🟡"; semL="Estado ajustado"; semD="Hay margen pero limitado (10–20%)"; }
+  else if(d.pct <= 30){ semC="sem-sal"; semI="🟢"; semL="Salud financiera"; semD="Buen equilibrio, flujo libre 20–30%"; }
+  else { semC="sem-exc"; semI="🟢"; semL="Finanzas excelentes"; semD="Más del 30% disponible"; }
 
-  /* ── Ruta financiera (tips) ── */
-  const tips = [];
-  const pctFijos = ing>0?Math.round((fijos+deudaFija)/ing*100):0;
-  const pctVars  = ing>0?Math.round(variables/ing*100):0;
+  var tips = [];
+  var pctFijos = ing > 0 ? Math.round((d.fijos+d.deudaFija)/ing*100) : 0;
+  var pctVars = ing > 0 ? Math.round(d.variables/ing*100) : 0;
 
-  if(pctFijos>50){
-    tips.push({ico:'ti-home',txt:`Tus gastos fijos + deuda representan el <strong>${pctFijos}%</strong> de tu ingreso, por encima del 50% recomendado. Revisa: renta (idealmente ≤30% del ingreso), seguros y servicios prescindibles. Cada punto que bajes aquí se convierte directamente en flujo libre.`});
+  if(pctFijos > 50){
+    tips.push({ico:"ti-home", txt:"Tus gastos fijos + deuda representan el <strong>"+pctFijos+"%</strong> de tu ingreso, por encima del 50% recomendado. Revisa renta (idealmente ≤30%), seguros y servicios prescindibles. Cada punto que bajes se convierte en flujo libre."});
   }
-  if(pctVars>30){
-    tips.push({ico:'ti-shopping-cart',txt:`Tus gastos variables representan el <strong>${pctVars}%</strong>. Los pagos de tarjetas no se suman aquí, pero si tienes saldo pendiente, reducir gastos variables es la forma más rápida de liberar dinero para liquidarlas.`});
+  if(pctVars > 30){
+    tips.push({ico:"ti-shopping-cart", txt:"Tus gastos variables son el <strong>"+pctVars+"%</strong>. Los pagos de tarjetas no se suman aquí, pero si tienes saldo pendiente, reducir variables es la forma más rápida de liberar dinero para liquidarlas."});
   }
-  if(tcPagos>0||tcTotal>0){
-    tips.push({ico:'ti-credit-card',txt:`Tienes deuda en tarjetas de crédito. Estrategia recomendada: primero liquida la tarjeta con el <strong>saldo más pequeño</strong> (bola de nieve) — esto libera un pago mensual que puedes atacar la siguiente. Los pagos mínimos te mantienen en deuda indefinidamente.`});
+  if(d.tcPagos > 0 || d.tcTotal > 0){
+    tips.push({ico:"ti-credit-card", txt:"Tienes deuda en tarjetas de crédito. Estrategia: liquida primero la tarjeta con el <strong>saldo más pequeño</strong> (bola de nieve). Los pagos mínimos te mantienen en deuda indefinidamente."});
   }
-  if(deudaFija>0){
-    const menor = [...S.deudas].sort((a,b)=>a.tot-b.tot)[0];
-    tips.push({ico:'ti-wallet',txt:`Créditos abiertos: ${fmt(deudaFija)}/mes. ${menor?`Enfócate en liquidar primero el crédito "<strong>${menor.tipo}</strong>" para liberar ese flujo mensual.`:''}`});
+  if(d.deudaFija > 0){
+    var menor = S.deudas.slice().sort(function(a,b){ return a.tot - b.tot; })[0];
+    tips.push({ico:"ti-wallet", txt:"Créditos abiertos: "+fmt(d.deudaFija)+"/mes." + (menor ? ' Enfócate en liquidar primero "<strong>'+menor.tipo+'</strong>" para liberar ese flujo.' : "")});
   }
-  if(S.fondoEm==='no'){
-    tips.push({ico:'ti-shield',txt:`No tienes fondo de emergencias. Este debe ser tu <strong>primer objetivo</strong> antes de invertir: acumula mínimo <strong>${fmt(ingBase*3)}</strong> (3 meses de ingreso) o <strong>${fmt((fijos+deudaFija)*6)}</strong> (6 meses de gastos fijos).`});
+  if(S.fondoEm === "no"){
+    tips.push({ico:"ti-shield", txt:"No tienes fondo de emergencias. Este debe ser tu <strong>primer objetivo</strong>: acumula mínimo <strong>"+fmt(ingBase*3)+"</strong> (3 meses de ingreso) o <strong>"+fmt((d.fijos+d.deudaFija)*6)+"</strong> (6 meses de gastos fijos)."});
   }
-  if(S.ahorrHab==='no'||S.ahorrHab==='a_veces'){
-    tips.push({ico:'ti-trending-up',txt:`No es necesario empezar con mucho — el hábito de ahorro importa más que el monto inicial. Automatiza aunque sea el <strong>5–10% de tu ingreso</strong> el día de pago. El interés compuesto trabaja a tu favor mientras más temprano empieces.`});
+  if(S.ahorrHab === "no" || S.ahorrHab === "a_veces"){
+    tips.push({ico:"ti-trending-up", txt:"No es necesario empezar con mucho — el hábito importa más que el monto. Automatiza aunque sea el <strong>5–10% de tu ingreso</strong> el día de pago. Generar el hábito temprano es lo que te lleva a tus metas."});
   }
-  if(S.metas.length>0){
-    tips.push({ico:'ti-target',txt:`Tus 3 metas prioritarias son: <strong>${S.metas.map((m,i)=>`${i+1}. ${m.label}`).join(', ')}</strong>. Define un monto mensual específico para cada una y trátalo como un gasto fijo — no lo que "sobre".<br>`});
+  if(S.metas.length > 0){
+    tips.push({ico:"ti-target", txt:"Tus 3 metas prioritarias: <strong>"+S.metas.map(function(m,i){ return (i+1)+". "+m.label; }).join(", ")+"</strong>. Define un monto mensual para cada una y trátalo como gasto fijo, no como lo que sobra."});
   }
 
-  /* ── Inversiones activas ── */
-  const totalInv = S.inversiones.reduce((a,i)=>a+i.monto,0);
+  var totalInv = S.inversiones.reduce(function(a,i){ return a + i.monto; }, 0);
 
-  const cont = document.getElementById('diagContent');
-  cont.innerHTML = `
-    <div class="card">
-      <div class="section-title"><i class="ti ti-user-check"></i> Diagnóstico de ${S.nombre}, ${S.edad} años</div>
-      <div class="semaforo ${semC}">
-        <div class="sem-ico">${semI}</div>
-        <div class="sem-info"><h3>${semL}</h3><p>${semD}</p></div>
-      </div>
-      <div class="stat-grid">
-        <div class="stat-card"><div class="slbl">Ingreso total</div><div class="sval">${fmt(ing)}</div></div>
-        <div class="stat-card"><div class="slbl">Gastos totales</div><div class="sval">${fmt(totalGto)}</div></div>
-        <div class="stat-card"><div class="slbl">Flujo libre</div><div class="sval" style="color:${flujo>=0?'var(--ok)':'var(--danger)'}">${fmt(flujo)}</div></div>
-        <div class="stat-card"><div class="slbl">Deuda fija/mes</div><div class="sval" style="color:${deudaFija>0?'var(--danger)':'var(--text)'}">${fmt(deudaFija)}</div></div>
-      </div>
-    </div>
+  var html = "";
+  html += '<div class="card"><div class="section-title"><i class="ti ti-user-check"></i> Diagnóstico de '+S.nombre+', '+S.edad+' años</div>';
+  html += '<div class="semaforo '+semC+'"><div class="sem-ico">'+semI+'</div><div class="sem-info"><h3>'+semL+'</h3><p>'+semD+'</p></div></div>';
+  html += '<div class="stat-grid">';
+  html += '<div class="stat-card"><div class="slbl">Ingreso total</div><div class="sval">'+fmt(ing)+'</div></div>';
+  html += '<div class="stat-card"><div class="slbl">Gastos totales</div><div class="sval">'+fmt(d.totalGto)+'</div></div>';
+  html += '<div class="stat-card"><div class="slbl">Flujo libre</div><div class="sval" style="color:'+(d.flujo>=0?"var(--ok)":"var(--danger)")+'">'+fmt(d.flujo)+'</div></div>';
+  html += '<div class="stat-card"><div class="slbl">Deuda fija/mes</div><div class="sval" style="color:'+(d.deudaFija>0?"var(--danger)":"var(--text)")+'">'+fmt(d.deudaFija)+'</div></div>';
+  html += '</div></div>';
 
-    ${tcTotal>0||tcPagos>0?`
-    <div class="card">
-      <div class="section-title"><i class="ti ti-credit-card"></i> Deuda en tarjetas de crédito</div>
-      <div class="warn-box"><i class="ti ti-alert-triangle"></i> Saldo total en tarjetas: <strong>${fmt(tcTotal)}</strong>. Pago mensual comprometido: <strong>${fmt(tcPagos)}/mes</strong>.</div>
-      ${S.tarjetas.filter(t=>t.pagoMin>0||t.total>0).map((t,i)=>`
-        <div style="margin-bottom:12px">
-          <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px">
-            <span style="font-weight:600">${t.nombre||'Tarjeta '+(i+1)}</span>
-            <span style="color:var(--muted)">${t.pagoMin>0?fmt(t.pagoMin)+'/mes':''} ${t.total>0?' · '+fmt(t.total)+' total':''}</span>
-          </div>
-          <div class="prog-wrap"><div class="prog-fill" style="width:${Math.min(100,ing>0?Math.round(t.total/ing*100):0)}%;background:var(--danger)"></div></div>
-        </div>`).join('')}
-    </div>`:''  }
+  if(d.tcTotal > 0 || d.tcPagos > 0){
+    html += '<div class="card"><div class="section-title"><i class="ti ti-credit-card"></i> Deuda en tarjetas de crédito</div>';
+    html += '<div class="warn-box"><i class="ti ti-alert-triangle"></i> Saldo total: <strong>'+fmt(d.tcTotal)+'</strong>. Pago mensual: <strong>'+fmt(d.tcPagos)+'/mes</strong>.</div>';
+    S.tarjetas.forEach(function(t,i){
+      if(t.pagoMin>0 || t.total>0){
+        html += '<div style="margin-bottom:12px"><div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px"><span style="font-weight:600">'+(t.nombre||"Tarjeta "+(i+1))+'</span><span style="color:var(--muted)">'+(t.pagoMin>0?fmt(t.pagoMin)+"/mes":"")+(t.total>0?" · "+fmt(t.total)+" total":"")+'</span></div><div class="prog-wrap"><div class="prog-fill" style="width:'+Math.min(100,ing>0?Math.round(t.total/ing*100):0)+'%;background:var(--danger)"></div></div></div>';
+      }
+    });
+    html += '</div>';
+  }
 
-    <div class="card">
-      <div class="section-title"><i class="ti ti-chart-pie"></i> Distribución del ingreso</div>
-      <div class="note-box"><i class="ti ti-info-circle"></i> La gráfica muestra gastos fijos, variables y deuda con pagos fijos. <strong>No incluye los pagos de tarjetas de crédito</strong> para evitar duplicar gastos que ya se capturaron por separado.</div>
-      <div class="chart-wrap"><canvas id="pieChart" role="img" aria-label="Distribución del ingreso."></canvas></div>
-    </div>
+  html += '<div class="card"><div class="section-title"><i class="ti ti-chart-pie"></i> Distribución del ingreso</div>';
+  html += '<div class="note-box"><i class="ti ti-info-circle"></i> La gráfica muestra gastos fijos, variables y deuda con pagos fijos. <strong>No incluye los pagos de tarjetas de crédito</strong> para evitar duplicar gastos ya capturados por separado.</div>';
+  html += '<div class="chart-wrap"><canvas id="pieChart"></canvas></div></div>';
 
-    <div class="card">
-      <div class="section-title"><i class="ti ti-scale"></i> Regla 50/30/20</div>
-      <div class="info-box"><i class="ti ti-bulb"></i> Referencia ideal: 50% necesidades · 30% deseos · 20% ahorro e inversión.</div>
-      ${[
-        ['Necesidades + deuda fija (50%)', Math.round(ing*.5), fijos+deudaFija, '#185FA5'],
-        ['Deseos / variables (30%)',        Math.round(ing*.3), variables,       '#92400e'],
-        ['Ahorro / inversión (20%)',         Math.round(ing*.2), Math.max(0,flujo), '#166534']
-      ].map(([lbl,ideal,real,col])=>`
-        <div class="prog-row">
-          <div class="prog-row-head"><span>${lbl}</span><span>Ideal ${fmt(ideal)} · Real ${fmt(real)}</span></div>
-          <div class="prog-wrap"><div class="prog-fill" style="width:${Math.min(100,ing>0?Math.round(real/ing*100):0)}%;background:${col}"></div></div>
-        </div>`).join('')}
-    </div>
+  html += '<div class="card"><div class="section-title"><i class="ti ti-scale"></i> Regla 50/30/20</div>';
+  html += '<div class="info-box"><i class="ti ti-bulb"></i> Referencia ideal: 50% necesidades · 30% deseos · 20% ahorro e inversión.</div>';
+  var rows5030 = [
+    ["Necesidades + deuda fija (50%)", Math.round(ing*0.5), d.fijos+d.deudaFija, "#185FA5"],
+    ["Deseos / variables (30%)", Math.round(ing*0.3), d.variables, "#92400e"],
+    ["Ahorro / inversión (20%)", Math.round(ing*0.2), Math.max(0,d.flujo), "#166534"]
+  ];
+  rows5030.forEach(function(r){
+    html += '<div class="prog-row"><div class="prog-row-head"><span>'+r[0]+'</span><span>Ideal '+fmt(r[1])+' · Real '+fmt(r[2])+'</span></div><div class="prog-wrap"><div class="prog-fill" style="width:'+Math.min(100,ing>0?Math.round(r[2]/ing*100):0)+'%;background:'+r[3]+'"></div></div></div>';
+  });
+  html += '</div>';
 
-    ${S.inversiones.length>0?`
-    <div class="card">
-      <div class="section-title"><i class="ti ti-trending-up"></i> Inversiones y ahorros activos</div>
-      ${S.inversiones.map(inv=>`<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f0f4f8;font-size:14px"><span>${inv.label}</span><span style="font-weight:600;color:var(--ok)">${fmt(inv.monto)}/mes</span></div>`).join('')}
-      <div style="display:flex;justify-content:space-between;padding:10px 0 0;font-size:14px;font-weight:700"><span>Total aportado/mes</span><span style="color:var(--ok)">${fmt(totalInv)}</span></div>
-    </div>`:'' }
+  if(S.inversiones.length > 0){
+    html += '<div class="card"><div class="section-title"><i class="ti ti-trending-up"></i> Inversiones y ahorros activos</div>';
+    S.inversiones.forEach(function(inv){
+      html += '<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f0f4f8;font-size:14px"><span>'+inv.label+'</span><span style="font-weight:600;color:var(--ok)">'+fmt(inv.monto)+'/mes</span></div>';
+    });
+    html += '<div style="display:flex;justify-content:space-between;padding:10px 0 0;font-size:14px;font-weight:700"><span>Total/mes</span><span style="color:var(--ok)">'+fmt(totalInv)+'</span></div></div>';
+  }
 
-    <div class="card">
-      <div class="ruta-title">Definamos tu ruta financiera a tomar</div>
-      ${tips.map(t=>`<div class="tip-item"><i class="ti ${t.ico} tip-ico"></i><span>${t.txt}</span></div>`).join('')}
-      ${tips.length===0?'<div class="ok-box"><i class="ti ti-check"></i> Situación financiera equilibrada. Mantén el control y sigue construyendo hacia tus metas.</div>':''}
-    </div>
+  html += '<div class="card"><div class="ruta-title">Definamos tu ruta financiera a tomar</div>';
+  if(tips.length > 0){
+    tips.forEach(function(t){ html += '<div class="tip-item"><i class="ti '+t.ico+' tip-ico"></i><span>'+t.txt+'</span></div>'; });
+  } else {
+    html += '<div class="ok-box"><i class="ti ti-check"></i> Situación financiera equilibrada. Mantén el control y sigue construyendo hacia tus metas.</div>';
+  }
+  html += '</div>';
 
-    <div class="card" style="background:var(--rz-dark);border-color:var(--rz-dark)">
-      <div style="color:var(--rz-accent);font-family:var(--font-head);font-size:17px;margin-bottom:8px">🎯 Tus 3 metas prioritarias</div>
-      ${S.metas.map((m,i)=>`<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.1);color:#fff;font-size:14px"><span style="background:var(--rz-accent);color:var(--rz-dark);width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;flex-shrink:0">${i+1}</span><span>${m.ico} ${m.label}</span></div>`).join('')}
-    </div>
-  `;
+  html += '<div class="card" style="background:var(--rz-dark);border-color:var(--rz-dark)"><div style="color:var(--rz-accent);font-family:var(--font-head);font-size:17px;margin-bottom:8px">🎯 Tus 3 metas prioritarias</div>';
+  S.metas.forEach(function(m,i){
+    html += '<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.1);color:#fff;font-size:14px"><span style="background:var(--rz-accent);color:var(--rz-dark);width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;flex-shrink:0">'+(i+1)+'</span><span>'+m.ico+' '+m.label+'</span></div>';
+  });
+  html += '</div>';
 
-  // Chart
-  if(pieChart){pieChart.destroy();pieChart=null;}
-  const ctx=document.getElementById('pieChart');
+  $("diagContent").innerHTML = html;
+
+  if(pieChart){ pieChart.destroy(); pieChart = null; }
+  var ctx = $("pieChart");
   if(ctx){
-    const rawD=[fijos,deudaFija,variables,Math.max(0,flujo)];
-    const rawL=['Gastos fijos','Deuda fija','Variables','Flujo libre'];
-    const rawC=['#185FA5','#dc2626','#854F0B','#166534'];
-    const data=[],labels=[],colors=[];
-    rawD.forEach((v,i)=>{if(v>0){data.push(v);labels.push(rawL[i]);colors.push(rawC[i]);}});
-    pieChart=new Chart(ctx,{
-      type:'doughnut',
-      data:{labels,datasets:[{data,backgroundColor:colors,borderWidth:3,borderColor:'#fff'}]},
-      options:{responsive:true,maintainAspectRatio:false,
-        plugins:{legend:{display:true,position:'bottom',labels:{padding:16,font:{size:12}}},
-          tooltip:{callbacks:{label:c=>`${c.label}: ${fmt(c.raw)} (${Math.round(c.raw/ing*100)}%)`}}}}
+    var rawD = [d.fijos, d.deudaFija, d.variables, Math.max(0,d.flujo)];
+    var rawL = ["Gastos fijos","Deuda fija","Variables","Flujo libre"];
+    var rawC = ["#185FA5","#dc2626","#854F0B","#166534"];
+    var data=[], labels=[], colors=[];
+    rawD.forEach(function(v,i){ if(v>0){ data.push(v); labels.push(rawL[i]); colors.push(rawC[i]); } });
+    pieChart = new Chart(ctx, {
+      type:"doughnut",
+      data:{labels:labels, datasets:[{data:data, backgroundColor:colors, borderWidth:3, borderColor:"#fff"}]},
+      options:{responsive:true, maintainAspectRatio:false,
+        plugins:{legend:{display:true, position:"bottom", labels:{padding:16, font:{size:12}}},
+          tooltip:{callbacks:{label:function(c){ return c.label+": "+fmt(c.raw)+" ("+Math.round(c.raw/ing*100)+"%)"; }}}}}
     });
   }
 
-  // Enviar notificación por email (EmailJS o similar si está configurado)
   enviarNotificacion();
 }
 
-/* ══════════════════════════════════════
-   ASESORÍA / CONTACTO
-══════════════════════════════════════ */
-function toggleAsesoria(v){
-  document.getElementById('asesoriaPanel').style.display=v?'block':'none';
-}
-
+/* ════════ AGENDAR ════════ */
+$("btnAgendar").addEventListener("click", agendarCita);
 function agendarCita(){
-  const email=document.getElementById('ctEmail').value.trim();
-  const tel  =document.getElementById('ctTel').value.trim();
-  const fecha=document.getElementById('ctFecha').value;
-  const hora =document.getElementById('ctHora').value;
-  const errEl=document.getElementById('citaError');
-
-  if(!email||!fecha||!hora){
-    errEl.textContent='Completa correo, fecha y hora para agendar.';
-    errEl.style.display='block';return;
+  var email = $("ctEmail").value.trim();
+  var fecha = $("ctFecha").value;
+  var hora = $("ctHora").value;
+  var errEl = $("citaError");
+  if(!email || !fecha || !hora){
+    errEl.textContent = "Completa correo, fecha y hora para agendar.";
+    errEl.style.display = "block";
+    return;
   }
-  errEl.style.display='none';
+  errEl.style.display = "none";
 
-  // Construir enlace de Teams / Google Meet como fallback
-  const fechaStr=fecha; // YYYY-MM-DD
-  const [yy,mm,dd]=fechaStr.split('-');
-  const [hh,min]=hora.split(':');
-  const start=`${yy}${mm}${dd}T${hh}${min}00`;
-  const endH=String(parseInt(hh)+1).padStart(2,'0');
-  const end=`${yy}${mm}${dd}T${endH}${min}00`;
-  const title=encodeURIComponent(`Asesoría financiera Rizkora — ${S.nombre}`);
-  // Teams deep-link para nueva reunion
-  const teamsUrl = "https://teams.microsoft.com/l/meeting/new?subject=" + title
-    + "&startTime=" + fechaStr + "T" + hora + ":00"
-    + "&endTime=" + fechaStr + "T" + endH + ":" + min + ":00"
+  var parts = fecha.split("-");
+  var yy = parts[0], mm = parts[1], dd = parts[2];
+  var hParts = hora.split(":");
+  var endH = String(parseInt(hParts[0]) + 1);
+  if(endH.length < 2) endH = "0" + endH;
+  var title = encodeURIComponent("Asesoría financiera Rizkora - " + S.nombre);
+
+  var teamsUrl = "https://teams.microsoft.com/l/meeting/new?subject=" + title
+    + "&startTime=" + fecha + "T" + hora + ":00"
+    + "&endTime=" + fecha + "T" + endH + ":" + hParts[1] + ":00"
     + "&attendees=" + encodeURIComponent(email);
 
-  // Mailto como fallback universal
-  const mailtoUrl = "mailto:" + encodeURIComponent(email)
-    + "?subject=" + encodeURIComponent("Asesoria financiera Rizkora - " + S.nombre)
-    + "&body=" + encodeURIComponent("Hola " + S.nombre + ",\n\nQuedo confirmada tu asesoria financiera con Rizkora.\n\nFecha: " + dd + "/" + mm + "/" + yy + "\nHora: " + hora + " hrs\n\nNos pondremos en contacto contigo pronto.\n\nEquipo Rizkora\ncontacto@rizkora.com");
+  var bodyTxt = "Hola " + S.nombre + ",%0D%0A%0D%0AQueda confirmada tu asesoría financiera con Rizkora.%0D%0A%0D%0AFecha: " + dd + "/" + mm + "/" + yy + "%0D%0AHora: " + hora + " hrs%0D%0A%0D%0AEquipo Rizkora";
+  var mailtoUrl = "mailto:" + encodeURIComponent(email) + "?subject=" + title + "&body=" + bodyTxt;
 
-  const confirmEl = document.getElementById('citaConfirm');
-  confirmEl.style.display = 'block';
-  confirmEl.innerHTML = '<i class="ti ti-check"></i> Cita registrada para el <strong>' + dd + '/' + mm + '/' + yy + ' a las ' + hora + ' hrs</strong>'
+  var c = $("citaConfirm");
+  c.style.display = "block";
+  c.innerHTML = '<i class="ti ti-check"></i> Cita registrada para el <strong>' + dd + '/' + mm + '/' + yy + ' a las ' + hora + ' hrs</strong>'
     + '<div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">'
-    + '<a href="' + teamsUrl + '" target="_blank" style="color:var(--ok);font-weight:600;font-size:13px;text-decoration:none;padding:6px 12px;border:1px solid var(--ok);border-radius:8px;display:inline-flex;align-items:center;gap:5px"><i class="ti ti-brand-teams"></i> Crear en Teams</a>'
-    + '<a href="' + mailtoUrl + '" style="color:var(--rz-dark);font-weight:600;font-size:13px;text-decoration:none;padding:6px 12px;border:1px solid var(--rz-dark);border-radius:8px;display:inline-flex;align-items:center;gap:5px"><i class="ti ti-mail"></i> Enviar confirmacion</a>'
+    + '<a href="' + teamsUrl + '" target="_blank" style="color:var(--ok);font-weight:600;font-size:13px;text-decoration:none;padding:6px 12px;border:1px solid var(--ok);border-radius:8px"><i class="ti ti-brand-teams"></i> Crear en Teams</a>'
+    + '<a href="' + mailtoUrl + '" style="color:var(--rz-dark);font-weight:600;font-size:13px;text-decoration:none;padding:6px 12px;border:1px solid var(--rz-dark);border-radius:8px"><i class="ti ti-mail"></i> Enviar confirmación</a>'
     + '</div>';
+
+  enviarNotificacion(true);
 }
 
-/* ══════════════════════════════════════
-   NOTIFICACIÓN POR EMAIL
-   Usa EmailJS (gratis hasta 200 emails/mes)
-   Instrucciones de configuración en robots.txt
-══════════════════════════════════════ */
-async function enviarNotificacion(){
-  // Para activar: crea cuenta en emailjs.com, reemplaza los 3 valores de abajo
-  const EMAILJS_PUBLIC_KEY = 'TU_PUBLIC_KEY';     // reemplazar
-  const EMAILJS_SERVICE_ID = 'TU_SERVICE_ID';     // reemplazar
-  const EMAILJS_TEMPLATE_ID= 'TU_TEMPLATE_ID';    // reemplazar
+/* ════════ EMAIL (EmailJS) ════════ */
+function enviarNotificacion(conCita){
+  var EMAILJS_PUBLIC_KEY = "TU_PUBLIC_KEY";
+  var EMAILJS_SERVICE_ID = "TU_SERVICE_ID";
+  var EMAILJS_TEMPLATE_ID = "TU_TEMPLATE_ID";
+  if(EMAILJS_PUBLIC_KEY === "TU_PUBLIC_KEY") return;
 
-  if(EMAILJS_PUBLIC_KEY==='TU_PUBLIC_KEY') return; // no configurado aún
-
-  try {
-    await fetch('https://api.emailjs.com/api/v1.0/email/send',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({
-        service_id: EMAILJS_SERVICE_ID,
-        template_id: EMAILJS_TEMPLATE_ID,
-        user_id: EMAILJS_PUBLIC_KEY,
-        template_params:{
-          to_email: 'contacto@rizkora.com',
-          cliente_nombre: S.nombre,
-          cliente_edad: S.edad,
-          ingreso: fmt(S.ingreso),
-          resultado: calcResultadoTexto(),
-          metas: S.metas.map(m=>m.label).join(', '),
-        }
-      })
-    });
-  } catch(e){ console.warn('Email no enviado:',e); }
+  var params = {
+    to_email: "contacto@rizkora.com",
+    cliente_nombre: S.nombre,
+    cliente_edad: S.edad,
+    ingreso: fmt(S.ingreso),
+    resultado: resultadoTexto(),
+    metas: S.metas.map(function(m){ return m.label; }).join(", ")
+  };
+  if(conCita){
+    params.cita_email = $("ctEmail").value;
+    params.cita_fecha = $("ctFecha").value;
+    params.cita_hora = $("ctHora").value;
+  }
+  fetch("https://api.emailjs.com/api/v1.0/email/send", {
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body: JSON.stringify({
+      service_id: EMAILJS_SERVICE_ID,
+      template_id: EMAILJS_TEMPLATE_ID,
+      user_id: EMAILJS_PUBLIC_KEY,
+      template_params: params
+    })
+  }).catch(function(e){ console.warn("Email no enviado:", e); });
 }
 
-function calcResultadoTexto(){
-  const ing=S.ingreso+(S.ingExtra==='si'?S.ingExtraMonto:0);
-  const g=S.gastos;
-  const fijos=g.renta+g.serv+g.trans+g.alim+g.edu+g.salud+g.seguros+g.subs;
-  const variables=g.ent+g.ropa+g.mant+g.elec+g.otros;
-  const deudaFija=S.deudas.reduce((a,d)=>a+d.pago,0);
-  const tcPagos=(S.tieneTarjeta==='si'&&(S.formaPagoTC==='minimo'||S.formaPagoTC==='otra'))?S.tarjetas.reduce((a,t)=>a+t.pagoMin,0):0;
-  const flujo=ing-(fijos+variables+deudaFija+tcPagos);
-  const pct=ing>0?Math.round((flujo/ing)*100):0;
-  if(flujo<0) return 'Flujo negativo';
-  if(pct<=10) return 'Estado crítico';
-  if(pct<=20) return 'Estado ajustado';
-  if(pct<=30) return 'Salud financiera';
-  return 'Finanzas excelentes';
-}
-
-/* ══════════════════════════════════════
-   PDF
-══════════════════════════════════════ */
+/* ════════ PDF ════════ */
+$("btnPDF").addEventListener("click", generarPDF);
 function generarPDF(){
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
-  const W=210, margin=18, cw=W-margin*2;
-  let y=20;
+  var jsPDF = window.jspdf.jsPDF;
+  var doc = new jsPDF({orientation:"portrait", unit:"mm", format:"a4"});
+  var W = 210, margin = 18, cw = W - margin*2, y = 20;
+  var d = calcData();
 
-  // Header
-  doc.setFillColor(6,76,120);
-  doc.rect(0,0,W,32,'F');
-  doc.setTextColor(255,245,157);
-  doc.setFontSize(20); doc.setFont('helvetica','bold');
-  doc.text('RIZKORA',margin,14);
-  doc.setFontSize(10); doc.setFont('helvetica','normal');
-  doc.text('Diagnóstico Financiero Personal',margin,21);
-  doc.setTextColor(255,255,255);
-  doc.setFontSize(9);
-  doc.text(new Date().toLocaleDateString('es-MX',{day:'2-digit',month:'long',year:'numeric'}),W-margin,14,{align:'right'});
-  y=42;
+  doc.setFillColor(6,76,120); doc.rect(0,0,W,32,"F");
+  doc.setTextColor(255,245,157); doc.setFontSize(20); doc.setFont("helvetica","bold");
+  doc.text("RIZKORA", margin, 14);
+  doc.setFontSize(10); doc.setFont("helvetica","normal");
+  doc.text("Diagnóstico Financiero Personal", margin, 21);
+  doc.setTextColor(255,255,255); doc.setFontSize(9);
+  doc.text(new Date().toLocaleDateString("es-MX",{day:"2-digit",month:"long",year:"numeric"}), W-margin, 14, {align:"right"});
+  y = 42;
 
-  // Cliente
-  doc.setTextColor(6,76,120); doc.setFontSize(13); doc.setFont('helvetica','bold');
-  doc.text(`${S.nombre}, ${S.edad} años`,margin,y); y+=6;
-  const res=calcResultadoTexto();
-  doc.setFontSize(10); doc.setFont('helvetica','normal'); doc.setTextColor(80,80,80);
-  doc.text(`Resultado: ${res}  |  Tipo: ${S.tipo==='godin'?'Empleado':'Empresario/Freelance'}  |  Ingresos adicionales: ${S.ingExtra==='si'?'Sí':'No'}`,margin,y); y+=10;
+  doc.setTextColor(6,76,120); doc.setFontSize(13); doc.setFont("helvetica","bold");
+  doc.text(S.nombre + ", " + S.edad + " años", margin, y); y += 6;
+  doc.setFontSize(10); doc.setFont("helvetica","normal"); doc.setTextColor(80,80,80);
+  doc.text("Resultado: " + resultadoTexto() + "  |  Tipo: " + (S.tipo==="godin"?"Empleado":"Empresario/Freelance"), margin, y); y += 10;
 
-  // Ingresos y gastos
-  const ing=S.ingreso+(S.ingExtra==='si'?S.ingExtraMonto:0);
-  const g=S.gastos;
-  const fijos=g.renta+g.serv+g.trans+g.alim+g.edu+g.salud+g.seguros+g.subs;
-  const variables=g.ent+g.ropa+g.mant+g.elec+g.otros;
-  const deudaFija=S.deudas.reduce((a,d)=>a+d.pago,0);
-  const tcPagos=(S.tieneTarjeta==='si'&&(S.formaPagoTC==='minimo'||S.formaPagoTC==='otra'))?S.tarjetas.reduce((a,t)=>a+t.pagoMin,0):0;
-  const tcTotal=S.tarjetas.reduce((a,t)=>a+t.total,0);
-  const flujo=ing-(fijos+variables+deudaFija+tcPagos);
-
-  const addSection=(title)=>{
-    doc.setFillColor(230,242,250); doc.rect(margin,y,cw,7,'F');
-    doc.setTextColor(6,76,120); doc.setFontSize(10); doc.setFont('helvetica','bold');
-    doc.text(title,margin+3,y+5); y+=10;
-  };
-  const addRow=(label,value,bold=false)=>{
-    if(y>270){doc.addPage();y=20;}
-    doc.setTextColor(50,50,50); doc.setFontSize(9.5);
-    doc.setFont('helvetica',bold?'bold':'normal');
-    doc.text(label,margin+2,y);
-    doc.text(value,W-margin,y,{align:'right'});
-    doc.setDrawColor(220,220,220); doc.line(margin,y+1.5,W-margin,y+1.5);
-    y+=7;
-  };
-
-  addSection('Resumen financiero');
-  addRow('Ingreso mensual (cuenta)',fmt(S.ingreso));
-  if(S.ingExtra==='si') addRow(`Ingresos adicionales (${S.ingExtraDesc||'—'})`,fmt(S.ingExtraMonto));
-  addRow('Ingreso total',fmt(ing),true);
-  addRow('Gastos fijos',fmt(fijos));
-  addRow('Gastos variables',fmt(variables));
-  addRow('Deuda fija mensual',fmt(deudaFija));
-  if(tcPagos>0) addRow('Pagos TC (mín/MSI)',fmt(tcPagos));
-  addRow('Flujo libre',fmt(flujo),true);
-  y+=4;
-
-  if(S.tieneTarjeta==='si'&&(tcPagos>0||tcTotal>0)){
-    addSection('Tarjetas de crédito');
-    S.tarjetas.forEach((t,i)=>{ addRow(t.nombre||`Tarjeta ${i+1}`,`${tcPagos>0?fmt(t.pagoMin)+'/mes · ':''}${t.total>0?fmt(t.total)+' total':''}`); });
-    addRow('Total deuda tarjetas',fmt(tcTotal),true);
-    y+=4;
+  function sec(t){
+    doc.setFillColor(230,242,250); doc.rect(margin,y,cw,7,"F");
+    doc.setTextColor(6,76,120); doc.setFontSize(10); doc.setFont("helvetica","bold");
+    doc.text(t, margin+3, y+5); y += 10;
+  }
+  function rowp(l,v,b){
+    if(y>270){ doc.addPage(); y=20; }
+    doc.setTextColor(50,50,50); doc.setFontSize(9.5); doc.setFont("helvetica", b?"bold":"normal");
+    doc.text(l, margin+2, y); doc.text(v, W-margin, y, {align:"right"});
+    doc.setDrawColor(220,220,220); doc.line(margin, y+1.5, W-margin, y+1.5); y += 7;
   }
 
+  sec("Resumen financiero");
+  rowp("Ingreso mensual (cuenta)", fmt(S.ingreso));
+  if(S.ingExtra==="si") rowp("Ingresos adicionales", fmt(S.ingExtraMonto));
+  rowp("Ingreso total", fmt(d.ingTotal), true);
+  rowp("Gastos fijos", fmt(d.fijos));
+  rowp("Gastos variables", fmt(d.variables));
+  rowp("Deuda fija mensual", fmt(d.deudaFija));
+  if(d.tcPagos>0) rowp("Pagos TC (mín/MSI)", fmt(d.tcPagos));
+  rowp("Flujo libre", fmt(d.flujo), true);
+  y += 4;
+
+  if(S.tieneTarjeta==="si" && (d.tcPagos>0 || d.tcTotal>0)){
+    sec("Tarjetas de crédito");
+    S.tarjetas.forEach(function(t,i){ rowp(t.nombre||"Tarjeta "+(i+1), (d.tcPagos>0?fmt(t.pagoMin)+"/mes · ":"")+(t.total>0?fmt(t.total)+" total":"")); });
+    rowp("Total deuda tarjetas", fmt(d.tcTotal), true); y += 4;
+  }
   if(S.deudas.length>0){
-    addSection('Créditos abiertos');
-    S.deudas.forEach(d=>addRow(d.tipo,`${fmt(d.pago)}/mes${d.tot>0?' · '+fmt(d.tot)+' total':''}`));
-    y+=4;
+    sec("Créditos abiertos");
+    S.deudas.forEach(function(dd){ rowp(dd.tipo, fmt(dd.pago)+"/mes"+(dd.tot>0?" · "+fmt(dd.tot)+" total":"")); });
+    y += 4;
   }
+  sec("Ahorros e inversiones");
+  rowp("Fondo de emergencias", S.fondoEm==="si"?"Sí cuenta":"No cuenta");
+  rowp("Hábito de ahorro", {cada_mes:"Cada mes",a_veces:"De vez en cuando",no:"No ahorra"}[S.ahorrHab]||"—");
+  S.inversiones.forEach(function(i){ rowp(i.label, fmt(i.monto)+"/mes"); });
+  y += 4;
+  sec("Metas prioritarias");
+  S.metas.forEach(function(m,i){ rowp((i+1)+". "+m.label, ""); });
+  y += 4;
 
-  addSection('Ahorros e inversiones');
-  addRow('Fondo de emergencias',S.fondoEm==='si'?'Sí cuenta':'No cuenta');
-  addRow('Hábito de ahorro',{cada_mes:'Cada mes',a_veces:'De vez en cuando',no:'No ahorra'}[S.ahorrHab]||'—');
-  if(S.inversiones.length>0){ S.inversiones.forEach(i=>addRow(i.label,fmt(i.monto)+'/mes')); }
-  y+=4;
-
-  addSection('Metas prioritarias');
-  S.metas.forEach((m,i)=>addRow(`${i+1}. ${m.ico} ${m.label}`,''));
-  y+=4;
-
-  addSection('Ruta financiera recomendada');
-  const tips2=[];
-  const pctF=ing>0?Math.round((fijos+deudaFija)/ing*100):0;
-  if(pctF>50) tips2.push(`Gastos fijos+deuda: ${pctF}% (objetivo ≤50%). Revisa renta, seguros y servicios.`);
-  if(tcTotal>0) tips2.push(`Deuda en tarjetas: ${fmt(tcTotal)}. Usa la bola de nieve para liquidar la más pequeña primero.`);
-  if(S.fondoEm==='no') tips2.push(`Sin fondo de emergencias. Meta: ${fmt(S.ingreso*3)} (3 meses de ingreso).`);
-  if(S.ahorrHab==='no') tips2.push('Inicia el hábito de ahorro automático aunque sea con el 5% del ingreso.');
-  tips2.forEach(t=>{
-    if(y>270){doc.addPage();y=20;}
-    doc.setFontSize(9); doc.setFont('helvetica','normal'); doc.setTextColor(50,50,50);
-    const lines=doc.splitTextToSize('• '+t,cw-4);
-    doc.text(lines,margin+2,y); y+=lines.length*5+2;
+  sec("Ruta financiera recomendada");
+  var t2 = [];
+  var pf = d.ingTotal>0 ? Math.round((d.fijos+d.deudaFija)/d.ingTotal*100) : 0;
+  if(pf>50) t2.push("Gastos fijos+deuda: "+pf+"% (objetivo <=50%). Revisa renta, seguros y servicios.");
+  if(d.tcTotal>0) t2.push("Deuda en tarjetas: "+fmt(d.tcTotal)+". Usa la bola de nieve para liquidar la mas pequena primero.");
+  if(S.fondoEm==="no") t2.push("Sin fondo de emergencias. Meta: "+fmt(S.ingreso*3)+" (3 meses de ingreso).");
+  if(S.ahorrHab==="no") t2.push("Inicia el habito de ahorro automatico aunque sea con el 5% del ingreso.");
+  t2.forEach(function(t){
+    if(y>270){ doc.addPage(); y=20; }
+    doc.setFontSize(9); doc.setFont("helvetica","normal"); doc.setTextColor(50,50,50);
+    var lines = doc.splitTextToSize("• "+t, cw-4);
+    doc.text(lines, margin+2, y); y += lines.length*5 + 2;
   });
 
-  // Footer
-  doc.setFillColor(6,76,120);
-  doc.rect(0,285,W,12,'F');
-  doc.setTextColor(255,245,157); doc.setFontSize(8); doc.setFont('helvetica','normal');
-  doc.text('rizkora.com  |  contacto@rizkora.com  |  Diagnóstico confidencial generado por Rizkora',W/2,292,{align:'center'});
+  doc.setFillColor(6,76,120); doc.rect(0,285,W,12,"F");
+  doc.setTextColor(255,245,157); doc.setFontSize(8); doc.setFont("helvetica","normal");
+  doc.text("rizkora.com  |  contacto@rizkora.com  |  Diagnóstico confidencial", W/2, 292, {align:"center"});
 
-  doc.save(`Diagnostico_Rizkora_${S.nombre.replace(/\s+/g,'_')}.pdf`);
+  doc.save("Diagnostico_Rizkora_" + S.nombre.replace(/\s+/g,"_") + ".pdf");
 }
 
-/* ══════════════════════════════════════
-   INIT
-══════════════════════════════════════ */
-document.getElementById('fechaNac').max=new Date().toISOString().split('T')[0];
+/* ════════ INIT ════════ */
+$("fechaNac").max = new Date().toISOString().split("T")[0];
+initBar();
+initInversiones();
+initMetas();
 updateBar(1);
 </script>
 </body>
