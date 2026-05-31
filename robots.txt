@@ -1,2 +1,35 @@
 User-agent: *
 Disallow: /asesoria-d8f3a91bc/
+
+# ════════════════════════════════════════
+# ACTIVAR NOTIFICACIÓN POR EMAIL (EmailJS)
+# ════════════════════════════════════════
+# Para que el sistema envíe un correo a contacto@rizkora.com
+# cada vez que se completa un diagnóstico:
+#
+# 1. Ve a https://emailjs.com y crea una cuenta gratuita
+#    (gratis hasta 200 emails/mes)
+#
+# 2. En tu panel de EmailJS:
+#    a) "Add New Service" → conecta tu cuenta de Gmail o Outlook
+#    b) "Create Email Template" con este contenido:
+#
+#    Asunto: Nuevo diagnóstico — {{cliente_nombre}}
+#    Cuerpo:
+#      Nuevo diagnóstico completado en Rizkora.
+#
+#      Cliente: {{cliente_nombre}}, {{cliente_edad}} años
+#      Ingreso mensual: {{ingreso}}
+#      Resultado: {{resultado}}
+#      Metas: {{metas}}
+#
+#    c) En "Account" copia tu Public Key
+#
+# 3. En asesoria-d8f3a91bc/index.html busca estas 3 líneas
+#    y reemplaza los valores:
+#
+#    const EMAILJS_PUBLIC_KEY = 'TU_PUBLIC_KEY';
+#    const EMAILJS_SERVICE_ID = 'TU_SERVICE_ID';
+#    const EMAILJS_TEMPLATE_ID= 'TU_TEMPLATE_ID';
+#
+# ¡Listo! El email se enviará automáticamente al terminar cada diagnóstico.
