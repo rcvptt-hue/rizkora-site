@@ -469,9 +469,9 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
       </div>
 
       <div id="asesoriaPanel" style="display:none">
-        <div class="card contact-form">
+        <div class="card">
           <div class="section-title"><i class="ti ti-calendar-event"></i> Agenda tu sesión</div>
-          <div class="note-box"><i class="ti ti-info-circle"></i> Espacios disponibles del <strong>22 al 27 de junio 2025</strong>.</div>
+          <div class="note-box"><i class="ti ti-info-circle"></i> Elige la fecha y hora que mejor te convenga. Un asesor confirmará tu cita.</div>
           <div class="row2">
             <div class="field"><label>Correo electrónico</label><input type="email" id="ctEmail" placeholder="correo@ejemplo.com"></div>
             <div class="field"><label>Teléfono (WhatsApp)</label><input type="tel" id="ctTel" placeholder="+52 55 1234 5678"></div>
@@ -479,24 +479,11 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
           <div class="row2">
             <div class="field">
               <label>Fecha preferida</label>
-              <select id="ctFecha">
-                <option value="">Selecciona...</option>
-                <option value="2025-06-22">Domingo 22 de junio</option>
-                <option value="2025-06-23">Lunes 23 de junio</option>
-                <option value="2025-06-24">Martes 24 de junio</option>
-                <option value="2025-06-25">Miércoles 25 de junio</option>
-                <option value="2025-06-26">Jueves 26 de junio</option>
-                <option value="2025-06-27">Viernes 27 de junio</option>
-              </select>
+              <input type="date" id="ctFecha" min="">
             </div>
             <div class="field">
               <label>Hora preferida</label>
-              <select id="ctHora">
-                <option value="">Selecciona...</option>
-                <option>09:00</option><option>10:00</option><option>11:00</option>
-                <option>12:00</option><option>13:00</option><option>16:00</option>
-                <option>17:00</option><option>18:00</option>
-              </select>
+              <input type="time" id="ctHora">
             </div>
           </div>
           <button class="btn btn-primary" id="btnAgendar"><i class="ti ti-calendar-check"></i> Confirmar y agendar</button>
@@ -1264,6 +1251,7 @@ function generarPDF(){
 
 /* ════════ INIT ════════ */
 $("fechaNac").max = new Date().toISOString().split("T")[0];
+$("ctFecha").min = new Date().toISOString().split("T")[0];
 initBar();
 initInversiones();
 initMetas();
