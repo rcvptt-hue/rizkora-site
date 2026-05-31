@@ -555,6 +555,7 @@ function newState(){
   };
 }
 var pieChart = null;
+var lastTips = [];  // tips de la ruta financiera (texto plano para PDF)
 
 /* ════════ CONSTANTS ════════ */
 var DEP_TIPOS = ["Hijos","Cónyuge","Padres","Mascotas","Otros"];
@@ -1008,6 +1009,11 @@ function renderDiag(){
   if(S.metas.length > 0){
     tips.push({ico:"ti-target", txt:"Tus 3 metas prioritarias: <strong>"+S.metas.map(function(m,i){ return (i+1)+". "+m.label; }).join(", ")+"</strong>. Define un monto mensual para cada una y trátalo como gasto fijo, no como lo que sobra."});
   }
+  if(tips.length === 0){
+    tips.push({ico:"ti-check", txt:"Situación financiera equilibrada. Mantén el control de gastos y sigue construyendo hacia tus metas."});
+  }
+  // Guardar versión texto plano para el PDF (quita etiquetas HTML)
+  lastTips = tips.map(function(t){ return t.txt.replace(/<[^>]+>/g, ""); });
 
   var totalInv = S.inversiones.reduce(function(a,i){ return a + i.monto; }, 0);
 
@@ -1132,36 +1138,75 @@ function agendarCita(){
   enviarNotificacion(true);
 }
 
-/* ════════ EMAIL (EmailJS) ════════ */
-function enviarNotificacion(conCita){
-  var EMAILJS_PUBLIC_KEY = "TU_PUBLIC_KEY";
-  var EMAILJS_SERVICE_ID = "TU_SERVICE_ID";
-  var EMAILJS_TEMPLATE_ID = "TU_TEMPLATE_ID";
-  if(EMAILJS_PUBLIC_KEY === "TU_PUBLIC_KEY") return;
+/* ════════ EMAIL (Formspree — mismo endpoint del sitio rizkora.com) ════════ */
+var FORMSPREE_ENDPOINT = "https://formspree.io/f/mgvnylwy";
 
-  var params = {
-    to_email: "contacto@rizkora.com",
-    cliente_nombre: S.nombre,
-    cliente_edad: S.edad,
-    ingreso: fmt(S.ingreso),
-    resultado: resultadoTexto(),
-    metas: S.metas.map(function(m){ return m.label; }).join(", ")
-  };
-  if(conCita){
-    params.cita_email = $("ctEmail").value;
-    params.cita_fecha = $("ctFecha").value;
-    params.cita_hora = $("ctHora").value;
+function enviarNotificacion(conCita){
+  var d = calcData();
+
+  // Construir resumen completo del diagnóstico en texto
+  var resumen = "";
+  resumen += "DIAGNÓSTICO FINANCIERO RIZKORA\n";
+  resumen += "================================\n\n";
+  resumen += "Cliente: " + S.nombre + ", " + S.edad + " años\n";
+  resumen += "Tipo: " + (S.tipo === "godin" ? "Empleado" : "Empresario/Freelance") + "\n";
+  resumen += "Resultado: " + resultadoTexto() + "\n\n";
+
+  resumen += "RESUMEN FINANCIERO\n";
+  resumen += "- Ingreso mensual: " + fmt(S.ingreso) + "\n";
+  if(S.ingExtra === "si") resumen += "- Ingresos adicionales: " + fmt(S.ingExtraMonto) + "\n";
+  resumen += "- Ingreso total: " + fmt(d.ingTotal) + "\n";
+  resumen += "- Gastos fijos: " + fmt(d.fijos) + "\n";
+  resumen += "- Gastos variables: " + fmt(d.variables) + "\n";
+  resumen += "- Deuda fija mensual: " + fmt(d.deudaFija) + "\n";
+  if(d.tcPagos > 0) resumen += "- Pagos tarjetas (mín/MSI): " + fmt(d.tcPagos) + "\n";
+  if(d.tcTotal > 0) resumen += "- Deuda total tarjetas: " + fmt(d.tcTotal) + "\n";
+  resumen += "- FLUJO LIBRE: " + fmt(d.flujo) + (d.flujo < 0 ? " (NEGATIVO)" : "") + "\n\n";
+
+  if(S.dep === "si" && S.dependientes.length > 0){
+    resumen += "DEPENDIENTES\n";
+    S.dependientes.forEach(function(dp){ resumen += "- " + dp.tipo + ": " + dp.cantidad + "\n"; });
+    resumen += "\n";
   }
-  fetch("https://api.emailjs.com/api/v1.0/email/send", {
-    method:"POST",
-    headers:{"Content-Type":"application/json"},
-    body: JSON.stringify({
-      service_id: EMAILJS_SERVICE_ID,
-      template_id: EMAILJS_TEMPLATE_ID,
-      user_id: EMAILJS_PUBLIC_KEY,
-      template_params: params
-    })
-  }).catch(function(e){ console.warn("Email no enviado:", e); });
+
+  resumen += "AHORROS E INVERSIONES\n";
+  resumen += "- Fondo de emergencias: " + (S.fondoEm === "si" ? "Sí" : "No") + "\n";
+  resumen += "- Hábito de ahorro: " + ({cada_mes:"Cada mes",a_veces:"De vez en cuando",no:"No ahorra"}[S.ahorrHab] || "—") + "\n";
+  S.inversiones.forEach(function(inv){ resumen += "- " + inv.label + ": " + fmt(inv.monto) + "/mes\n"; });
+  resumen += "\n";
+
+  resumen += "METAS PRIORITARIAS\n";
+  S.metas.forEach(function(m, i){ resumen += (i+1) + ". " + m.label + "\n"; });
+  resumen += "\n";
+
+  resumen += "RUTA FINANCIERA RECOMENDADA\n";
+  lastTips.forEach(function(t, i){ resumen += (i+1) + ". " + t + "\n"; });
+
+  // Datos del formulario que Formspree procesa
+  var payload = {
+    nombre: S.nombre,
+    resultado: resultadoTexto(),
+    diagnostico_completo: resumen
+  };
+
+  if(conCita){
+    payload.email = $("ctEmail").value;
+    payload.telefono = $("ctTel").value;
+    payload.cita_fecha = $("ctFecha").value;
+    payload.cita_hora = $("ctHora").value;
+    payload._subject = "Nueva cita de asesoría — " + S.nombre;
+  } else {
+    payload._subject = "Nuevo diagnóstico financiero — " + S.nombre;
+  }
+
+  fetch(FORMSPREE_ENDPOINT, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "Accept": "application/json" },
+    body: JSON.stringify(payload)
+  }).then(function(r){
+    if(r.ok) console.log("Notificación enviada a contacto@rizkora.com");
+    else console.warn("Formspree respondió con error", r.status);
+  }).catch(function(e){ console.warn("Correo no enviado:", e); });
 }
 
 /* ════════ PDF ════════ */
@@ -1183,8 +1228,21 @@ function generarPDF(){
 
   doc.setTextColor(6,76,120); doc.setFontSize(13); doc.setFont("helvetica","bold");
   doc.text(S.nombre + ", " + S.edad + " años", margin, y); y += 6;
-  doc.setFontSize(10); doc.setFont("helvetica","normal"); doc.setTextColor(80,80,80);
-  doc.text("Resultado: " + resultadoTexto() + "  |  Tipo: " + (S.tipo==="godin"?"Empleado":"Empresario/Freelance"), margin, y); y += 10;
+  var resTxt = resultadoTexto();
+  var resNeg = (d.flujo < 0 || resTxt === "Estado crítico");
+  doc.setFontSize(10); doc.setFont("helvetica","normal");
+  doc.setTextColor(80,80,80);
+  var prefixTxt = "Tipo: " + (S.tipo==="godin"?"Empleado":"Empresario/Freelance") + "  |  Resultado: ";
+  doc.text(prefixTxt, margin, y);
+  // Ancho del prefijo con fallback seguro
+  var prefixW = 0;
+  try { prefixW = doc.getTextWidth(prefixTxt); }
+  catch(e){ prefixW = prefixTxt.length * 1.7; }
+  if(resNeg){ doc.setTextColor(217,48,37); } else { doc.setTextColor(26,127,69); }
+  doc.setFont("helvetica","bold");
+  doc.text(resTxt, margin + prefixW, y);
+  doc.setTextColor(80,80,80); doc.setFont("helvetica","normal");
+  y += 10;
 
   function sec(t){
     doc.setFillColor(230,242,250); doc.rect(margin,y,cw,7,"F");
@@ -1197,6 +1255,15 @@ function generarPDF(){
     doc.text(l, margin+2, y); doc.text(v, W-margin, y, {align:"right"});
     doc.setDrawColor(220,220,220); doc.line(margin, y+1.5, W-margin, y+1.5); y += 7;
   }
+  function rowpColor(l,v,b,rgb){
+    if(y>270){ doc.addPage(); y=20; }
+    doc.setTextColor(50,50,50); doc.setFontSize(9.5); doc.setFont("helvetica", b?"bold":"normal");
+    doc.text(l, margin+2, y);
+    doc.setTextColor(rgb[0],rgb[1],rgb[2]);
+    doc.text(v, W-margin, y, {align:"right"});
+    doc.setTextColor(50,50,50);
+    doc.setDrawColor(220,220,220); doc.line(margin, y+1.5, W-margin, y+1.5); y += 7;
+  }
 
   sec("Resumen financiero");
   rowp("Ingreso mensual (cuenta)", fmt(S.ingreso));
@@ -1206,7 +1273,7 @@ function generarPDF(){
   rowp("Gastos variables", fmt(d.variables));
   rowp("Deuda fija mensual", fmt(d.deudaFija));
   if(d.tcPagos>0) rowp("Pagos TC (mín/MSI)", fmt(d.tcPagos));
-  rowp("Flujo libre", fmt(d.flujo), true);
+  rowpColor("Flujo libre", fmt(d.flujo), true, d.flujo < 0 ? [217,48,37] : [26,127,69]);
   y += 4;
 
   if(S.tieneTarjeta==="si" && (d.tcPagos>0 || d.tcTotal>0)){
@@ -1228,19 +1295,26 @@ function generarPDF(){
   S.metas.forEach(function(m,i){ rowp((i+1)+". "+m.label, ""); });
   y += 4;
 
-  sec("Ruta financiera recomendada");
-  var t2 = [];
-  var pf = d.ingTotal>0 ? Math.round((d.fijos+d.deudaFija)/d.ingTotal*100) : 0;
-  if(pf>50) t2.push("Gastos fijos+deuda: "+pf+"% (objetivo <=50%). Revisa renta, seguros y servicios.");
-  if(d.tcTotal>0) t2.push("Deuda en tarjetas: "+fmt(d.tcTotal)+". Usa la bola de nieve para liquidar la mas pequena primero.");
-  if(S.fondoEm==="no") t2.push("Sin fondo de emergencias. Meta: "+fmt(S.ingreso*3)+" (3 meses de ingreso).");
-  if(S.ahorrHab==="no") t2.push("Inicia el habito de ahorro automatico aunque sea con el 5% del ingreso.");
-  t2.forEach(function(t){
-    if(y>270){ doc.addPage(); y=20; }
-    doc.setFontSize(9); doc.setFont("helvetica","normal"); doc.setTextColor(50,50,50);
-    var lines = doc.splitTextToSize("• "+t, cw-4);
-    doc.text(lines, margin+2, y); y += lines.length*5 + 2;
-  });
+  sec("Definamos tu ruta financiera a tomar");
+  if(lastTips.length === 0){
+    doc.setFontSize(9.5); doc.setFont("helvetica","normal"); doc.setTextColor(50,50,50);
+    doc.text("Situacion financiera equilibrada. Manten el control y sigue construyendo hacia tus metas.", margin+2, y);
+    y += 8;
+  } else {
+    lastTips.forEach(function(t, idx){
+      if(y > 262){ doc.addPage(); y = 20; }
+      // numero del tip
+      doc.setFillColor(6,76,120);
+      doc.circle(margin+4, y-1, 2.6, "F");
+      doc.setTextColor(255,245,157); doc.setFontSize(8); doc.setFont("helvetica","bold");
+      doc.text(String(idx+1), margin+4, y+0.3, {align:"center"});
+      // texto del tip (completo, con wrap)
+      doc.setTextColor(45,45,45); doc.setFontSize(9.5); doc.setFont("helvetica","normal");
+      var lines = doc.splitTextToSize(t, cw - 12);
+      doc.text(lines, margin+10, y);
+      y += lines.length * 5 + 5;
+    });
+  }
 
   doc.setFillColor(6,76,120); doc.rect(0,285,W,12,"F");
   doc.setTextColor(255,245,157); doc.setFontSize(8); doc.setFont("helvetica","normal");
