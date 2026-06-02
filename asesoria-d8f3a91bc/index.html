@@ -10,7 +10,7 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
 <style>
 :root{
   --rz-dark:#064c78; --rz-mid:#0a6699; --rz-accent:#fff59d; --rz-light:#e8f4fb;
@@ -1392,7 +1392,7 @@ function renderDiag(){
     generarImagenGrafica(data, labels, colors);
   }
 
-  try { enviarNotificacion(); } catch(e){ console.warn("Notificación:", e); }
+  try { enviarNotificacion(false); } catch(e){ console.warn("Notificación:", e); }
 }
 
 /* ════════ CALENDLY (opcional, agendado en tiempo real) ════════
@@ -1425,7 +1425,7 @@ function initCalendly(){
 
 /* ════════ AGENDAR (solicitud por correo — el asesor confirma) ════════ */
 $("btnAgendar").addEventListener("click", agendarCita);
-function agendarCita(){
+async function agendarCita(){
   var email = $("ctEmail").value.trim();
   var fecha = $("ctFecha").value;
   var hora = $("ctHora").value;
@@ -1440,17 +1440,49 @@ function agendarCita(){
   var parts = fecha.split("-");
   var yy = parts[0], mm = parts[1], dd = parts[2];
 
+  var btn = $("btnAgendar");
+  btn.disabled = true;
+  btn.innerHTML = '<i class="ti ti-loader"></i> Enviando...';
+
+  var ok = await enviarNotificacion(true);
+
+  btn.disabled = false;
+  btn.innerHTML = '<i class="ti ti-send"></i> Enviar solicitud de cita';
+
   var c = $("citaConfirm");
   c.style.display = "block";
-  c.innerHTML = '<i class="ti ti-check"></i> ¡Solicitud enviada! Tu horario preferido es el <strong>' + dd + '/' + mm + '/' + yy + ' a las ' + hora + ' hrs</strong>. Un asesor de Rizkora confirmará tu cita por correo a la brevedad.';
-
-  enviarNotificacion(true);
+  if(ok){
+    c.className = "ok-box";
+    c.innerHTML = '<i class="ti ti-check"></i> ¡Solicitud enviada! Tu horario preferido es el <strong>' + dd + '/' + mm + '/' + yy + ' a las ' + hora + ' hrs</strong>. Un asesor de Rizkora confirmará tu cita por correo a la brevedad.';
+  } else {
+    // Fallback: abrir el correo del cliente con todo prellenado hacia contacto@rizkora.com
+    var asunto = encodeURIComponent("Solicitud de asesoria - " + S.nombre);
+    var cuerpo = encodeURIComponent(
+      "Hola Rizkora, quiero agendar mi asesoria financiera.\n\n" +
+      "Nombre: " + S.nombre + "\n" +
+      "Correo: " + email + "\n" +
+      "Telefono: " + $("ctTel").value + "\n" +
+      "Fecha preferida: " + dd + "/" + mm + "/" + yy + "\n" +
+      "Hora preferida: " + hora + " hrs\n\n" +
+      "Resultado de mi diagnostico: " + resultadoTexto()
+    );
+    var mailto = "mailto:contacto@rizkora.com?subject=" + asunto + "&body=" + cuerpo;
+    c.className = "warn-box";
+    c.innerHTML = '<i class="ti ti-mail"></i> Para completar tu solicitud, da clic en el botón y se abrirá tu correo con los datos listos para enviar:'
+      + '<div style="margin-top:10px"><a href="' + mailto + '" class="btn btn-primary btn-sm" style="text-decoration:none"><i class="ti ti-mail"></i> Abrir mi correo y enviar</a></div>';
+  }
 }
 
-/* ════════ EMAIL (Formspree — mismo endpoint del sitio rizkora.com) ════════ */
+/* ════════ EMAIL (Formspree) ════════
+   IMPORTANTE: para que lleguen los correos a contacto@rizkora.com debes usar
+   TU PROPIO endpoint de Formspree (ver instrucciones en robots.txt).
+   1. Crea una cuenta en https://formspree.io con el correo contacto@rizkora.com
+   2. Crea un formulario nuevo y copia su endpoint (se ve como https://formspree.io/f/XXXXXXX)
+   3. Pega tu endpoint aquí abajo reemplazando el actual
+   4. La PRIMERA vez, envía una solicitud de prueba y confirma el correo que te llegue de Formspree */
 var FORMSPREE_ENDPOINT = "https://formspree.io/f/mgvnylwy";
 
-function enviarNotificacion(conCita){
+async function enviarNotificacion(conCita){
   var d = calcData();
 
   // Construir resumen completo del diagnóstico en texto
@@ -1508,15 +1540,26 @@ function enviarNotificacion(conCita){
     payload._subject = "Nuevo diagnóstico financiero — " + S.nombre;
   }
 
-  if(typeof fetch !== "function") return;
-  fetch(FORMSPREE_ENDPOINT, {
-    method: "POST",
-    headers: { "Content-Type": "application/json", "Accept": "application/json" },
-    body: JSON.stringify(payload)
-  }).then(function(r){
-    if(r.ok) console.log("Notificación enviada a contacto@rizkora.com");
-    else console.warn("Formspree respondió con error", r.status);
-  }).catch(function(e){ console.warn("Correo no enviado:", e); });
+  if(typeof fetch !== "function") return false;
+  if(!FORMSPREE_ENDPOINT || FORMSPREE_ENDPOINT.indexOf("formspree.io") < 0) return false;
+
+  try {
+    var r = await fetch(FORMSPREE_ENDPOINT, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Accept": "application/json" },
+      body: JSON.stringify(payload)
+    });
+    if(r.ok){
+      console.log("Notificación enviada a contacto@rizkora.com");
+      return true;
+    } else {
+      console.warn("Formspree respondió con error", r.status);
+      return false;
+    }
+  } catch(e){
+    console.warn("Correo no enviado:", e);
+    return false;
+  }
 }
 
 /* ════════ PDF ════════ */
@@ -1658,159 +1701,289 @@ function generarPDF(){
   doc.save("Diagnostico_Rizkora_" + S.nombre.replace(/\s+/g,"_") + ".pdf");
 }
 
-/* ════════ EXCEL + TRACKER MENSUAL ════════ */
+/* ════════ EXCEL + TRACKER MENSUAL (diseño ejecutivo, ExcelJS) ════════ */
 $("btnExcel").addEventListener("click", generarExcel);
 
-function generarExcel(){
-  if(typeof XLSX === "undefined"){ alert("La librería de Excel no cargó. Revisa tu conexión."); return; }
+async function generarExcel(){
+  if(typeof ExcelJS === "undefined"){ alert("La libreria de Excel no cargo. Revisa tu conexion."); return; }
   var d = calcData();
-  var wb = XLSX.utils.book_new();
   var g = S.gastos;
-  var partidas = [];
 
-  partidas.push({general:"Vivienda", categoria:"Renta o hipoteca", monto:g.renta||0});
-  partidas.push({general:"Servicios", categoria:"Luz", monto:g._luz||0});
-  partidas.push({general:"Servicios", categoria:"Agua", monto:g._agua||0});
-  partidas.push({general:"Servicios", categoria:"Internet y telefono fijo", monto:g._internet||0});
-  partidas.push({general:"Servicios", categoria:"Celular / recargas", monto:g._celular||0});
-  partidas.push({general:"Servicios", categoria:"Gas", monto:g._gas||0});
-  partidas.push({general:"Servicios", categoria:"Basura", monto:g._basura||0});
-  partidas.push({general:"Alimentacion", categoria:"Comida (super / mercado)", monto:g.alim||0});
-  partidas.push({general:"Transporte", categoria:"Transporte o gasolina", monto:g.trans||0});
-  if(S.saludList && S.saludList.length){ S.saludList.forEach(function(r){ partidas.push({general:"Salud", categoria:r.tipo||"Gasto de salud", monto:r.monto||0}); }); }
-  if(S.segurosList && S.segurosList.length){ S.segurosList.forEach(function(r){ partidas.push({general:"Seguros", categoria:r.tipo||"Seguro", monto:r.monto||0}); }); }
-  if(S.streamList && S.streamList.length){ S.streamList.forEach(function(r){ partidas.push({general:"Streaming y suscripciones", categoria:r.tipo||"Suscripcion", monto:r.monto||0}); }); }
-  if(S.eduList && S.eduList.length){ S.eduList.forEach(function(r){ partidas.push({general:"Educacion", categoria:r.tipo||"Educacion", monto:r.monto||0}); }); }
-  partidas.push({general:"Gastos variables", categoria:"Entretenimiento y salidas", monto:g.ent||0});
-  partidas.push({general:"Gastos variables", categoria:"Ropa y cuidado personal", monto:g.ropa||0});
-  partidas.push({general:"Gastos variables", categoria:"Mantenimientos (hogar, auto)", monto:g.mant||0});
-  partidas.push({general:"Gastos variables", categoria:"Compras electronicas", monto:g.elec||0});
-  partidas.push({general:"Gastos variables", categoria:"Otros gastos variables", monto:g.otros||0});
-  if(S.deudas && S.deudas.length){ S.deudas.forEach(function(dd){ partidas.push({general:"Deuda fija", categoria:dd.tipo||"Credito", monto:dd.pago||0}); }); }
-  if(S.tieneTarjeta==="si" && S.tieneMSI==="si" && S.tarjetas.length){ S.tarjetas.forEach(function(t,i){ if((t.msiPago||0)>0) partidas.push({general:"Deuda (tarjetas MSI)", categoria:(t.nombre||"Tarjeta "+(i+1))+" - MSI", monto:t.msiPago||0}); }); }
+  // Paleta Rizkora
+  var AZUL = "FF064C78", AZULMID = "FF0A6699", AMARILLO = "FFFFF59D",
+      AZULCLARO = "FFE8F4FB", GRIS = "FFF2F6FA", BLANCO = "FFFFFFFF",
+      VERDE = "FF1A7F45", ROJO = "FFD93025", TEXTO = "FF0D2535";
 
-  var partidasFiltradas = partidas.filter(function(p){ return p.monto > 0; });
-  if(partidasFiltradas.length === 0) partidasFiltradas = partidas;
-  var MESES = ["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
+  var wb = new ExcelJS.Workbook();
+  wb.creator = "Rizkora"; wb.created = new Date();
 
-  // HOJA 1: DIAGNOSTICO
-  var h1 = [];
-  h1.push(["DIAGNOSTICO FINANCIERO RIZKORA"]);
-  h1.push(["Cliente", S.nombre, "", "Edad", S.edad]);
-  h1.push(["Tipo", S.tipo==="godin"?"Empleado":"Empresario/Freelance", "", "Resultado", resultadoTexto()]);
-  h1.push(["Fecha", new Date().toLocaleDateString("es-MX")]);
-  h1.push([]);
-  h1.push(["RESUMEN FINANCIERO", "Monto mensual"]);
-  h1.push(["Ingreso en cuenta", S.ingreso]);
-  if(S.ingExtra==="si" && S.ingExtraList && S.ingExtraList.length){ S.ingExtraList.forEach(function(r){ h1.push(["Ingreso adicional: "+(r.desc||"otro"), r.monto]); }); }
-  h1.push(["Ingreso total", d.ingTotal]);
-  h1.push(["Gastos fijos", d.fijos]);
-  h1.push(["Gastos variables (incluye deuda fija)", d.variables]);
-  h1.push(["Flujo libre", d.flujo]);
-  if(d.tcTotal>0){ h1.push(["Deuda total en tarjetas", d.tcTotal]); }
-  if(S.tieneMSI==="si"){ h1.push(["Compras a MSI", S.numMSI]); }
-  h1.push([]);
-  h1.push(["METAS PRIORITARIAS"]);
-  S.metas.forEach(function(m,i){ h1.push([(i+1)+". "+m.label]); });
-  h1.push([]);
-  h1.push(["AHORROS E INVERSIONES"]);
-  h1.push(["Fondo de emergencias", S.fondoEm==="si"?"Si":"No"]);
-  h1.push(["Habito de ahorro", {cada_mes:"Cada mes",a_veces:"De vez en cuando",no:"No ahorra"}[S.ahorrHab]||"-"]);
-  if(S.inversiones && S.inversiones.length){ S.inversiones.forEach(function(inv){ h1.push([inv.label, inv.monto]); }); }
-  var ws1 = XLSX.utils.aoa_to_sheet(h1);
-  ws1["!cols"] = [{wch:38},{wch:20},{wch:4},{wch:16},{wch:14}];
-  XLSX.utils.book_append_sheet(wb, ws1, "Diagnostico");
-
-  // HOJA 2: PRESUPUESTO
-  var h2 = [];
-  h2.push(["PRESUPUESTO SUGERIDO - REGLA 50/30/20"]);
-  h2.push([]);
-  h2.push(["Categoria", "Ideal (% ingreso)", "Monto ideal", "Monto real", "Diferencia"]);
-  h2.push(["Necesidades (gastos fijos)", 0.50, d.ingTotal*0.5, d.fijos, d.fijos - d.ingTotal*0.5]);
-  h2.push(["Deseos + deuda fija", 0.30, d.ingTotal*0.3, d.variables, d.variables - d.ingTotal*0.3]);
-  h2.push(["Ahorro / inversion", 0.20, d.ingTotal*0.2, Math.max(0,d.flujo), Math.max(0,d.flujo) - d.ingTotal*0.2]);
-  h2.push([]);
-  h2.push(["Ingreso total mensual", d.ingTotal]);
-  h2.push([]);
-  h2.push(["Nota: si la diferencia es positiva en Necesidades o Deseos, estas por encima del presupuesto sugerido."]);
-  var ws2 = XLSX.utils.aoa_to_sheet(h2);
-  ws2["!cols"] = [{wch:30},{wch:16},{wch:16},{wch:16},{wch:16}];
-  ["B4","B5","B6"].forEach(function(c){ if(ws2[c]) ws2[c].z = "0%"; });
-  ["C4","C5","C6","D4","D5","D6","E4","E5","E6","B8"].forEach(function(c){ if(ws2[c]) ws2[c].z = "$#,##0"; });
-  XLSX.utils.book_append_sheet(wb, ws2, "Presupuesto");
-
-  // HOJA 3: TRACKER
-  var aoa = [];
-  aoa.push(["TRACKER DE GASTOS MENSUALES - "+S.nombre]);
-  aoa.push(["Llena cada mes lo que realmente gastaste. El presupuesto viene de tu diagnostico."]);
-  aoa.push([]);
-  var header = ["Categoria general","Concepto","Presupuesto"].concat(MESES).concat(["Promedio"]);
-  aoa.push(header);
-  var firstDataRow = aoa.length + 1;
-  partidasFiltradas.forEach(function(p){
-    var row = [p.general, p.categoria, p.monto];
-    for(var m=0;m<12;m++){ row.push(""); }
-    row.push("");
-    aoa.push(row);
-  });
-  var lastDataRow = aoa.length;
-  var totalRow = ["", "TOTAL GASTADO", ""];
-  for(var m1=0;m1<12;m1++){ totalRow.push(""); }
-  totalRow.push("");
-  aoa.push(totalRow);
-  var totalRowIdx = aoa.length;
-  var pctRow = ["", "% del ingreso", ""];
-  for(var m2=0;m2<12;m2++){ pctRow.push(""); }
-  pctRow.push("");
-  aoa.push(pctRow);
-  var pctRowIdx = aoa.length;
-  aoa.push([]);
-  aoa.push(["", "Ingreso mensual de referencia", d.ingTotal]);
-  var ingRowIdx = aoa.length;
-  aoa.push(["", "Presupuesto total (suma)", ""]);
-  var presupTotalIdx = aoa.length;
-  var ws3 = XLSX.utils.aoa_to_sheet(aoa);
-  var colLetters = ["D","E","F","G","H","I","J","K","L","M","N","O"];
-  for(var r=firstDataRow; r<=lastDataRow; r++){
-    ws3["P"+r] = { t:"n", f:"AVERAGE(D"+r+":O"+r+")", z:"$#,##0" };
-    if(!ws3["C"+r]) ws3["C"+r] = {t:"n", v:0};
-    ws3["C"+r].z = "$#,##0";
-    colLetters.forEach(function(L){ if(!ws3[L+r]) ws3[L+r] = {t:"n", v:0}; ws3[L+r].z = "$#,##0"; });
+  // Helpers de estilo
+  function fill(hex){ return {type:"pattern", pattern:"solid", fgColor:{argb:hex}}; }
+  function borderAll(color){ var b={style:"thin",color:{argb:color||"FFD0DCEA"}}; return {top:b,left:b,bottom:b,right:b}; }
+  function tituloHoja(ws, texto, sub, cols){
+    ws.mergeCells(1,1,1,cols);
+    var t = ws.getCell(1,1);
+    t.value = texto;
+    t.font = {name:"Arial", size:16, bold:true, color:{argb:AMARILLO}};
+    t.fill = fill(AZUL);
+    t.alignment = {vertical:"middle", horizontal:"left", indent:1};
+    ws.getRow(1).height = 30;
+    if(sub){
+      ws.mergeCells(2,1,2,cols);
+      var s = ws.getCell(2,1);
+      s.value = sub;
+      s.font = {name:"Arial", size:10, italic:true, color:{argb:BLANCO}};
+      s.fill = fill(AZULMID);
+      s.alignment = {vertical:"middle", horizontal:"left", indent:1};
+      ws.getRow(2).height = 18;
+    }
   }
-  colLetters.forEach(function(L){ ws3[L+totalRowIdx] = { t:"n", f:"SUM("+L+firstDataRow+":"+L+lastDataRow+")", z:"$#,##0" }; });
-  ws3["P"+totalRowIdx] = { t:"n", f:"AVERAGE(D"+totalRowIdx+":O"+totalRowIdx+")", z:"$#,##0" };
-  ws3["C"+totalRowIdx] = { t:"n", f:"SUM(C"+firstDataRow+":C"+lastDataRow+")", z:"$#,##0" };
-  colLetters.forEach(function(L){ ws3[L+pctRowIdx] = { t:"n", f:"IF($C$"+ingRowIdx+"=0,0,"+L+totalRowIdx+"/$C$"+ingRowIdx+")", z:"0.0%" }; });
-  if(ws3["C"+ingRowIdx]) ws3["C"+ingRowIdx].z = "$#,##0";
-  ws3["C"+presupTotalIdx] = { t:"n", f:"C"+totalRowIdx, z:"$#,##0" };
-  ws3["!cols"] = [{wch:22},{wch:28},{wch:13}].concat(MESES.map(function(){ return {wch:10}; })).concat([{wch:11}]);
-  ws3["!freeze"] = { xSplit:3, ySplit:4 };
-  XLSX.utils.book_append_sheet(wb, ws3, "Tracker mensual");
+  function headerRow(ws, rowIdx, valores){
+    var row = ws.getRow(rowIdx);
+    valores.forEach(function(v,i){
+      var c = row.getCell(i+1);
+      c.value = v;
+      c.font = {name:"Arial", size:10, bold:true, color:{argb:BLANCO}};
+      c.fill = fill(AZUL);
+      c.alignment = {vertical:"middle", horizontal:(i<2?"left":"center"), indent:(i<2?1:0)};
+      c.border = borderAll(AZUL);
+    });
+    row.height = 22;
+  }
+  var MESES = ["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
+  var MXN = '"$"#,##0';
 
-  // HOJA 4: INSTRUCCIONES
-  var h4 = [
-    ["COMO USAR TU TRACKER"],
-    [],
-    ["1. La hoja 'Tracker mensual' tiene tus categorias exactas agrupadas por categoria general."],
-    ["2. La columna 'Presupuesto' viene de tu diagnostico - es tu meta mensual por concepto."],
-    ["3. Cada mes, escribe en la columna del mes lo que realmente gastaste en cada concepto."],
-    ["4. La fila 'TOTAL GASTADO' suma automaticamente todo lo del mes."],
-    ["5. La fila '% del ingreso' te dice que porcentaje de tu ingreso se fue en gastos ese mes."],
-    ["6. La columna 'Promedio' calcula tu gasto promedio del ano por concepto."],
-    [],
-    ["RECOMENDACION: si un mes el TOTAL supera tu presupuesto total, revisa que categoria se disparo."],
-    ["Tu meta es que los gastos fijos no rebasen el 50% y los deseos+deuda el 30% de tu ingreso."],
-    [],
-    ["Rizkora - contacto@rizkora.com"]
+  // ══════════ HOJA 1: DIAGNOSTICO ══════════
+  var ws1 = wb.addWorksheet("Diagnostico", {properties:{tabColor:{argb:AZUL}}});
+  ws1.columns = [{width:42},{width:22}];
+  tituloHoja(ws1, "DIAGNOSTICO FINANCIERO RIZKORA", S.nombre + "  -  " + new Date().toLocaleDateString("es-MX"), 2);
+  var r = 4;
+  function infoRow(label, val, money, bold){
+    var rr = ws1.getRow(r);
+    var c1 = rr.getCell(1), c2 = rr.getCell(2);
+    c1.value = label; c2.value = val;
+    c1.font = {name:"Arial", size:10, bold:!!bold, color:{argb:TEXTO}};
+    c2.font = {name:"Arial", size:10, bold:!!bold, color:{argb:TEXTO}};
+    c2.alignment = {horizontal:"right"};
+    if(money) c2.numFmt = MXN;
+    if(bold){ c1.fill = fill(AZULCLARO); c2.fill = fill(AZULCLARO); }
+    r++;
+    return rr;
+  }
+  function seccion(txt){
+    ws1.mergeCells(r,1,r,2);
+    var c = ws1.getCell(r,1);
+    c.value = txt;
+    c.font = {name:"Arial", size:11, bold:true, color:{argb:AZUL}};
+    c.fill = fill(AMARILLO);
+    c.alignment = {vertical:"middle", indent:1};
+    ws1.getRow(r).height = 20;
+    r++;
+  }
+  seccion("Datos del cliente");
+  infoRow("Cliente", S.nombre);
+  infoRow("Edad", S.edad);
+  infoRow("Perfil", S.tipo==="godin"?"Empleado":"Empresario/Freelance");
+  infoRow("Resultado del diagnostico", resultadoTexto(), false, true);
+  r++;
+  seccion("Resumen financiero");
+  infoRow("Ingreso en cuenta", S.ingreso, true);
+  if(S.ingExtra==="si" && S.ingExtraList){ S.ingExtraList.forEach(function(x){ infoRow("Ingreso adicional: "+(x.desc||"otro"), x.monto, true); }); }
+  infoRow("Ingreso total", d.ingTotal, true, true);
+  infoRow("Gastos fijos", d.fijos, true);
+  infoRow("Gastos variables (incluye deuda fija)", d.variables, true);
+  var flujoRow = infoRow("Flujo libre", d.flujo, true, true);
+  // color flujo
+  flujoRow.getCell(2).font = {name:"Arial", size:10, bold:true, color:{argb: d.flujo<0?ROJO:VERDE}};
+  if(d.tcTotal>0) infoRow("Deuda total en tarjetas", d.tcTotal, true);
+  if(S.tieneMSI==="si") infoRow("Compras a MSI", S.numMSI);
+  r++;
+  seccion("Metas prioritarias");
+  S.metas.forEach(function(m,i){ infoRow((i+1)+". "+m.label, ""); });
+  r++;
+  seccion("Ahorros e inversiones");
+  infoRow("Fondo de emergencias", S.fondoEm==="si"?"Si":"No");
+  infoRow("Habito de ahorro", {cada_mes:"Cada mes",a_veces:"De vez en cuando",no:"No ahorra"}[S.ahorrHab]||"-");
+  if(S.inversiones){ S.inversiones.forEach(function(inv){ infoRow(inv.label, inv.monto, true); }); }
+
+  // ══════════ HOJA 2: PRESUPUESTO ══════════
+  var ws2 = wb.addWorksheet("Presupuesto", {properties:{tabColor:{argb:AZULMID}}});
+  ws2.columns = [{width:32},{width:16},{width:16},{width:16},{width:16}];
+  tituloHoja(ws2, "PRESUPUESTO SUGERIDO  -  REGLA 50 / 30 / 20", "Compara tu situacion real contra el presupuesto ideal", 5);
+  headerRow(ws2, 4, ["Categoria","Ideal (%)","Monto ideal","Monto real","Diferencia"]);
+  var presupData = [
+    ["Necesidades (gastos fijos)", 0.50, d.ingTotal*0.5, d.fijos],
+    ["Deseos + deuda fija", 0.30, d.ingTotal*0.3, d.variables],
+    ["Ahorro / inversion", 0.20, d.ingTotal*0.2, Math.max(0,d.flujo)]
   ];
-  var ws4 = XLSX.utils.aoa_to_sheet(h4);
-  ws4["!cols"] = [{wch:95}];
-  XLSX.utils.book_append_sheet(wb, ws4, "Instrucciones");
+  var rowi = 5;
+  presupData.forEach(function(p){
+    var row = ws2.getRow(rowi);
+    row.getCell(1).value = p[0];
+    row.getCell(2).value = p[1]; row.getCell(2).numFmt = "0%";
+    row.getCell(3).value = p[2]; row.getCell(3).numFmt = MXN;
+    row.getCell(4).value = p[3]; row.getCell(4).numFmt = MXN;
+    row.getCell(5).value = {formula:"D"+rowi+"-C"+rowi}; row.getCell(5).numFmt = MXN;
+    for(var k=1;k<=5;k++){
+      var c = row.getCell(k);
+      c.font = {name:"Arial", size:10, color:{argb:TEXTO}};
+      c.border = borderAll();
+      c.alignment = {horizontal:(k===1?"left":"right"), indent:(k===1?1:0)};
+      if(rowi%2===0) c.fill = fill(GRIS);
+    }
+    rowi++;
+  });
+  rowi++;
+  var ingr = ws2.getRow(rowi);
+  ingr.getCell(1).value = "Ingreso total mensual";
+  ingr.getCell(1).font = {name:"Arial", size:10, bold:true, color:{argb:AZUL}};
+  ingr.getCell(2).value = d.ingTotal; ingr.getCell(2).numFmt = MXN;
+  ingr.getCell(2).font = {name:"Arial", size:10, bold:true, color:{argb:AZUL}};
+  rowi += 2;
+  ws2.mergeCells(rowi,1,rowi,5);
+  var nota2 = ws2.getCell(rowi,1);
+  nota2.value = "Nota: una diferencia positiva en Necesidades o Deseos significa que estas por encima del presupuesto sugerido.";
+  nota2.font = {name:"Arial", size:9, italic:true, color:{argb:"FF527A93"}};
 
-  XLSX.writeFile(wb, "Tracker_Rizkora_" + S.nombre.replace(/\s+/g,"_") + ".xlsx");
+  // ══════════ HOJA 3: TRACKER ══════════
+  var ws3 = wb.addWorksheet("Tracker mensual", {properties:{tabColor:{argb:AMARILLO}}, views:[{state:"frozen", xSplit:3, ySplit:4}]});
+  ws3.columns = [{width:22},{width:30},{width:13}].concat(MESES.map(function(){return{width:9};})).concat([{width:11}]);
+  tituloHoja(ws3, "TRACKER DE GASTOS MENSUALES", "Registra cada mes lo que realmente gastaste  -  " + S.nombre, 16);
+  headerRow(ws3, 4, ["Categoria general","Concepto","Presupuesto"].concat(MESES).concat(["Promedio"]));
+
+  // Construir partidas
+  var partidas = [];
+  partidas.push({gen:"Vivienda", cat:"Renta o hipoteca", monto:g.renta||0});
+  partidas.push({gen:"Servicios", cat:"Luz", monto:g._luz||0});
+  partidas.push({gen:"Servicios", cat:"Agua", monto:g._agua||0});
+  partidas.push({gen:"Servicios", cat:"Internet y telefono fijo", monto:g._internet||0});
+  partidas.push({gen:"Servicios", cat:"Celular / recargas", monto:g._celular||0});
+  partidas.push({gen:"Servicios", cat:"Gas", monto:g._gas||0});
+  partidas.push({gen:"Servicios", cat:"Basura", monto:g._basura||0});
+  partidas.push({gen:"Alimentacion", cat:"Comida (super / mercado)", monto:g.alim||0});
+  partidas.push({gen:"Transporte", cat:"Transporte o gasolina", monto:g.trans||0});
+  if(S.saludList){ S.saludList.forEach(function(x){ partidas.push({gen:"Salud", cat:x.tipo||"Salud", monto:x.monto||0}); }); }
+  if(S.segurosList){ S.segurosList.forEach(function(x){ partidas.push({gen:"Seguros", cat:x.tipo||"Seguro", monto:x.monto||0}); }); }
+  if(S.streamList){ S.streamList.forEach(function(x){ partidas.push({gen:"Streaming y suscripciones", cat:x.tipo||"Suscripcion", monto:x.monto||0}); }); }
+  if(S.eduList){ S.eduList.forEach(function(x){ partidas.push({gen:"Educacion", cat:x.tipo||"Educacion", monto:x.monto||0}); }); }
+  partidas.push({gen:"Gastos variables", cat:"Entretenimiento y salidas", monto:g.ent||0});
+  partidas.push({gen:"Gastos variables", cat:"Ropa y cuidado personal", monto:g.ropa||0});
+  partidas.push({gen:"Gastos variables", cat:"Mantenimientos (hogar, auto)", monto:g.mant||0});
+  partidas.push({gen:"Gastos variables", cat:"Compras electronicas", monto:g.elec||0});
+  partidas.push({gen:"Gastos variables", cat:"Otros gastos variables", monto:g.otros||0});
+  if(S.deudas){ S.deudas.forEach(function(x){ partidas.push({gen:"Deuda fija", cat:x.tipo||"Credito", monto:x.pago||0}); }); }
+  if(S.tieneTarjeta==="si" && S.tieneMSI==="si" && S.tarjetas){ S.tarjetas.forEach(function(t,i){ if((t.msiPago||0)>0) partidas.push({gen:"Deuda (tarjetas MSI)", cat:(t.nombre||"Tarjeta "+(i+1))+" - MSI", monto:t.msiPago||0}); }); }
+  partidas = partidas.filter(function(p){ return p.monto>0; });
+
+  // Colores por categoria general
+  var genColors = {
+    "Vivienda":"FFE8F4FB","Servicios":"FFF2F6FA","Alimentacion":"FFE8F4FB","Transporte":"FFF2F6FA",
+    "Salud":"FFE8F4FB","Seguros":"FFF2F6FA","Streaming y suscripciones":"FFE8F4FB","Educacion":"FFF2F6FA",
+    "Gastos variables":"FFFFF9E6","Deuda fija":"FFFDECEA","Deuda (tarjetas MSI)":"FFFDECEA"
+  };
+  var firstDataRow = 5;
+  var ri = firstDataRow;
+  partidas.forEach(function(p){
+    var row = ws3.getRow(ri);
+    row.getCell(1).value = p.gen;
+    row.getCell(2).value = p.cat;
+    row.getCell(3).value = p.monto; row.getCell(3).numFmt = MXN;
+    for(var mc=4; mc<=15; mc++){ row.getCell(mc).numFmt = MXN; }
+    row.getCell(16).value = {formula:"AVERAGE(D"+ri+":O"+ri+")"}; row.getCell(16).numFmt = MXN;
+    var bg = genColors[p.gen] || BLANCO;
+    for(var k=1;k<=16;k++){
+      var c = row.getCell(k);
+      c.font = {name:"Arial", size:9, color:{argb:TEXTO}};
+      c.border = borderAll();
+      c.fill = fill(bg);
+      c.alignment = {horizontal:(k<=2?"left":"right"), indent:(k<=2?1:0)};
+    }
+    row.getCell(1).font = {name:"Arial", size:9, bold:true, color:{argb:AZUL}};
+    ri++;
+  });
+  var lastDataRow = ri-1;
+  // Fila TOTAL
+  var totRow = ws3.getRow(ri);
+  totRow.getCell(2).value = "TOTAL GASTADO";
+  totRow.getCell(3).value = {formula:"SUM(C"+firstDataRow+":C"+lastDataRow+")"}; totRow.getCell(3).numFmt = MXN;
+  for(var mc2=4; mc2<=15; mc2++){
+    var L = String.fromCharCode(64+mc2);
+    totRow.getCell(mc2).value = {formula:"SUM("+L+firstDataRow+":"+L+lastDataRow+")"};
+    totRow.getCell(mc2).numFmt = MXN;
+  }
+  totRow.getCell(16).value = {formula:"AVERAGE(D"+ri+":O"+ri+")"}; totRow.getCell(16).numFmt = MXN;
+  for(var k2=1;k2<=16;k2++){
+    var c=totRow.getCell(k2);
+    c.font={name:"Arial",size:10,bold:true,color:{argb:AMARILLO}};
+    c.fill=fill(AZUL); c.border=borderAll(AZUL);
+    c.alignment={horizontal:(k2<=2?"left":"right"),indent:(k2<=2?1:0)};
+  }
+  var totalRowIdx = ri;
+  ri++;
+  // Fila % ingreso
+  var ingRowIdx = lastDataRow + 4;
+  var pctRow = ws3.getRow(ri);
+  pctRow.getCell(2).value = "% del ingreso";
+  for(var mc3=4; mc3<=15; mc3++){
+    var L3 = String.fromCharCode(64+mc3);
+    pctRow.getCell(mc3).value = {formula:"IF($C$"+ingRowIdx+"=0,0,"+L3+totalRowIdx+"/$C$"+ingRowIdx+")"};
+    pctRow.getCell(mc3).numFmt = "0.0%";
+  }
+  for(var k3=1;k3<=16;k3++){
+    var c3=pctRow.getCell(k3);
+    c3.font={name:"Arial",size:9,bold:true,italic:true,color:{argb:AZULMID}};
+    c3.fill=fill(AZULCLARO); c3.border=borderAll();
+    c3.alignment={horizontal:(k3<=2?"left":"right"),indent:(k3<=2?1:0)};
+  }
+  ri += 2;
+  // Ingreso referencia
+  var ingRow = ws3.getRow(ingRowIdx);
+  ingRow.getCell(2).value = "Ingreso mensual de referencia";
+  ingRow.getCell(2).font = {name:"Arial",size:10,bold:true,color:{argb:AZUL}};
+  ingRow.getCell(3).value = d.ingTotal; ingRow.getCell(3).numFmt = MXN;
+  ingRow.getCell(3).font = {name:"Arial",size:10,bold:true,color:{argb:AZUL}};
+
+  // ══════════ HOJA 4: INSTRUCCIONES ══════════
+  var ws4 = wb.addWorksheet("Instrucciones", {properties:{tabColor:{argb:AZUL}}});
+  ws4.columns = [{width:100}];
+  tituloHoja(ws4, "COMO USAR TU TRACKER", "Guia rapida", 1);
+  var instr = [
+    "1. La hoja 'Tracker mensual' tiene tus categorias exactas agrupadas por categoria general (con colores).",
+    "2. La columna 'Presupuesto' viene de tu diagnostico: es tu meta mensual por concepto.",
+    "3. Cada mes, escribe en la columna del mes lo que realmente gastaste en cada concepto.",
+    "4. La fila azul 'TOTAL GASTADO' suma automaticamente todo lo del mes.",
+    "5. La fila '% del ingreso' te dice que porcentaje de tu ingreso se fue en gastos ese mes.",
+    "6. La columna 'Promedio' calcula tu gasto promedio del ano por concepto.",
+    "",
+    "RECOMENDACION: si un mes el TOTAL supera tu presupuesto, revisa que categoria se disparo.",
+    "Tu meta es que los gastos fijos no rebasen el 50% y los deseos + deuda el 30% de tu ingreso.",
+    "",
+    "Rizkora  -  contacto@rizkora.com"
+  ];
+  var ir = 4;
+  instr.forEach(function(line){
+    var c = ws4.getCell(ir,1);
+    c.value = line;
+    var isBold = line.indexOf("RECOMENDACION")>=0 || line.indexOf("Rizkora")>=0;
+    c.font = {name:"Arial", size:10, bold:isBold, color:{argb: isBold?AZUL:TEXTO}};
+    c.alignment = {wrapText:true, vertical:"middle"};
+    ws4.getRow(ir).height = 18;
+    ir++;
+  });
+
+  // Descargar
+  var buf = await wb.xlsx.writeBuffer();
+  var blob = new Blob([buf], {type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement("a");
+  a.href = url;
+  a.download = "Tracker_Rizkora_" + S.nombre.replace(/\s+/g,"_") + ".xlsx";
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
 }
 
 /* ════════ INIT ════════ */
+
 
 $("fechaNac").max = new Date().toISOString().split("T")[0];
 $("ctFecha").min = new Date().toISOString().split("T")[0];
