@@ -1131,10 +1131,45 @@ function nuevoCliente(){
     var el = $(id); if(el) el.innerHTML = "";
   });
   if(pieChart){ pieChart.destroy(); pieChart = null; }
+  if(chartPdf){ chartPdf.destroy(); chartPdf = null; }
   initInversiones();
   initMetas();
   renderMetas();
   showSection(1);
+}
+
+/* ════════ IMAGEN CUADRADA DE LA GRÁFICA PARA EL PDF ════════ */
+var chartPdf = null;
+function generarImagenGrafica(data, labels, colors){
+  lastChartImg = null;
+  try {
+    // Canvas cuadrado oculto y de alta resolución
+    var c = document.getElementById("pdfChartCanvas");
+    if(!c){
+      c = document.createElement("canvas");
+      c.id = "pdfChartCanvas";
+      c.width = 600; c.height = 600;
+      c.style.position = "fixed";
+      c.style.left = "-9999px";
+      c.style.top = "0";
+      c.style.width = "600px";
+      c.style.height = "600px";
+      document.body.appendChild(c);
+    }
+    if(chartPdf){ chartPdf.destroy(); chartPdf = null; }
+    chartPdf = new Chart(c.getContext("2d"), {
+      type:"doughnut",
+      data:{labels:labels, datasets:[{data:data, backgroundColor:colors, borderWidth:4, borderColor:"#fff"}]},
+      options:{
+        responsive:false,
+        maintainAspectRatio:true,
+        animation:{ duration:0, onComplete:function(){ try{ lastChartImg = chartPdf.toBase64Image("image/png", 1.0); }catch(e){} } },
+        plugins:{ legend:{ display:true, position:"bottom", labels:{ padding:18, font:{size:16} } } }
+      }
+    });
+    // Respaldo: capturar tras un breve instante por si onComplete no dispara
+    setTimeout(function(){ try{ if(!lastChartImg && chartPdf) lastChartImg = chartPdf.toBase64Image("image/png", 1.0); }catch(e){} }, 400);
+  } catch(e){ console.warn("No se pudo generar imagen de gráfica:", e); }
 }
 
 /* ════════ DIAGNÓSTICO ════════ */
@@ -1345,12 +1380,12 @@ function renderDiag(){
     pieChart = new Chart(ctx, {
       type:"doughnut",
       data:{labels:labels, datasets:[{data:data, backgroundColor:colors, borderWidth:3, borderColor:"#fff"}]},
-      options:{responsive:true, maintainAspectRatio:false, animation:{onComplete:function(){ try{ lastChartImg = pieChart.toBase64Image(); }catch(e){} }},
+      options:{responsive:true, maintainAspectRatio:false,
         plugins:{legend:{display:true, position:"bottom", labels:{padding:16, font:{size:12}}},
           tooltip:{callbacks:{label:function(c){ return c.label+": "+fmt(c.raw)+" ("+Math.round(c.raw/ing*100)+"%)"; }}}}}
     });
-    // Capturar imagen para el PDF tras un breve render
-    setTimeout(function(){ try{ lastChartImg = pieChart.toBase64Image(); }catch(e){} }, 600);
+    // Generar imagen CUADRADA dedicada para el PDF (evita que salga aplastada)
+    generarImagenGrafica(data, labels, colors);
   }
 
   try { enviarNotificacion(); } catch(e){ console.warn("Notificación:", e); }
@@ -1548,19 +1583,21 @@ function generarPDF(){
   y += 4;
 
   // ─── Gráfica de distribución (imagen) ───
-  // Intento de captura de último momento si aún no se guardó
-  if(!lastChartImg && pieChart){ try{ lastChartImg = pieChart.toBase64Image(); }catch(e){} }
+  // Intento de captura de último momento desde el canvas cuadrado dedicado
+  if(!lastChartImg && chartPdf){ try{ lastChartImg = chartPdf.toBase64Image("image/png", 1.0); }catch(e){} }
   if(lastChartImg){
-    if(y > 200){ doc.addPage(); y = 20; }
+    if(y > 195){ doc.addPage(); y = 20; }
     sec("Distribución del ingreso");
     try {
-      var imgW = 85, imgH = 85;
-      var imgX = (W - imgW) / 2;
-      doc.addImage(lastChartImg, "PNG", imgX, y, imgW, imgH);
-      y += imgH + 4;
+      // La imagen es cuadrada (600x600), la mostramos centrada y proporcional
+      var imgSize = 80;
+      var imgX = (W - imgSize) / 2;
+      doc.addImage(lastChartImg, "PNG", imgX, y, imgSize, imgSize, undefined, "FAST");
+      y += imgSize + 4;
       doc.setFontSize(8); doc.setFont("helvetica","italic"); doc.setTextColor(120,120,120);
       var nota = doc.splitTextToSize("No incluye pagos de tarjetas de credito para evitar duplicar gastos ya capturados por separado.", cw);
       doc.text(nota, margin, y); y += nota.length*4 + 4;
+      doc.setFont("helvetica","normal"); doc.setTextColor(50,50,50);
     } catch(e){ /* si falla la imagen, continuar sin ella */ }
   }
 
