@@ -10,6 +10,7 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
 :root{
   --rz-dark:#064c78; --rz-mid:#0a6699; --rz-accent:#fff59d; --rz-light:#e8f4fb;
@@ -555,8 +556,11 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
       </div>
 
       <div class="download-area">
-        <p>Descarga tu diagnóstico financiero en PDF.</p>
-        <button class="btn btn-primary btn-lg" id="btnPDF"><i class="ti ti-file-download"></i> Descargar diagnóstico PDF</button>
+        <p>Descarga tu diagnóstico y tu tracker de gastos mensuales.</p>
+        <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+          <button class="btn btn-primary btn-lg" id="btnPDF"><i class="ti ti-file-download"></i> Diagnóstico PDF</button>
+          <button class="btn btn-success btn-lg" id="btnExcel"><i class="ti ti-table"></i> Excel + Tracker mensual</button>
+        </div>
       </div>
       <div style="text-align:center;margin-top:1rem">
         <button class="btn btn-secondary" id="btnNuevo"><i class="ti ti-plus"></i> Nuevo cliente</button>
@@ -1654,7 +1658,160 @@ function generarPDF(){
   doc.save("Diagnostico_Rizkora_" + S.nombre.replace(/\s+/g,"_") + ".pdf");
 }
 
+/* ════════ EXCEL + TRACKER MENSUAL ════════ */
+$("btnExcel").addEventListener("click", generarExcel);
+
+function generarExcel(){
+  if(typeof XLSX === "undefined"){ alert("La librería de Excel no cargó. Revisa tu conexión."); return; }
+  var d = calcData();
+  var wb = XLSX.utils.book_new();
+  var g = S.gastos;
+  var partidas = [];
+
+  partidas.push({general:"Vivienda", categoria:"Renta o hipoteca", monto:g.renta||0});
+  partidas.push({general:"Servicios", categoria:"Luz", monto:g._luz||0});
+  partidas.push({general:"Servicios", categoria:"Agua", monto:g._agua||0});
+  partidas.push({general:"Servicios", categoria:"Internet y telefono fijo", monto:g._internet||0});
+  partidas.push({general:"Servicios", categoria:"Celular / recargas", monto:g._celular||0});
+  partidas.push({general:"Servicios", categoria:"Gas", monto:g._gas||0});
+  partidas.push({general:"Servicios", categoria:"Basura", monto:g._basura||0});
+  partidas.push({general:"Alimentacion", categoria:"Comida (super / mercado)", monto:g.alim||0});
+  partidas.push({general:"Transporte", categoria:"Transporte o gasolina", monto:g.trans||0});
+  if(S.saludList && S.saludList.length){ S.saludList.forEach(function(r){ partidas.push({general:"Salud", categoria:r.tipo||"Gasto de salud", monto:r.monto||0}); }); }
+  if(S.segurosList && S.segurosList.length){ S.segurosList.forEach(function(r){ partidas.push({general:"Seguros", categoria:r.tipo||"Seguro", monto:r.monto||0}); }); }
+  if(S.streamList && S.streamList.length){ S.streamList.forEach(function(r){ partidas.push({general:"Streaming y suscripciones", categoria:r.tipo||"Suscripcion", monto:r.monto||0}); }); }
+  if(S.eduList && S.eduList.length){ S.eduList.forEach(function(r){ partidas.push({general:"Educacion", categoria:r.tipo||"Educacion", monto:r.monto||0}); }); }
+  partidas.push({general:"Gastos variables", categoria:"Entretenimiento y salidas", monto:g.ent||0});
+  partidas.push({general:"Gastos variables", categoria:"Ropa y cuidado personal", monto:g.ropa||0});
+  partidas.push({general:"Gastos variables", categoria:"Mantenimientos (hogar, auto)", monto:g.mant||0});
+  partidas.push({general:"Gastos variables", categoria:"Compras electronicas", monto:g.elec||0});
+  partidas.push({general:"Gastos variables", categoria:"Otros gastos variables", monto:g.otros||0});
+  if(S.deudas && S.deudas.length){ S.deudas.forEach(function(dd){ partidas.push({general:"Deuda fija", categoria:dd.tipo||"Credito", monto:dd.pago||0}); }); }
+  if(S.tieneTarjeta==="si" && S.tieneMSI==="si" && S.tarjetas.length){ S.tarjetas.forEach(function(t,i){ if((t.msiPago||0)>0) partidas.push({general:"Deuda (tarjetas MSI)", categoria:(t.nombre||"Tarjeta "+(i+1))+" - MSI", monto:t.msiPago||0}); }); }
+
+  var partidasFiltradas = partidas.filter(function(p){ return p.monto > 0; });
+  if(partidasFiltradas.length === 0) partidasFiltradas = partidas;
+  var MESES = ["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
+
+  // HOJA 1: DIAGNOSTICO
+  var h1 = [];
+  h1.push(["DIAGNOSTICO FINANCIERO RIZKORA"]);
+  h1.push(["Cliente", S.nombre, "", "Edad", S.edad]);
+  h1.push(["Tipo", S.tipo==="godin"?"Empleado":"Empresario/Freelance", "", "Resultado", resultadoTexto()]);
+  h1.push(["Fecha", new Date().toLocaleDateString("es-MX")]);
+  h1.push([]);
+  h1.push(["RESUMEN FINANCIERO", "Monto mensual"]);
+  h1.push(["Ingreso en cuenta", S.ingreso]);
+  if(S.ingExtra==="si" && S.ingExtraList && S.ingExtraList.length){ S.ingExtraList.forEach(function(r){ h1.push(["Ingreso adicional: "+(r.desc||"otro"), r.monto]); }); }
+  h1.push(["Ingreso total", d.ingTotal]);
+  h1.push(["Gastos fijos", d.fijos]);
+  h1.push(["Gastos variables (incluye deuda fija)", d.variables]);
+  h1.push(["Flujo libre", d.flujo]);
+  if(d.tcTotal>0){ h1.push(["Deuda total en tarjetas", d.tcTotal]); }
+  if(S.tieneMSI==="si"){ h1.push(["Compras a MSI", S.numMSI]); }
+  h1.push([]);
+  h1.push(["METAS PRIORITARIAS"]);
+  S.metas.forEach(function(m,i){ h1.push([(i+1)+". "+m.label]); });
+  h1.push([]);
+  h1.push(["AHORROS E INVERSIONES"]);
+  h1.push(["Fondo de emergencias", S.fondoEm==="si"?"Si":"No"]);
+  h1.push(["Habito de ahorro", {cada_mes:"Cada mes",a_veces:"De vez en cuando",no:"No ahorra"}[S.ahorrHab]||"-"]);
+  if(S.inversiones && S.inversiones.length){ S.inversiones.forEach(function(inv){ h1.push([inv.label, inv.monto]); }); }
+  var ws1 = XLSX.utils.aoa_to_sheet(h1);
+  ws1["!cols"] = [{wch:38},{wch:20},{wch:4},{wch:16},{wch:14}];
+  XLSX.utils.book_append_sheet(wb, ws1, "Diagnostico");
+
+  // HOJA 2: PRESUPUESTO
+  var h2 = [];
+  h2.push(["PRESUPUESTO SUGERIDO - REGLA 50/30/20"]);
+  h2.push([]);
+  h2.push(["Categoria", "Ideal (% ingreso)", "Monto ideal", "Monto real", "Diferencia"]);
+  h2.push(["Necesidades (gastos fijos)", 0.50, d.ingTotal*0.5, d.fijos, d.fijos - d.ingTotal*0.5]);
+  h2.push(["Deseos + deuda fija", 0.30, d.ingTotal*0.3, d.variables, d.variables - d.ingTotal*0.3]);
+  h2.push(["Ahorro / inversion", 0.20, d.ingTotal*0.2, Math.max(0,d.flujo), Math.max(0,d.flujo) - d.ingTotal*0.2]);
+  h2.push([]);
+  h2.push(["Ingreso total mensual", d.ingTotal]);
+  h2.push([]);
+  h2.push(["Nota: si la diferencia es positiva en Necesidades o Deseos, estas por encima del presupuesto sugerido."]);
+  var ws2 = XLSX.utils.aoa_to_sheet(h2);
+  ws2["!cols"] = [{wch:30},{wch:16},{wch:16},{wch:16},{wch:16}];
+  ["B4","B5","B6"].forEach(function(c){ if(ws2[c]) ws2[c].z = "0%"; });
+  ["C4","C5","C6","D4","D5","D6","E4","E5","E6","B8"].forEach(function(c){ if(ws2[c]) ws2[c].z = "$#,##0"; });
+  XLSX.utils.book_append_sheet(wb, ws2, "Presupuesto");
+
+  // HOJA 3: TRACKER
+  var aoa = [];
+  aoa.push(["TRACKER DE GASTOS MENSUALES - "+S.nombre]);
+  aoa.push(["Llena cada mes lo que realmente gastaste. El presupuesto viene de tu diagnostico."]);
+  aoa.push([]);
+  var header = ["Categoria general","Concepto","Presupuesto"].concat(MESES).concat(["Promedio"]);
+  aoa.push(header);
+  var firstDataRow = aoa.length + 1;
+  partidasFiltradas.forEach(function(p){
+    var row = [p.general, p.categoria, p.monto];
+    for(var m=0;m<12;m++){ row.push(""); }
+    row.push("");
+    aoa.push(row);
+  });
+  var lastDataRow = aoa.length;
+  var totalRow = ["", "TOTAL GASTADO", ""];
+  for(var m1=0;m1<12;m1++){ totalRow.push(""); }
+  totalRow.push("");
+  aoa.push(totalRow);
+  var totalRowIdx = aoa.length;
+  var pctRow = ["", "% del ingreso", ""];
+  for(var m2=0;m2<12;m2++){ pctRow.push(""); }
+  pctRow.push("");
+  aoa.push(pctRow);
+  var pctRowIdx = aoa.length;
+  aoa.push([]);
+  aoa.push(["", "Ingreso mensual de referencia", d.ingTotal]);
+  var ingRowIdx = aoa.length;
+  aoa.push(["", "Presupuesto total (suma)", ""]);
+  var presupTotalIdx = aoa.length;
+  var ws3 = XLSX.utils.aoa_to_sheet(aoa);
+  var colLetters = ["D","E","F","G","H","I","J","K","L","M","N","O"];
+  for(var r=firstDataRow; r<=lastDataRow; r++){
+    ws3["P"+r] = { t:"n", f:"AVERAGE(D"+r+":O"+r+")", z:"$#,##0" };
+    if(!ws3["C"+r]) ws3["C"+r] = {t:"n", v:0};
+    ws3["C"+r].z = "$#,##0";
+    colLetters.forEach(function(L){ if(!ws3[L+r]) ws3[L+r] = {t:"n", v:0}; ws3[L+r].z = "$#,##0"; });
+  }
+  colLetters.forEach(function(L){ ws3[L+totalRowIdx] = { t:"n", f:"SUM("+L+firstDataRow+":"+L+lastDataRow+")", z:"$#,##0" }; });
+  ws3["P"+totalRowIdx] = { t:"n", f:"AVERAGE(D"+totalRowIdx+":O"+totalRowIdx+")", z:"$#,##0" };
+  ws3["C"+totalRowIdx] = { t:"n", f:"SUM(C"+firstDataRow+":C"+lastDataRow+")", z:"$#,##0" };
+  colLetters.forEach(function(L){ ws3[L+pctRowIdx] = { t:"n", f:"IF($C$"+ingRowIdx+"=0,0,"+L+totalRowIdx+"/$C$"+ingRowIdx+")", z:"0.0%" }; });
+  if(ws3["C"+ingRowIdx]) ws3["C"+ingRowIdx].z = "$#,##0";
+  ws3["C"+presupTotalIdx] = { t:"n", f:"C"+totalRowIdx, z:"$#,##0" };
+  ws3["!cols"] = [{wch:22},{wch:28},{wch:13}].concat(MESES.map(function(){ return {wch:10}; })).concat([{wch:11}]);
+  ws3["!freeze"] = { xSplit:3, ySplit:4 };
+  XLSX.utils.book_append_sheet(wb, ws3, "Tracker mensual");
+
+  // HOJA 4: INSTRUCCIONES
+  var h4 = [
+    ["COMO USAR TU TRACKER"],
+    [],
+    ["1. La hoja 'Tracker mensual' tiene tus categorias exactas agrupadas por categoria general."],
+    ["2. La columna 'Presupuesto' viene de tu diagnostico - es tu meta mensual por concepto."],
+    ["3. Cada mes, escribe en la columna del mes lo que realmente gastaste en cada concepto."],
+    ["4. La fila 'TOTAL GASTADO' suma automaticamente todo lo del mes."],
+    ["5. La fila '% del ingreso' te dice que porcentaje de tu ingreso se fue en gastos ese mes."],
+    ["6. La columna 'Promedio' calcula tu gasto promedio del ano por concepto."],
+    [],
+    ["RECOMENDACION: si un mes el TOTAL supera tu presupuesto total, revisa que categoria se disparo."],
+    ["Tu meta es que los gastos fijos no rebasen el 50% y los deseos+deuda el 30% de tu ingreso."],
+    [],
+    ["Rizkora - contacto@rizkora.com"]
+  ];
+  var ws4 = XLSX.utils.aoa_to_sheet(h4);
+  ws4["!cols"] = [{wch:95}];
+  XLSX.utils.book_append_sheet(wb, ws4, "Instrucciones");
+
+  XLSX.writeFile(wb, "Tracker_Rizkora_" + S.nombre.replace(/\s+/g,"_") + ".xlsx");
+}
+
 /* ════════ INIT ════════ */
+
 $("fechaNac").max = new Date().toISOString().split("T")[0];
 $("ctFecha").min = new Date().toISOString().split("T")[0];
 initBar();
