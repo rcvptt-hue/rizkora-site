@@ -262,8 +262,9 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
           </div>
         </div>
         <div id="ingExtraPanel" style="display:none">
-          <div class="field"><label>Monto mensual aproximado (MXN)</label><input type="number" id="ingExtraMonto" placeholder="0.00" min="0"></div>
-          <div class="field"><label>Descripción (opcional)</label><input type="text" id="ingExtraDesc" placeholder="Freelance, rentas, comisiones..."></div>
+          <p style="font-size:13px;color:var(--muted);margin-bottom:10px;font-weight:500">Agrega cada fuente de ingreso adicional con su monto mensual:</p>
+          <div id="ingExtraRows"></div>
+          <button class="btn btn-secondary btn-sm" id="btnAddIngExtra" style="margin-top:4px"><i class="ti ti-plus"></i> Agregar fuente de ingreso</button>
         </div>
       </div>
       <div class="nav-row">
@@ -290,12 +291,16 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
               <input type="number" id="numTarjetas" placeholder="0" min="1" max="20">
             </div>
             <div class="field" style="margin:0">
-              <label>¿Tiene pagos a MSI?</label>
+              <label>¿Tiene compras a MSI?</label>
               <div class="radio-group" data-group="tieneMSI" style="margin-top:6px">
                 <div class="radio-opt" data-val="si">Sí</div>
                 <div class="radio-opt" data-val="no">No</div>
               </div>
             </div>
+          </div>
+          <div class="field" id="numMSIField" style="display:none">
+            <label>¿Cuántas compras tiene actualmente a meses sin intereses?</label>
+            <input type="number" id="numMSI" placeholder="0" min="1" max="50">
           </div>
           <div class="field">
             <label>¿Cómo paga mensualmente sus tarjetas?</label>
@@ -360,22 +365,60 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
     <!-- PASO 4: GASTOS -->
     <div class="section" id="s4">
       <div class="card">
-        <div class="section-title"><i class="ti ti-home"></i> Gastos fijos mensuales</div>
+        <div class="section-title"><i class="ti ti-home"></i> Gastos fijos: vivienda y servicios</div>
+        <div class="field"><label>Renta o hipoteca (si no aplica, deja en 0)</label><input type="number" id="gRenta" placeholder="0" min="0"></div>
+        <p style="font-size:13px;font-weight:600;color:var(--rz-dark);margin:1rem 0 .5rem">Servicios — captura cada uno:</p>
         <div class="row2">
-          <div class="field"><label>Renta o hipoteca</label><input type="number" id="gRenta" placeholder="0" min="0"></div>
-          <div class="field"><label>Servicios (luz, agua, gas, internet)</label><input type="number" id="gServ" placeholder="0" min="0"></div>
+          <div class="field"><label>Luz</label><input type="number" id="gLuz" placeholder="0" min="0"></div>
+          <div class="field"><label>Agua</label><input type="number" id="gAgua" placeholder="0" min="0"></div>
         </div>
         <div class="row2">
-          <div class="field"><label>Transporte / gasolina</label><input type="number" id="gTrans" placeholder="0" min="0"></div>
-          <div class="field"><label>Alimentación (super / mercado)</label><input type="number" id="gAlim" placeholder="0" min="0"></div>
+          <div class="field"><label>Internet y teléfono fijo</label><input type="number" id="gInternet" placeholder="0" min="0"></div>
+          <div class="field"><label>Planes de celular o recargas</label><input type="number" id="gCelular" placeholder="0" min="0"></div>
         </div>
         <div class="row2">
-          <div class="field"><label>Educación (colegiaturas, cursos)</label><input type="number" id="gEdu" placeholder="0" min="0"></div>
-          <div class="field"><label>Salud (consultas, checkups, nutriólogo, ejercicio)</label><input type="number" id="gSalud" placeholder="0" min="0"></div>
+          <div class="field"><label>Gas</label><input type="number" id="gGas" placeholder="0" min="0"></div>
+          <div class="field"><label>Basura</label><input type="number" id="gBasura" placeholder="0" min="0"></div>
         </div>
         <div class="row2">
-          <div class="field"><label>Seguros (vida, gastos médicos, auto)</label><input type="number" id="gSeguros" placeholder="0" min="0"></div>
-          <div class="field"><label>Streaming y suscripciones</label><input type="number" id="gSubs" placeholder="0" min="0"></div>
+          <div class="field"><label>Transporte o gasolina</label><input type="number" id="gTrans" placeholder="0" min="0"></div>
+          <div class="field"><label>Comida (super / mercado)</label><input type="number" id="gAlim" placeholder="0" min="0"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="section-title"><i class="ti ti-heartbeat"></i> Salud</div>
+        <p style="font-size:13px;color:var(--muted);margin-bottom:10px">Agrega cada gasto de salud que tengas. Puedes agregar varios (por ejemplo, varias membresías).</p>
+        <div id="saludRows"></div>
+        <button class="btn btn-secondary btn-sm" id="btnAddSalud" style="margin-top:4px"><i class="ti ti-plus"></i> Agregar gasto de salud</button>
+      </div>
+
+      <div class="card">
+        <div class="section-title"><i class="ti ti-shield"></i> Seguros</div>
+        <p style="font-size:13px;color:var(--muted);margin-bottom:10px">Agrega los seguros que pagas mensualmente.</p>
+        <div id="seguroRows"></div>
+        <button class="btn btn-secondary btn-sm" id="btnAddSeguro" style="margin-top:4px"><i class="ti ti-plus"></i> Agregar seguro</button>
+      </div>
+
+      <div class="card">
+        <div class="section-title"><i class="ti ti-device-tv"></i> Streaming y suscripciones</div>
+        <p style="font-size:13px;color:var(--muted);margin-bottom:10px">Agrega cada servicio que pagas.</p>
+        <div id="streamRows"></div>
+        <button class="btn btn-secondary btn-sm" id="btnAddStream" style="margin-top:4px"><i class="ti ti-plus"></i> Agregar suscripción</button>
+      </div>
+
+      <div class="card">
+        <div class="section-title"><i class="ti ti-school"></i> Educación</div>
+        <div class="field">
+          <label>¿Actualmente tienes un gasto fijo por educación (propio o de un dependiente)?</label>
+          <div class="radio-group" data-group="tieneEdu">
+            <div class="radio-opt" data-val="si">Sí</div>
+            <div class="radio-opt" data-val="no">No</div>
+          </div>
+        </div>
+        <div id="eduPanel" style="display:none">
+          <div id="eduRows"></div>
+          <button class="btn btn-secondary btn-sm" id="btnAddEdu" style="margin-top:4px"><i class="ti ti-plus"></i> Agregar otro gasto educativo</button>
         </div>
       </div>
       <div class="card">
@@ -408,15 +451,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
           </div>
         </div>
         <div class="field">
-          <label>¿Ahorra o invierte habitualmente?</label>
-          <div class="radio-group" data-group="ahorrHab">
-            <div class="radio-opt" data-val="cada_mes">Cada mes</div>
-            <div class="radio-opt" data-val="a_veces">De vez en cuando</div>
-            <div class="radio-opt" data-val="no">No ahorro</div>
-          </div>
-        </div>
-        <div class="field">
-          <label>¿Tiene algún ahorro o inversión activa?</label>
+          <label>¿Tiene algún ahorro o inversión activa actualmente?</label>
           <div class="radio-group" data-group="tieneInv">
             <div class="radio-opt" data-val="si">Sí</div>
             <div class="radio-opt" data-val="no">No</div>
@@ -425,6 +460,14 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
         <div id="invPanel" style="display:none">
           <p style="font-size:13px;font-weight:600;color:var(--rz-dark);margin-bottom:10px">Selecciona e indica cuánto aporta al mes:</p>
           <div id="invRows"></div>
+        </div>
+        <div class="field">
+          <label>¿Ahorra o invierte habitualmente?</label>
+          <div class="radio-group" data-group="ahorrHab">
+            <div class="radio-opt" data-val="cada_mes">Cada mes</div>
+            <div class="radio-opt" data-val="a_veces">De vez en cuando</div>
+            <div class="radio-opt" data-val="no">No ahorro</div>
+          </div>
         </div>
       </div>
       <div class="nav-row">
@@ -471,7 +514,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
       <div id="asesoriaPanel" style="display:none">
         <div class="card">
           <div class="section-title"><i class="ti ti-calendar-event"></i> Agenda tu sesión</div>
-          <div class="note-box"><i class="ti ti-info-circle"></i> Elige la fecha y hora que mejor te convenga. Un asesor confirmará tu cita.</div>
+          <div class="note-box"><i class="ti ti-info-circle"></i> Comparte tus datos y tu horario preferido. Recibirás la confirmación de tu cita por correo.</div>
           <div class="row2">
             <div class="field"><label>Correo electrónico</label><input type="email" id="ctEmail" placeholder="correo@ejemplo.com"></div>
             <div class="field"><label>Teléfono (WhatsApp)</label><input type="tel" id="ctTel" placeholder="+52 55 1234 5678"></div>
@@ -482,13 +525,32 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
               <input type="date" id="ctFecha" min="">
             </div>
             <div class="field">
-              <label>Hora preferida</label>
-              <input type="time" id="ctHora">
+              <label>Hora preferida (9:00 a 20:00 hrs)</label>
+              <select id="ctHora">
+                <option value="">Selecciona...</option>
+                <option>09:00</option><option>10:00</option><option>11:00</option>
+                <option>12:00</option><option>13:00</option><option>14:00</option>
+                <option>15:00</option><option>16:00</option><option>17:00</option>
+                <option>18:00</option><option>19:00</option><option>20:00</option>
+              </select>
             </div>
           </div>
-          <button class="btn btn-primary" id="btnAgendar"><i class="ti ti-calendar-check"></i> Confirmar y agendar</button>
+          <button class="btn btn-primary" id="btnAgendar"><i class="ti ti-send"></i> Enviar solicitud de cita</button>
           <div id="citaConfirm" class="ok-box" style="display:none;margin-top:10px"></div>
           <div id="citaError" class="err-box" style="margin-top:10px"></div>
+
+          <!-- ════ OPCIÓN CALENDLY (agendado en tiempo real) ════
+               Para activar disponibilidad en tiempo real con Calendly:
+               1. Crea cuenta gratis en https://calendly.com
+               2. Configura un evento "Asesoría financiera" con tu disponibilidad 9:00-20:00
+               3. Conecta tu Google Calendar o Outlook (Calendly bloquea horarios ocupados automáticamente)
+               4. Copia tu enlace (ej. https://calendly.com/rizkora/asesoria)
+               5. Pega ese enlace abajo en CALENDLY_URL y quita display:none del bloque -->
+          <div id="calendlyBlock" style="display:none;margin-top:1rem">
+            <hr class="divider">
+            <p style="font-size:13px;color:var(--muted);margin-bottom:10px"><i class="ti ti-calendar-time"></i> O agenda directo viendo la disponibilidad en tiempo real:</p>
+            <div id="calendlyInline" style="min-width:280px;height:630px"></div>
+          </div>
         </div>
       </div>
 
@@ -546,16 +608,18 @@ var S = newState();
 function newState(){
   return {
     nombre:"", edad:null, dep:null, dependientes:[],
-    tipo:null, ingreso:0, ingExtra:null, ingExtraMonto:0, ingExtraDesc:"",
-    tieneTarjeta:null, numTarjetas:0, tieneMSI:null, formaPagoTC:"", tarjetas:[],
+    tipo:null, ingreso:0, ingExtra:null, ingExtraMonto:0, ingExtraDesc:"", ingExtraList:[],
+    tieneTarjeta:null, numTarjetas:0, tieneMSI:null, numMSI:0, formaPagoTC:"", tarjetas:[],
     tieneCredito:null, deudas:[],
-    gastos:{},
+    gastos:{}, tieneEdu:null, saludList:[], segurosList:[], streamList:[], eduList:[],
     fondoEm:null, ahorrHab:null, tieneInv:null, inversiones:[],
     metas:[], quiereAsesoria:null
   };
 }
 var pieChart = null;
 var lastTips = [];  // tips de la ruta financiera (texto plano para PDF)
+var lastMetasMsg = "";  // mensaje motivacional de metas según situación
+var lastChartImg = null;  // imagen base64 de la gráfica para el PDF
 
 /* ════════ CONSTANTS ════════ */
 var DEP_TIPOS = ["Hijos","Cónyuge","Padres","Mascotas","Otros"];
@@ -615,9 +679,11 @@ function onRadioChange(key, val){
     $("infoGodin").style.display = (val==="godin") ? "block" : "none";
     $("infoEmp").style.display   = (val==="empresario") ? "block" : "none";
   }
-  if(key === "ingExtra"){ $("ingExtraPanel").style.display = (val==="si") ? "block" : "none"; }
+  if(key === "ingExtra"){ $("ingExtraPanel").style.display = (val==="si") ? "block" : "none"; if(val==="si" && ingExtraRows.length===0){ ingExtraRows.push({desc:"",monto:0}); renderIngExtraRows(); } }
   if(key === "tieneTarjeta"){ $("tarjetaPanel").style.display = (val==="si") ? "block" : "none"; }
   if(key === "tieneCredito"){ $("creditoPanel").style.display = (val==="si") ? "block" : "none"; }
+  if(key === "tieneMSI"){ $("numMSIField").style.display = (val==="si") ? "block" : "none"; }
+  if(key === "tieneEdu"){ $("eduPanel").style.display = (val==="si") ? "block" : "none"; if(val==="si" && eduRows.length===0){ eduRows.push({tipo:"",monto:0}); renderEdu(); } }
   if(key === "tieneInv"){ $("invPanel").style.display = (val==="si") ? "block" : "none"; }
   if(key === "quiereAsesoria"){ $("asesoriaPanel").style.display = (val==="si") ? "block" : "none"; }
 }
@@ -667,14 +733,122 @@ function renderDepRows(){
   });
 }
 
+/* ════════ INGRESOS ADICIONALES MÚLTIPLES ════════ */
+var ingExtraRows = [];
+$("btnAddIngExtra").addEventListener("click", function(){
+  ingExtraRows.push({desc:"", monto:0});
+  renderIngExtraRows();
+});
+function renderIngExtraRows(){
+  var cont = $("ingExtraRows");
+  cont.innerHTML = "";
+  ingExtraRows.forEach(function(row, i){
+    var wrap = document.createElement("div");
+    wrap.className = "dyn-row";
+
+    var desc = document.createElement("input");
+    desc.type = "text"; desc.placeholder = "Ej. emprendimiento de helados, rentas...";
+    desc.value = row.desc; desc.style.flex = "1";
+    desc.addEventListener("input", function(){ ingExtraRows[i].desc = desc.value; });
+
+    var monto = document.createElement("input");
+    monto.type = "number"; monto.placeholder = "$/mes"; monto.min = 0;
+    monto.value = row.monto || ""; monto.style.width = "110px";
+    monto.addEventListener("input", function(){ ingExtraRows[i].monto = parseFloat(monto.value) || 0; });
+
+    var del = document.createElement("button");
+    del.type = "button"; del.className = "dyn-del";
+    del.innerHTML = '<i class="ti ti-trash"></i>';
+    del.addEventListener("click", function(){ ingExtraRows.splice(i,1); renderIngExtraRows(); });
+
+    wrap.appendChild(desc); wrap.appendChild(monto); wrap.appendChild(del);
+    cont.appendChild(wrap);
+  });
+}
+
+/* ════════ GENERADOR DE LISTAS DINÁMICAS (salud, seguros, streaming, educación) ════════ */
+function makeDynList(rowsArr, contId, opciones, phMonto, allowRepeat, render){
+  var cont = $(contId);
+  cont.innerHTML = "";
+  rowsArr.forEach(function(row, i){
+    var wrap = document.createElement("div");
+    wrap.className = "dyn-row";
+
+    var sel = document.createElement("select");
+    sel.style.flex = "1";
+    var ph = document.createElement("option");
+    ph.value = ""; ph.textContent = "Selecciona...";
+    sel.appendChild(ph);
+    opciones.forEach(function(o){
+      var op = document.createElement("option");
+      op.value = o; op.textContent = o;
+      if(o === row.tipo) op.selected = true;
+      sel.appendChild(op);
+    });
+    sel.addEventListener("change", function(){ rowsArr[i].tipo = sel.value; });
+
+    var monto = document.createElement("input");
+    monto.type = "number"; monto.placeholder = phMonto || "$/mes"; monto.min = 0;
+    monto.value = row.monto || ""; monto.style.width = "110px";
+    monto.addEventListener("input", function(){ rowsArr[i].monto = parseFloat(monto.value) || 0; });
+
+    var del = document.createElement("button");
+    del.type = "button"; del.className = "dyn-del";
+    del.innerHTML = '<i class="ti ti-trash"></i>';
+    del.addEventListener("click", function(){ rowsArr.splice(i,1); render(); });
+
+    wrap.appendChild(sel); wrap.appendChild(monto); wrap.appendChild(del);
+    cont.appendChild(wrap);
+  });
+}
+
+/* ── SALUD ── */
+var saludRows = [];
+var SALUD_OPTS = ["Consultas médicas","Medicamentos","Estudios médicos","Nutriólogo","Psicólogo","Membresía deportiva / gimnasio","Otros"];
+$("btnAddSalud").addEventListener("click", function(){ saludRows.push({tipo:"",monto:0}); renderSalud(); });
+function renderSalud(){ makeDynList(saludRows, "saludRows", SALUD_OPTS, "$/mes", true, renderSalud); }
+
+/* ── SEGUROS ── */
+var seguroRows = [];
+var SEGURO_OPTS = ["Seguro de auto","Seguro de gastos médicos","Seguro de accidentes personales","Seguro de vida","Seguro de hogar","Otro seguro"];
+$("btnAddSeguro").addEventListener("click", function(){ seguroRows.push({tipo:"",monto:0}); renderSeguro(); });
+function renderSeguro(){ makeDynList(seguroRows, "seguroRows", SEGURO_OPTS, "$/mes", false, renderSeguro); }
+
+/* ── STREAMING ── */
+var streamRows = [];
+var STREAM_OPTS = ["Netflix","Amazon Prime Video","Disney+","Max (HBO)","Spotify","Amazon Music","Apple TV+","Apple Music","YouTube Premium","Crunchyroll","Viki","Paramount+","Vix","Otro"];
+$("btnAddStream").addEventListener("click", function(){ streamRows.push({tipo:"",monto:0}); renderStream(); });
+function renderStream(){ makeDynList(streamRows, "streamRows", STREAM_OPTS, "$/mes", true, renderStream); }
+
+/* ── EDUCACIÓN (depende de dependientes) ── */
+var eduRows = [];
+$("btnAddEdu").addEventListener("click", function(){ eduRows.push({tipo:"",monto:0}); renderEdu(); });
+function eduOpciones(){
+  var ops = ["Titular (propio)"];
+  if(S.dep === "si" && S.dependientes && S.dependientes.length > 0){
+    S.dependientes.forEach(function(dp, idx){
+      var cant = dp.cantidad || 1;
+      for(var k = 1; k <= cant; k++){
+        ops.push(dp.tipo + (cant > 1 ? " " + k : "") + " (dependiente)");
+      }
+    });
+  } else {
+    ops.push("Dependiente");
+  }
+  ops.push("Otro");
+  return ops;
+}
+function renderEdu(){ makeDynList(eduRows, "eduRows", eduOpciones(), "$/mes", true, renderEdu); }
+
 /* ════════ TARJETAS ════════ */
 $("numTarjetas").addEventListener("input", function(){
   var n = parseInt(this.value) || 0;
   S.numTarjetas = n;
-  while(S.tarjetas.length < n) S.tarjetas.push({nombre:"", pagoMin:0, total:0});
+  while(S.tarjetas.length < n) S.tarjetas.push({nombre:"", msiPago:0, total:0});
   if(S.tarjetas.length > n) S.tarjetas.length = n;
   refreshTCdetalle();
 });
+$("numMSI").addEventListener("input", function(){ S.numMSI = parseInt(this.value) || 0; });
 $("formaPagoTC").addEventListener("change", function(){
   S.formaPagoTC = this.value;
   refreshTCdetalle();
@@ -700,7 +874,7 @@ function renderTarjetaRows(){
     grid.className = "tc-grid";
 
     grid.appendChild(makeTCField("Nombre / banco", "text", "Ej. Banamex", t.nombre, function(v){ S.tarjetas[i].nombre = v; }));
-    grid.appendChild(makeTCField("Pago mín + MSI/mes", "number", "0", t.pagoMin || "", function(v){ S.tarjetas[i].pagoMin = parseFloat(v)||0; }));
+    grid.appendChild(makeTCField("Pago mensual de MSI", "number", "0", t.msiPago || "", function(v){ S.tarjetas[i].msiPago = parseFloat(v)||0; }));
     grid.appendChild(makeTCField("Saldo total deuda", "number", "0", t.total || "", function(v){ S.tarjetas[i].total = parseFloat(v)||0; }));
 
     block.appendChild(grid);
@@ -886,8 +1060,9 @@ function next(step){
     if(!S.ingExtra){ showErr("Indica si tiene ingresos adicionales"); return; }
     S.ingreso = ing;
     if(S.ingExtra === "si"){
-      S.ingExtraMonto = parseFloat($("ingExtraMonto").value) || 0;
-      S.ingExtraDesc = $("ingExtraDesc").value;
+      S.ingExtraList = ingExtraRows.filter(function(r){ return r.monto > 0; });
+      S.ingExtraMonto = S.ingExtraList.reduce(function(a,r){ return a + r.monto; }, 0);
+      S.ingExtraDesc = S.ingExtraList.map(function(r){ return r.desc || "ingreso"; }).join(", ");
     }
     showSection(3);
 
@@ -898,11 +1073,25 @@ function next(step){
     showSection(4);
 
   } else if(step === 4){
+    // Servicios desglosados se suman en "serv"
+    var serv = num("gLuz")+num("gAgua")+num("gInternet")+num("gCelular")+num("gGas")+num("gBasura");
+    // Salud, seguros, streaming, educación desde listas dinámicas
+    var saludTotal = saludRows.reduce(function(a,r){ return a + (r.monto||0); }, 0);
+    var segurosTotal = seguroRows.reduce(function(a,r){ return a + (r.monto||0); }, 0);
+    var subsTotal = streamRows.reduce(function(a,r){ return a + (r.monto||0); }, 0);
+    var eduTotal = (S.tieneEdu === "si") ? eduRows.reduce(function(a,r){ return a + (r.monto||0); }, 0) : 0;
     S.gastos = {
-      renta:num("gRenta"), serv:num("gServ"), trans:num("gTrans"), alim:num("gAlim"),
-      edu:num("gEdu"), salud:num("gSalud"), seguros:num("gSeguros"), subs:num("gSubs"),
-      ent:num("gEnt"), ropa:num("gRopa"), mant:num("gMant"), elec:num("gElec"), otros:num("gOtros")
+      renta:num("gRenta"), serv:serv, trans:num("gTrans"), alim:num("gAlim"),
+      edu:eduTotal, salud:saludTotal, seguros:segurosTotal, subs:subsTotal,
+      ent:num("gEnt"), ropa:num("gRopa"), mant:num("gMant"), elec:num("gElec"), otros:num("gOtros"),
+      // detalle de servicios para el desglose
+      _luz:num("gLuz"), _agua:num("gAgua"), _internet:num("gInternet"), _celular:num("gCelular"), _gas:num("gGas"), _basura:num("gBasura")
     };
+    // Guardar detalles para PDF/email
+    S.saludList = saludRows.filter(function(r){ return r.monto > 0; });
+    S.segurosList = seguroRows.filter(function(r){ return r.monto > 0; });
+    S.streamList = streamRows.filter(function(r){ return r.monto > 0; });
+    S.eduList = (S.tieneEdu === "si") ? eduRows.filter(function(r){ return r.monto > 0; }) : [];
     showSection(5);
 
   } else if(step === 5){
@@ -927,18 +1116,20 @@ function num(id){ return parseFloat($(id).value) || 0; }
 function nuevoCliente(){
   S = newState();
   depRows = []; metasSelected = [];
+  ingExtraRows = []; saludRows = []; seguroRows = []; streamRows = []; eduRows = [];
+  lastChartImg = null;
   document.querySelectorAll("input").forEach(function(i){
     if(i.type === "checkbox"){ i.checked = false; i.disabled = (i.className==="inv-amount"); }
     else if(i.id !== "gateInput"){ i.value = ""; }
   });
   document.querySelectorAll("select").forEach(function(s){ s.selectedIndex = 0; });
   document.querySelectorAll(".radio-opt").forEach(function(o){ o.classList.remove("selected"); });
-  ["depPanel","tarjetaPanel","tarjetasDetalle","creditoPanel","deudaTableWrap","ingExtraPanel","invPanel","asesoriaPanel","citaConfirm","infoGodin","infoEmp"].forEach(function(id){
+  ["depPanel","tarjetaPanel","tarjetasDetalle","creditoPanel","deudaTableWrap","ingExtraPanel","invPanel","asesoriaPanel","citaConfirm","infoGodin","infoEmp","numMSIField","eduPanel"].forEach(function(id){
     var el = $(id); if(el) el.style.display = "none";
   });
-  $("depRows").innerHTML = "";
-  $("tarjetaRows").innerHTML = "";
-  $("deudaTbody").innerHTML = "";
+  ["depRows","tarjetaRows","deudaTbody","ingExtraRows","saludRows","seguroRows","streamRows","eduRows"].forEach(function(id){
+    var el = $(id); if(el) el.innerHTML = "";
+  });
   if(pieChart){ pieChart.destroy(); pieChart = null; }
   initInversiones();
   initMetas();
@@ -951,16 +1142,19 @@ function calcData(){
   var ingTotal = S.ingreso + (S.ingExtra === "si" ? S.ingExtraMonto : 0);
   var g = S.gastos;
   var fijos = g.renta+g.serv+g.trans+g.alim+g.edu+g.salud+g.seguros+g.subs;
-  var variables = g.ent+g.ropa+g.mant+g.elec+g.otros;
+  var variablesBase = g.ent+g.ropa+g.mant+g.elec+g.otros;
   var deudaFija = S.deudas.reduce(function(a,d){ return a + d.pago; }, 0);
-  var tcPagos = (S.tieneTarjeta==="si" && (S.formaPagoTC==="minimo"||S.formaPagoTC==="otra"))
-    ? S.tarjetas.reduce(function(a,t){ return a + t.pagoMin; }, 0) : 0;
+  var tcPagos = (S.tieneTarjeta==="si" && S.tieneMSI==="si")
+    ? S.tarjetas.reduce(function(a,t){ return a + (t.msiPago||0); }, 0) : 0;
   var tcTotal = S.tarjetas.reduce(function(a,t){ return a + t.total; }, 0);
-  var totalGto = fijos + variables + deudaFija + tcPagos;
+  // La deuda fija se clasifica como VARIABLE (es temporal, se eliminará, no es algo con lo que vivan)
+  var variables = variablesBase + deudaFija;
+  // Gastos totales NO incluye las tarjetas de crédito (se manejan aparte para no duplicar)
+  var totalGto = fijos + variables;
   var flujo = ingTotal - totalGto;
   var pct = ingTotal > 0 ? Math.round((flujo/ingTotal)*100) : 0;
-  return {ingTotal:ingTotal, fijos:fijos, variables:variables, deudaFija:deudaFija,
-          tcPagos:tcPagos, tcTotal:tcTotal, totalGto:totalGto, flujo:flujo, pct:pct};
+  return {ingTotal:ingTotal, fijos:fijos, variables:variables, variablesBase:variablesBase,
+          deudaFija:deudaFija, tcPagos:tcPagos, tcTotal:tcTotal, totalGto:totalGto, flujo:flujo, pct:pct};
 }
 
 function resultadoTexto(){
@@ -984,36 +1178,96 @@ function renderDiag(){
   else { semC="sem-exc"; semI="🟢"; semL="Finanzas excelentes"; semD="Más del 30% disponible"; }
 
   var tips = [];
-  var pctFijos = ing > 0 ? Math.round((d.fijos+d.deudaFija)/ing*100) : 0;
+  var g = S.gastos;
+  var pctFijos = ing > 0 ? Math.round(d.fijos/ing*100) : 0;
   var pctVars = ing > 0 ? Math.round(d.variables/ing*100) : 0;
 
+  // ═══ GASTOS FIJOS > 50%: revisar a detalle ═══
   if(pctFijos > 50){
-    tips.push({ico:"ti-home", txt:"Tus gastos fijos + deuda representan el <strong>"+pctFijos+"%</strong> de tu ingreso, por encima del 50% recomendado. Revisa renta (idealmente ≤30%), seguros y servicios prescindibles. Cada punto que bajes se convierte en flujo libre."});
+    tips.push({ico:"ti-home", txt:"Tus gastos fijos representan el <strong>"+pctFijos+"%</strong> de tu ingreso, por encima del 50% recomendado. Conviene revisarlos a detalle:"});
+    if(g.renta > 0){
+      tips.push({ico:"ti-building", txt:"<strong>Renta / hipoteca:</strong> busca que no rebase el 30% de tus ingresos. Intenta aportar a capital para reducir la deuda, o al terminar tu contrato considera una renta menor."});
+    }
+    if(g.serv > 2000){
+      tips.push({ico:"ti-bulb", txt:"<strong>Servicios ("+fmt(g.serv)+"):</strong> reduce el consumo de luz apagando y desconectando lo que no uses. Revisa tus planes de telefonía e internet, muchas veces hay tarifas más convenientes."});
+    }
+    if(g.alim > 0){
+      tips.push({ico:"ti-tools-kitchen-2", txt:"<strong>Alimentación:</strong> programa tus comidas semanales para comprar en el súper solo lo necesario y evitar snacks o antojos no planeados. Cocinar en las noches te ayuda a evitar el fast food."});
+    }
+    if(g.salud > 0){
+      tips.push({ico:"ti-heartbeat", txt:"<strong>Salud:</strong> hay gastos que no se pueden reducir, pero revisa membresías de gimnasio u otros servicios que quizá no estés aprovechando."});
+    }
+    if(g.subs > 300){
+      tips.push({ico:"ti-device-tv", txt:"<strong>Streaming ("+fmt(g.subs)+"):</strong> reduce a un máximo de 2 servicios. Es de los recortes más fáciles y que menos afectan tu día a día."});
+    }
+    if(g.seguros > 0){
+      tips.push({ico:"ti-shield-check", txt:"<strong>Seguros:</strong> revisa tus planes contratados buscando mejores condiciones, pero sin dejar de tener cobertura. Nunca elimines un seguro sin uno que lo reemplace."});
+    }
   }
+
+  // ═══ GASTOS VARIABLES > 30% ═══
   if(pctVars > 30){
-    tips.push({ico:"ti-shopping-cart", txt:"Tus gastos variables son el <strong>"+pctVars+"%</strong>. Los pagos de tarjetas no se suman aquí, pero si tienes saldo pendiente, reducir variables es la forma más rápida de liberar dinero para liquidarlas."});
+    tips.push({ico:"ti-shopping-cart", txt:"Tus gastos variables (incluyendo deuda fija) son el <strong>"+pctVars+"%</strong> de tu ingreso. Aquí es donde más rápido puedes liberar dinero recortando lo no esencial."});
   }
+
+  // ═══ TARJETAS DE CRÉDITO ═══
   if(d.tcPagos > 0 || d.tcTotal > 0){
     tips.push({ico:"ti-credit-card", txt:"Tienes deuda en tarjetas de crédito. Estrategia: liquida primero la tarjeta con el <strong>saldo más pequeño</strong> (bola de nieve). Los pagos mínimos te mantienen en deuda indefinidamente."});
   }
+
+  // ═══ DEUDA FIJA (créditos abiertos) ═══
   if(d.deudaFija > 0){
     var menor = S.deudas.slice().sort(function(a,b){ return a.tot - b.tot; })[0];
-    tips.push({ico:"ti-wallet", txt:"Créditos abiertos: "+fmt(d.deudaFija)+"/mes." + (menor ? ' Enfócate en liquidar primero "<strong>'+menor.tipo+'</strong>" para liberar ese flujo.' : "")});
+    var deudaTxt = "<strong>Créditos abiertos ("+fmt(d.deudaFija)+"/mes):</strong> ";
+    if(d.pct <= 10 || d.flujo < 0){
+      deudaTxt += "estás justo con los pagos. Te aconsejo no sacar más créditos. Quizá se pueda ver una reestructura o un crédito que liquide toda la deuda — pero no lo hagas sin antes analizar bien tu situación. Esto lo revisamos juntos en tu asesoría.";
+    } else {
+      deudaTxt += (menor ? 'enfócate en liquidar primero "<strong>'+menor.tipo+'</strong>" (el saldo más pequeño) para liberar ese pago mensual. ' : '') + "Evita adquirir nuevos créditos mientras liquidas los actuales.";
+    }
+    tips.push({ico:"ti-wallet", txt:deudaTxt});
   }
+
+  // ═══ FONDO DE EMERGENCIA (cálculo corregido) ═══
   if(S.fondoEm === "no"){
-    tips.push({ico:"ti-shield", txt:"No tienes fondo de emergencias. Este debe ser tu <strong>primer objetivo</strong>: acumula mínimo <strong>"+fmt(ingBase*3)+"</strong> (3 meses de ingreso) o <strong>"+fmt((d.fijos+d.deudaFija)*6)+"</strong> (6 meses de gastos fijos)."});
+    tips.push({ico:"ti-shield", txt:"No tienes fondo de emergencias, y constituirlo debe ser tu <strong>primer objetivo</strong>. Acumula como mínimo <strong>"+fmt(ingBase*3)+"</strong> (equivalente a 3 meses de tu ingreso) o idealmente <strong>"+fmt(d.fijos*6)+"</strong> (6 meses de tus gastos fijos)."});
   }
+
+  // ═══ HÁBITO DE AHORRO ═══
   if(S.ahorrHab === "no" || S.ahorrHab === "a_veces"){
-    tips.push({ico:"ti-trending-up", txt:"No es necesario empezar con mucho — el hábito importa más que el monto. Automatiza aunque sea el <strong>5–10% de tu ingreso</strong> el día de pago. Generar el hábito temprano es lo que te lleva a tus metas."});
+    tips.push({ico:"ti-trending-up", txt:"Lo más importante es empezar el hábito del ahorro. No es necesario empezar con mucho — el hábito importa más que el monto. Automatiza aunque sea el <strong>5–10% de tu ingreso</strong> el día de pago. Generar el hábito de forma temprana es lo que te llevará a cumplir tus metas."});
   }
-  if(S.metas.length > 0){
-    tips.push({ico:"ti-target", txt:"Tus 3 metas prioritarias: <strong>"+S.metas.map(function(m,i){ return (i+1)+". "+m.label; }).join(", ")+"</strong>. Define un monto mensual para cada una y trátalo como gasto fijo, no como lo que sobra."});
-  }
+
+  // ═══ CONSEJOS POR META ═══
+  var metaTips = {
+    casa: "<strong>Casa:</strong> tu objetivo es ahorrar para el enganche, que normalmente va del 10% al 20% del valor de la propiedad. También puedes explorar preventas, donde puedes pagar mensualmente sin descapitalizarte.",
+    viajes: "<strong>Viajes:</strong> el monto depende del destino, pero hoy hay formas accesibles de viajar al extranjero una semana por alrededor de <strong>$30,000</strong> incluyendo vuelos. Define el destino y ponle fecha.",
+    estudiar: "<strong>Estudiar:</strong> en México una maestría ronda los <strong>$150,000 a $400,000</strong> y un doctorado puede superar los <strong>$500,000</strong> según la institución. Calcula la matrícula de tu programa objetivo y divídela en aportaciones mensuales.",
+    carro: "<strong>Carro:</strong> tu meta puede ser juntar el total o el mayor enganche posible. En 2026 hay autos económicos accesibles; considera opciones eléctricas o híbridas para ahorrar en gasolina a largo plazo.",
+    familia: "<strong>Familia:</strong> si deseas formalizar o crecer tu familia, conviene tener una solvencia de ingresos adicional al fondo de emergencia, para una correcta planificación.",
+    negocio: "<strong>Negocio:</strong> separa un capital semilla y no mezcles las finanzas personales con las del negocio. Calcula al menos 6 meses de gastos operativos antes de lanzarte.",
+    retiro: "<strong>Retiro:</strong> entre más temprano empieces, menos tendrás que aportar gracias al interés compuesto. Aprovecha las aportaciones voluntarias a tu AFORE, que además son deducibles de impuestos.",
+    salud: "<strong>Solvencia en salud:</strong> contar con un buen seguro de gastos médicos mayores protege tu patrimonio ante imprevistos. Complementa con un fondo específico para deducibles y coaseguros.",
+    otro: "<strong>Otro objetivo:</strong> define un monto y una fecha concretos. Una meta sin número ni plazo es solo un deseo."
+  };
+  S.metas.forEach(function(m, i){
+    if(metaTips[m.id]){
+      tips.push({ico:"ti-target", txt:(i+1)+". "+metaTips[m.id]});
+    }
+  });
+
   if(tips.length === 0){
     tips.push({ico:"ti-check", txt:"Situación financiera equilibrada. Mantén el control de gastos y sigue construyendo hacia tus metas."});
   }
   // Guardar versión texto plano para el PDF (quita etiquetas HTML)
   lastTips = tips.map(function(t){ return t.txt.replace(/<[^>]+>/g, ""); });
+
+  // Mensaje de metas según situación financiera
+  var endeudado = (d.flujo < 0 || d.pct <= 20 || d.tcTotal > 0 || d.deudaFija > 0);
+  if(endeudado){
+    lastMetasMsg = "Tus metas y objetivos te esperan, solo necesitas trazar la ruta adecuada para llegar a ellas. Que tu diagnóstico sea el primer paso para trabajar en lograrlo.";
+  } else {
+    lastMetasMsg = "Tus metas están a un paso de ti. Con una ruta bien trazada, empezarás a cumplir cada objetivo.";
+  }
 
   var totalInv = S.inversiones.reduce(function(a,i){ return a + i.monto; }, 0);
 
@@ -1029,24 +1283,24 @@ function renderDiag(){
 
   if(d.tcTotal > 0 || d.tcPagos > 0){
     html += '<div class="card"><div class="section-title"><i class="ti ti-credit-card"></i> Deuda en tarjetas de crédito</div>';
-    html += '<div class="warn-box"><i class="ti ti-alert-triangle"></i> Saldo total: <strong>'+fmt(d.tcTotal)+'</strong>. Pago mensual: <strong>'+fmt(d.tcPagos)+'/mes</strong>.</div>';
+    html += '<div class="warn-box"><i class="ti ti-alert-triangle"></i> Saldo total: <strong>'+fmt(d.tcTotal)+'</strong>.'+(S.tieneMSI==="si"?' Compras a MSI: <strong>'+S.numMSI+'</strong>, pago mensual MSI: <strong>'+fmt(d.tcPagos)+'/mes</strong>.':'')+'</div>';
     S.tarjetas.forEach(function(t,i){
-      if(t.pagoMin>0 || t.total>0){
-        html += '<div style="margin-bottom:12px"><div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px"><span style="font-weight:600">'+(t.nombre||"Tarjeta "+(i+1))+'</span><span style="color:var(--muted)">'+(t.pagoMin>0?fmt(t.pagoMin)+"/mes":"")+(t.total>0?" · "+fmt(t.total)+" total":"")+'</span></div><div class="prog-wrap"><div class="prog-fill" style="width:'+Math.min(100,ing>0?Math.round(t.total/ing*100):0)+'%;background:var(--danger)"></div></div></div>';
+      if(t.msiPago>0 || t.total>0){
+        html += '<div style="margin-bottom:12px"><div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px"><span style="font-weight:600">'+(t.nombre||"Tarjeta "+(i+1))+'</span><span style="color:var(--muted)">'+(t.msiPago>0?fmt(t.msiPago)+" MSI/mes":"")+(t.total>0?" · "+fmt(t.total)+" total":"")+'</span></div><div class="prog-wrap"><div class="prog-fill" style="width:'+Math.min(100,ing>0?Math.round(t.total/ing*100):0)+'%;background:var(--danger)"></div></div></div>';
       }
     });
     html += '</div>';
   }
 
   html += '<div class="card"><div class="section-title"><i class="ti ti-chart-pie"></i> Distribución del ingreso</div>';
-  html += '<div class="note-box"><i class="ti ti-info-circle"></i> La gráfica muestra gastos fijos, variables y deuda con pagos fijos. <strong>No incluye los pagos de tarjetas de crédito</strong> para evitar duplicar gastos ya capturados por separado.</div>';
+  html += '<div class="note-box"><i class="ti ti-info-circle"></i> La gráfica muestra gastos fijos, variables (incluida la deuda fija) y flujo libre. <strong>No incluye los pagos de tarjetas de crédito</strong> para evitar duplicar gastos ya capturados por separado.</div>';
   html += '<div class="chart-wrap"><canvas id="pieChart"></canvas></div></div>';
 
   html += '<div class="card"><div class="section-title"><i class="ti ti-scale"></i> Regla 50/30/20</div>';
-  html += '<div class="info-box"><i class="ti ti-bulb"></i> Referencia ideal: 50% necesidades · 30% deseos · 20% ahorro e inversión.</div>';
+  html += '<div class="info-box"><i class="ti ti-bulb"></i> Referencia ideal: 50% necesidades · 30% deseos y deuda · 20% ahorro e inversión.</div>';
   var rows5030 = [
-    ["Necesidades + deuda fija (50%)", Math.round(ing*0.5), d.fijos+d.deudaFija, "#185FA5"],
-    ["Deseos / variables (30%)", Math.round(ing*0.3), d.variables, "#92400e"],
+    ["Necesidades (50%)", Math.round(ing*0.5), d.fijos, "#185FA5"],
+    ["Deseos + deuda fija (30%)", Math.round(ing*0.3), d.variables, "#92400e"],
     ["Ahorro / inversión (20%)", Math.round(ing*0.2), Math.max(0,d.flujo), "#166534"]
   ];
   rows5030.forEach(function(r){
@@ -1074,6 +1328,7 @@ function renderDiag(){
   S.metas.forEach(function(m,i){
     html += '<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.1);color:#fff;font-size:14px"><span style="background:var(--rz-accent);color:var(--rz-dark);width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;flex-shrink:0">'+(i+1)+'</span><span>'+m.ico+' '+m.label+'</span></div>';
   });
+  html += '<p style="color:rgba(255,255,255,.9);font-size:13.5px;line-height:1.6;margin-top:12px;font-style:italic">'+lastMetasMsg+'</p>';
   html += '</div>';
 
   $("diagContent").innerHTML = html;
@@ -1081,24 +1336,55 @@ function renderDiag(){
   if(pieChart){ pieChart.destroy(); pieChart = null; }
   var ctx = $("pieChart");
   if(ctx){
-    var rawD = [d.fijos, d.deudaFija, d.variables, Math.max(0,d.flujo)];
-    var rawL = ["Gastos fijos","Deuda fija","Variables","Flujo libre"];
-    var rawC = ["#185FA5","#dc2626","#854F0B","#166534"];
+    // Variables ya incluye deuda fija; la mostramos desglosada para claridad
+    var rawD = [d.fijos, d.variablesBase, d.deudaFija, Math.max(0,d.flujo)];
+    var rawL = ["Gastos fijos","Gastos variables","Deuda fija","Flujo libre"];
+    var rawC = ["#185FA5","#854F0B","#dc2626","#166534"];
     var data=[], labels=[], colors=[];
     rawD.forEach(function(v,i){ if(v>0){ data.push(v); labels.push(rawL[i]); colors.push(rawC[i]); } });
     pieChart = new Chart(ctx, {
       type:"doughnut",
       data:{labels:labels, datasets:[{data:data, backgroundColor:colors, borderWidth:3, borderColor:"#fff"}]},
-      options:{responsive:true, maintainAspectRatio:false,
+      options:{responsive:true, maintainAspectRatio:false, animation:{onComplete:function(){ try{ lastChartImg = pieChart.toBase64Image(); }catch(e){} }},
         plugins:{legend:{display:true, position:"bottom", labels:{padding:16, font:{size:12}}},
           tooltip:{callbacks:{label:function(c){ return c.label+": "+fmt(c.raw)+" ("+Math.round(c.raw/ing*100)+"%)"; }}}}}
     });
+    // Capturar imagen para el PDF tras un breve render
+    setTimeout(function(){ try{ lastChartImg = pieChart.toBase64Image(); }catch(e){} }, 600);
   }
 
-  enviarNotificacion();
+  try { enviarNotificacion(); } catch(e){ console.warn("Notificación:", e); }
 }
 
-/* ════════ AGENDAR ════════ */
+/* ════════ CALENDLY (opcional, agendado en tiempo real) ════════
+   Pega aquí tu enlace de Calendly para activar la disponibilidad en vivo.
+   Ejemplo: "https://calendly.com/rizkora/asesoria"
+   Déjalo vacío ("") para usar solo el formulario por correo. */
+var CALENDLY_URL = "";
+
+function initCalendly(){
+  if(!CALENDLY_URL) return;
+  // Cargar script de Calendly
+  var s = document.createElement("script");
+  s.src = "https://assets.calendly.com/assets/external/widget.js";
+  s.async = true;
+  document.head.appendChild(s);
+  var css = document.createElement("link");
+  css.rel = "stylesheet";
+  css.href = "https://assets.calendly.com/assets/external/widget.css";
+  document.head.appendChild(css);
+  $("calendlyBlock").style.display = "block";
+  s.onload = function(){
+    if(window.Calendly){
+      window.Calendly.initInlineWidget({
+        url: CALENDLY_URL,
+        parentElement: $("calendlyInline")
+      });
+    }
+  };
+}
+
+/* ════════ AGENDAR (solicitud por correo — el asesor confirma) ════════ */
 $("btnAgendar").addEventListener("click", agendarCita);
 function agendarCita(){
   var email = $("ctEmail").value.trim();
@@ -1106,7 +1392,7 @@ function agendarCita(){
   var hora = $("ctHora").value;
   var errEl = $("citaError");
   if(!email || !fecha || !hora){
-    errEl.textContent = "Completa correo, fecha y hora para agendar.";
+    errEl.textContent = "Completa correo, fecha y hora para enviar tu solicitud.";
     errEl.style.display = "block";
     return;
   }
@@ -1114,26 +1400,10 @@ function agendarCita(){
 
   var parts = fecha.split("-");
   var yy = parts[0], mm = parts[1], dd = parts[2];
-  var hParts = hora.split(":");
-  var endH = String(parseInt(hParts[0]) + 1);
-  if(endH.length < 2) endH = "0" + endH;
-  var title = encodeURIComponent("Asesoría financiera Rizkora - " + S.nombre);
-
-  var teamsUrl = "https://teams.microsoft.com/l/meeting/new?subject=" + title
-    + "&startTime=" + fecha + "T" + hora + ":00"
-    + "&endTime=" + fecha + "T" + endH + ":" + hParts[1] + ":00"
-    + "&attendees=" + encodeURIComponent(email);
-
-  var bodyTxt = "Hola " + S.nombre + ",%0D%0A%0D%0AQueda confirmada tu asesoría financiera con Rizkora.%0D%0A%0D%0AFecha: " + dd + "/" + mm + "/" + yy + "%0D%0AHora: " + hora + " hrs%0D%0A%0D%0AEquipo Rizkora";
-  var mailtoUrl = "mailto:" + encodeURIComponent(email) + "?subject=" + title + "&body=" + bodyTxt;
 
   var c = $("citaConfirm");
   c.style.display = "block";
-  c.innerHTML = '<i class="ti ti-check"></i> Cita registrada para el <strong>' + dd + '/' + mm + '/' + yy + ' a las ' + hora + ' hrs</strong>'
-    + '<div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">'
-    + '<a href="' + teamsUrl + '" target="_blank" style="color:var(--ok);font-weight:600;font-size:13px;text-decoration:none;padding:6px 12px;border:1px solid var(--ok);border-radius:8px"><i class="ti ti-brand-teams"></i> Crear en Teams</a>'
-    + '<a href="' + mailtoUrl + '" style="color:var(--rz-dark);font-weight:600;font-size:13px;text-decoration:none;padding:6px 12px;border:1px solid var(--rz-dark);border-radius:8px"><i class="ti ti-mail"></i> Enviar confirmación</a>'
-    + '</div>';
+  c.innerHTML = '<i class="ti ti-check"></i> ¡Solicitud enviada! Tu horario preferido es el <strong>' + dd + '/' + mm + '/' + yy + ' a las ' + hora + ' hrs</strong>. Un asesor de Rizkora confirmará tu cita por correo a la brevedad.';
 
   enviarNotificacion(true);
 }
@@ -1159,7 +1429,7 @@ function enviarNotificacion(conCita){
   resumen += "- Gastos fijos: " + fmt(d.fijos) + "\n";
   resumen += "- Gastos variables: " + fmt(d.variables) + "\n";
   resumen += "- Deuda fija mensual: " + fmt(d.deudaFija) + "\n";
-  if(d.tcPagos > 0) resumen += "- Pagos tarjetas (mín/MSI): " + fmt(d.tcPagos) + "\n";
+  if(S.tieneMSI === "si") resumen += "- Compras a MSI: " + S.numMSI + " (pago mensual: " + fmt(d.tcPagos) + ")\n";
   if(d.tcTotal > 0) resumen += "- Deuda total tarjetas: " + fmt(d.tcTotal) + "\n";
   resumen += "- FLUJO LIBRE: " + fmt(d.flujo) + (d.flujo < 0 ? " (NEGATIVO)" : "") + "\n\n";
 
@@ -1199,6 +1469,7 @@ function enviarNotificacion(conCita){
     payload._subject = "Nuevo diagnóstico financiero — " + S.nombre;
   }
 
+  if(typeof fetch !== "function") return;
   fetch(FORMSPREE_ENDPOINT, {
     method: "POST",
     headers: { "Content-Type": "application/json", "Accept": "application/json" },
@@ -1272,13 +1543,30 @@ function generarPDF(){
   rowp("Gastos fijos", fmt(d.fijos));
   rowp("Gastos variables", fmt(d.variables));
   rowp("Deuda fija mensual", fmt(d.deudaFija));
-  if(d.tcPagos>0) rowp("Pagos TC (mín/MSI)", fmt(d.tcPagos));
+  if(d.tcPagos>0) rowp("Pago mensual MSI", fmt(d.tcPagos));
   rowpColor("Flujo libre", fmt(d.flujo), true, d.flujo < 0 ? [217,48,37] : [26,127,69]);
   y += 4;
 
+  // ─── Gráfica de distribución (imagen) ───
+  // Intento de captura de último momento si aún no se guardó
+  if(!lastChartImg && pieChart){ try{ lastChartImg = pieChart.toBase64Image(); }catch(e){} }
+  if(lastChartImg){
+    if(y > 200){ doc.addPage(); y = 20; }
+    sec("Distribución del ingreso");
+    try {
+      var imgW = 85, imgH = 85;
+      var imgX = (W - imgW) / 2;
+      doc.addImage(lastChartImg, "PNG", imgX, y, imgW, imgH);
+      y += imgH + 4;
+      doc.setFontSize(8); doc.setFont("helvetica","italic"); doc.setTextColor(120,120,120);
+      var nota = doc.splitTextToSize("No incluye pagos de tarjetas de credito para evitar duplicar gastos ya capturados por separado.", cw);
+      doc.text(nota, margin, y); y += nota.length*4 + 4;
+    } catch(e){ /* si falla la imagen, continuar sin ella */ }
+  }
+
   if(S.tieneTarjeta==="si" && (d.tcPagos>0 || d.tcTotal>0)){
     sec("Tarjetas de crédito");
-    S.tarjetas.forEach(function(t,i){ rowp(t.nombre||"Tarjeta "+(i+1), (d.tcPagos>0?fmt(t.pagoMin)+"/mes · ":"")+(t.total>0?fmt(t.total)+" total":"")); });
+    S.tarjetas.forEach(function(t,i){ rowp(t.nombre||"Tarjeta "+(i+1), (t.msiPago>0?fmt(t.msiPago)+" MSI/mes · ":"")+(t.total>0?fmt(t.total)+" total":"")); });
     rowp("Total deuda tarjetas", fmt(d.tcTotal), true); y += 4;
   }
   if(S.deudas.length>0){
@@ -1293,6 +1581,12 @@ function generarPDF(){
   y += 4;
   sec("Metas prioritarias");
   S.metas.forEach(function(m,i){ rowp((i+1)+". "+m.label, ""); });
+  if(lastMetasMsg){
+    doc.setFontSize(9); doc.setFont("helvetica","italic"); doc.setTextColor(6,76,120);
+    var ml = doc.splitTextToSize(lastMetasMsg, cw);
+    doc.text(ml, margin, y); y += ml.length*4.5 + 4;
+    doc.setFont("helvetica","normal");
+  }
   y += 4;
 
   sec("Definamos tu ruta financiera a tomar");
@@ -1329,6 +1623,7 @@ $("ctFecha").min = new Date().toISOString().split("T")[0];
 initBar();
 initInversiones();
 initMetas();
+initCalendly();
 updateBar(1);
 </script>
 </body>
