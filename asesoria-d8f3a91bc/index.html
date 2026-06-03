@@ -299,6 +299,10 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
               </div>
             </div>
           </div>
+          <div id="tarjetaBancos" style="display:none">
+            <p style="font-size:13px;font-weight:600;color:var(--rz-dark);margin-bottom:10px">¿De qué banco es cada tarjeta?</p>
+            <div id="bancoRows"></div>
+          </div>
           <div class="field" id="numMSIField" style="display:none">
             <label>¿Cuántas compras tiene actualmente a meses sin intereses?</label>
             <input type="number" id="numMSI" placeholder="0" min="1" max="50">
@@ -917,6 +921,7 @@ $("numTarjetas").addEventListener("input", function(){
   S.numTarjetas = n;
   while(S.tarjetas.length < n) S.tarjetas.push({nombre:"", msiPago:0, total:0});
   if(S.tarjetas.length > n) S.tarjetas.length = n;
+  renderBancoRows();
   refreshTCdetalle();
 });
 $("numMSI").addEventListener("input", function(){ S.numMSI = parseInt(this.value) || 0; });
@@ -929,6 +934,27 @@ function refreshTCdetalle(){
   $("tarjetasDetalle").style.display = show ? "block" : "none";
   if(show) renderTarjetaRows();
 }
+function renderBancoRows(){
+  var cont = $("bancoRows");
+  $("tarjetaBancos").style.display = S.numTarjetas > 0 ? "block" : "none";
+  cont.innerHTML = "";
+  S.tarjetas.forEach(function(t, i){
+    var wrap = document.createElement("div");
+    wrap.className = "dyn-row";
+    var lbl = document.createElement("div");
+    lbl.style.cssText = "width:88px;font-size:13px;font-weight:600;color:var(--rz-dark)";
+    lbl.innerHTML = '<i class="ti ti-credit-card"></i> Tarjeta ' + (i+1);
+    var inp = document.createElement("input");
+    inp.type = "text"; inp.placeholder = "Ej. BBVA, Banamex, Liverpool...";
+    inp.value = t.nombre || ""; inp.style.flex = "1";
+    inp.addEventListener("input", function(){
+      S.tarjetas[i].nombre = inp.value;
+      // Si el usuario ya capturó gastos con esta tarjeta, refrescar etiquetas no es crítico aquí
+    });
+    wrap.appendChild(lbl); wrap.appendChild(inp);
+    cont.appendChild(wrap);
+  });
+}
 function renderTarjetaRows(){
   var cont = $("tarjetaRows");
   cont.innerHTML = "";
@@ -938,13 +964,12 @@ function renderTarjetaRows(){
 
     var lbl = document.createElement("div");
     lbl.className = "tc-label";
-    lbl.innerHTML = '<i class="ti ti-credit-card"></i> Tarjeta ' + (i+1);
+    lbl.innerHTML = '<i class="ti ti-credit-card"></i> ' + (t.nombre || ('Tarjeta ' + (i+1)));
     block.appendChild(lbl);
 
     var grid = document.createElement("div");
     grid.className = "tc-grid";
 
-    grid.appendChild(makeTCField("Nombre / banco", "text", "Ej. Banamex", t.nombre, function(v){ S.tarjetas[i].nombre = v; }));
     grid.appendChild(makeTCField("Pago mensual de MSI", "number", "0", t.msiPago || "", function(v){ S.tarjetas[i].msiPago = parseFloat(v)||0; }));
     grid.appendChild(makeTCField("Saldo total deuda", "number", "0", t.total || "", function(v){ S.tarjetas[i].total = parseFloat(v)||0; }));
 
@@ -1003,7 +1028,7 @@ function renderDeudas(){
 
 /* ════════ INVERSIONES ════════ */
 function initInversiones(){
-  INV_OPTS.forEach(function(o){ invState[o.id] = {checked:false, monto:0}; });
+  INV_OPTS.forEach(function(o){ invState[o.id] = {checked:false, monto:0, pago:"efectivo"}; });
   var cont = $("invRows");
   cont.innerHTML = "";
   INV_OPTS.forEach(function(o){
@@ -1022,15 +1047,26 @@ function initInversiones(){
     amount.type = "number"; amount.placeholder = "$/mes"; amount.min = 0;
     amount.className = "inv-amount"; amount.disabled = true;
 
+    var pago = document.createElement("select");
+    pago.className = "inv-amount"; pago.disabled = true;
+    pago.style.width = "150px";
+    [["efectivo","Efectivo / debito"],["credito","Credito"]].forEach(function(p){
+      var op = document.createElement("option");
+      op.value = p[0]; op.textContent = p[1];
+      pago.appendChild(op);
+    });
+
     chk.addEventListener("change", function(){
       invState[o.id].checked = chk.checked;
       amount.disabled = !chk.checked;
+      pago.disabled = !chk.checked;
       row.classList.toggle("checked", chk.checked);
-      if(!chk.checked){ amount.value = ""; invState[o.id].monto = 0; }
+      if(!chk.checked){ amount.value = ""; invState[o.id].monto = 0; invState[o.id].pago = "efectivo"; pago.value = "efectivo"; }
     });
     amount.addEventListener("input", function(){ invState[o.id].monto = parseFloat(amount.value) || 0; });
+    pago.addEventListener("change", function(){ invState[o.id].pago = pago.value; });
 
-    row.appendChild(label); row.appendChild(amount);
+    row.appendChild(label); row.appendChild(amount); row.appendChild(pago);
     cont.appendChild(row);
   });
 }
@@ -1191,7 +1227,7 @@ function next(step){
     if(!S.tieneInv){ showErr("Indica si tiene inversiones activas"); return; }
     if(S.tieneInv === "si"){
       S.inversiones = INV_OPTS.filter(function(o){ return invState[o.id].checked; })
-        .map(function(o){ return {id:o.id, label:o.label, monto:invState[o.id].monto}; });
+        .map(function(o){ return {id:o.id, label:o.label, monto:invState[o.id].monto, pago:invState[o.id].pago}; });
     }
     showSection(6);
 
@@ -1216,10 +1252,10 @@ function nuevoCliente(){
   });
   document.querySelectorAll("select").forEach(function(s){ s.selectedIndex = 0; });
   document.querySelectorAll(".radio-opt").forEach(function(o){ o.classList.remove("selected"); });
-  ["depPanel","tarjetaPanel","tarjetasDetalle","creditoPanel","deudaTableWrap","ingExtraPanel","invPanel","asesoriaPanel","citaConfirm","infoGodin","infoEmp","numMSIField","eduPanel"].forEach(function(id){
+  ["depPanel","tarjetaPanel","tarjetasDetalle","creditoPanel","deudaTableWrap","ingExtraPanel","invPanel","asesoriaPanel","citaConfirm","infoGodin","infoEmp","numMSIField","eduPanel","tarjetaBancos"].forEach(function(id){
     var el = $(id); if(el) el.style.display = "none";
   });
-  ["depRows","tarjetaRows","deudaTbody","ingExtraRows","saludRows","seguroRows","streamRows","eduRows"].forEach(function(id){
+  ["depRows","tarjetaRows","bancoRows","deudaTbody","ingExtraRows","saludRows","seguroRows","streamRows","eduRows"].forEach(function(id){
     var el = $(id); if(el) el.innerHTML = "";
   });
   if(pieChart){ pieChart.destroy(); pieChart = null; }
@@ -1450,14 +1486,24 @@ function renderDiag(){
   html += '<div class="stat-card"><div class="slbl">Deuda fija/mes</div><div class="sval" style="color:'+(d.deudaFija>0?"var(--danger)":"var(--text)")+'">'+fmt(d.deudaFija)+'</div></div>';
   html += '</div></div>';
 
-  if(d.tcTotal > 0 || d.tcPagos > 0){
-    html += '<div class="card"><div class="section-title"><i class="ti ti-credit-card"></i> Deuda en tarjetas de crédito</div>';
-    html += '<div class="warn-box"><i class="ti ti-alert-triangle"></i> Saldo total: <strong>'+fmt(d.tcTotal)+'</strong>.'+(S.tieneMSI==="si"?' Compras a MSI: <strong>'+S.numMSI+'</strong>, pago mensual MSI: <strong>'+fmt(d.tcPagos)+'/mes</strong>.':'')+'</div>';
+  if(S.tieneTarjeta === "si" && S.tarjetas.length > 0){
+    var gpt = S.gastoPorTarjeta || {};
+    html += '<div class="card"><div class="section-title"><i class="ti ti-credit-card"></i> Resumen por tarjeta</div>';
+    if(S.tieneMSI==="si"){
+      html += '<div class="warn-box"><i class="ti ti-alert-triangle"></i> Compras a MSI: <strong>'+S.numMSI+'</strong> · Pago mensual MSI total: <strong>'+fmt(d.tcPagos)+'/mes</strong></div>';
+    }
+    html += '<table class="debt-table"><thead><tr><th>Tarjeta</th><th>Cargos del mes</th><th>Pago MSI</th><th>Saldo total</th></tr></thead><tbody>';
+    var sumCargos=0, sumMSI=0, sumSaldo=0;
     S.tarjetas.forEach(function(t,i){
-      if(t.msiPago>0 || t.total>0){
-        html += '<div style="margin-bottom:12px"><div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px"><span style="font-weight:600">'+(t.nombre||"Tarjeta "+(i+1))+'</span><span style="color:var(--muted)">'+(t.msiPago>0?fmt(t.msiPago)+" MSI/mes":"")+(t.total>0?" · "+fmt(t.total)+" total":"")+'</span></div><div class="prog-wrap"><div class="prog-fill" style="width:'+Math.min(100,ing>0?Math.round(t.total/ing*100):0)+'%;background:var(--danger)"></div></div></div>';
-      }
+      var cargos = gpt["tc_"+i] || 0;
+      var msi = t.msiPago || 0;
+      var saldo = t.total || 0;
+      sumCargos += cargos; sumMSI += msi; sumSaldo += saldo;
+      html += '<tr><td style="font-weight:600">'+(t.nombre||"Tarjeta "+(i+1))+'</td><td>'+(cargos>0?fmt(cargos)+"/mes":"—")+'</td><td>'+(msi>0?fmt(msi)+"/mes":"—")+'</td><td>'+(saldo>0?fmt(saldo):"—")+'</td></tr>';
     });
+    html += '</tbody></table>';
+    html += '<div class="debt-totals"><span>Cargos/mes: <strong>'+fmt(sumCargos)+'</strong></span><span>MSI/mes: <strong>'+fmt(sumMSI)+'</strong></span><span>Saldo total: <strong>'+fmt(sumSaldo)+'</strong></span></div>';
+    html += '<p style="font-size:12px;color:var(--muted);margin-top:8px"><i class="ti ti-info-circle"></i> "Cargos del mes" son los gastos que marcaste pagar con cada tarjeta. No se suman aparte al total de gastos para no duplicar, ya que cada concepto ya esta contado en su categoria.</p>';
     html += '</div>';
   }
 
@@ -1895,7 +1941,7 @@ function generarPDF(){
   doc.save("Diagnostico_Rizkora_" + S.nombre.replace(/\s+/g,"_") + ".pdf");
 }
 
-/* ════════ EXCEL + TRACKER MENSUAL (diseño ejecutivo, ExcelJS) ════════ */
+/* ════════ EXCEL + TRACKER MENSUAL (formato ejecutivo, 5 hojas, ExcelJS) ════════ */
 $("btnExcel").addEventListener("click", generarExcel);
 
 async function generarExcel(){
@@ -1903,280 +1949,344 @@ async function generarExcel(){
   var d = calcData();
   var g = S.gastos;
 
-  // Paleta Rizkora
-  var AZUL = "FF064C78", AZULMID = "FF0A6699", AMARILLO = "FFFFF59D",
-      AZULCLARO = "FFE8F4FB", GRIS = "FFF2F6FA", BLANCO = "FFFFFFFF",
-      VERDE = "FF1A7F45", ROJO = "FFD93025", TEXTO = "FF0D2535";
+  // ─── Paleta corporativa Rizkora ───
+  var AZ_OSC="FF064C78", AZ_MED="FF0A6699", AZ_CLAR="FFEAF4FB", AMARILLO="FFFFF59D",
+      VERDE="FF1A7F45", VERDE_CL="FFE0F2F1", ROJO="FFC62828", ROJO_CL="FFFFEBEE",
+      NARANJA="FFE65100", GRIS="FFF5F5F5", BLANCO="FFFFFFFF", NEGRO="FF0D2535", AZUL_INP="FF1565C0";
+  var MESES=["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
+  var FMT_PESOS='"$"#,##0;[Red]("$"#,##0)';
+  var FMT_PCT='0.0%';
+  var mesIdx = new Date().getMonth(); // 0-based
+  var anio = new Date().getFullYear();
 
   var wb = new ExcelJS.Workbook();
-  wb.creator = "Rizkora"; wb.created = new Date();
+  wb.creator="Rizkora"; wb.created=new Date();
 
-  // Helpers de estilo
-  function fill(hex){ return {type:"pattern", pattern:"solid", fgColor:{argb:hex}}; }
-  function borderAll(color){ var b={style:"thin",color:{argb:color||"FFD0DCEA"}}; return {top:b,left:b,bottom:b,right:b}; }
-  function tituloHoja(ws, texto, sub, cols){
-    ws.mergeCells(1,1,1,cols);
-    var t = ws.getCell(1,1);
-    t.value = texto;
-    t.font = {name:"Arial", size:16, bold:true, color:{argb:AMARILLO}};
-    t.fill = fill(AZUL);
-    t.alignment = {vertical:"middle", horizontal:"left", indent:1};
-    ws.getRow(1).height = 30;
-    if(sub){
-      ws.mergeCells(2,1,2,cols);
-      var s = ws.getCell(2,1);
-      s.value = sub;
-      s.font = {name:"Arial", size:10, italic:true, color:{argb:BLANCO}};
-      s.fill = fill(AZULMID);
-      s.alignment = {vertical:"middle", horizontal:"left", indent:1};
-      ws.getRow(2).height = 18;
-    }
+  // ─── helpers de estilo ───
+  function fill(hex){ return {type:"pattern",pattern:"solid",fgColor:{argb:hex}}; }
+  function bd(){ var s={style:"thin",color:{argb:"FFCCCCCC"}}; return {top:s,left:s,bottom:s,right:s}; }
+  function ft(opt){ opt=opt||{}; return {name:"Arial",size:opt.sz||10,bold:!!opt.b,italic:!!opt.i,color:{argb:opt.c||NEGRO}}; }
+  function al(h,wrap){ return {horizontal:h||"left",vertical:"middle",wrapText:!!wrap}; }
+  function banner(ws,row,txt,lastCol){
+    ws.mergeCells(row,1,row,lastCol);
+    var c=ws.getCell(row,1);
+    c.value=txt; c.font=ft({b:true,sz:15,c:AMARILLO}); c.fill=fill(AZ_OSC); c.alignment=al("center");
+    ws.getRow(row).height=40;
   }
-  function headerRow(ws, rowIdx, valores){
-    var row = ws.getRow(rowIdx);
-    valores.forEach(function(v,i){
-      var c = row.getCell(i+1);
-      c.value = v;
-      c.font = {name:"Arial", size:10, bold:true, color:{argb:BLANCO}};
-      c.fill = fill(AZUL);
-      c.alignment = {vertical:"middle", horizontal:(i<2?"left":"center"), indent:(i<2?1:0)};
-      c.border = borderAll(AZUL);
+  function secHdr(ws,row,txt,lastCol){
+    ws.mergeCells(row,1,row,lastCol);
+    var c=ws.getCell(row,1);
+    c.value=txt; c.font=ft({b:true,sz:11,c:BLANCO}); c.fill=fill(AZ_MED); c.alignment=al("left"); c.border=bd();
+    ws.getRow(row).height=22;
+  }
+  function colHdr(ws,row,col,txt,bg,sz){
+    var c=ws.getCell(row,col);
+    c.value=txt; c.font=ft({b:true,sz:sz||9,c:(bg===VERDE||bg===AZ_OSC||bg===AZ_MED)?AMARILLO:BLANCO});
+    c.fill=fill(bg||AZ_OSC); c.alignment=al("center",true); c.border=bd();
+  }
+  function colLetter(n){ var s=""; while(n>0){ var m=(n-1)%26; s=String.fromCharCode(65+m)+s; n=Math.floor((n-1)/26); } return s; }
+
+  /* ══════════ HOJA 1 — PERFIL DEL CLIENTE ══════════ */
+  var ws1 = wb.addWorksheet("Perfil del Cliente", {properties:{tabColor:{argb:AZ_OSC}}, views:[{showGridLines:false}]});
+  ws1.columns=[{width:30},{width:28},{width:4},{width:28},{width:26}];
+  banner(ws1,1,"ASESORIA FINANCIERA RIZKORA - PERFIL DEL CLIENTE",5);
+  ws1.getRow(2).height=6;
+  secHdr(ws1,3,"Informacion general",5);
+  var r=4;
+  function par(lbl1,val1,lbl2,val2){
+    var row=ws1.getRow(r); row.height=20;
+    var a=row.getCell(1); a.value=lbl1; a.font=ft({b:true,c:AZ_OSC}); a.fill=fill(AZ_CLAR); a.border=bd(); a.alignment=al("left");
+    var b=row.getCell(2); b.value=val1; b.font=ft({}); b.fill=fill(BLANCO); b.border=bd(); b.alignment=al("left");
+    if(lbl2!==undefined){
+      var c=row.getCell(4); c.value=lbl2; c.font=ft({b:true,c:AZ_OSC}); c.fill=fill(AZ_CLAR); c.border=bd(); c.alignment=al("left");
+      var dd=row.getCell(5); dd.value=val2; dd.font=ft({}); dd.fill=fill(BLANCO); dd.border=bd(); dd.alignment=al("left");
+    }
+    r++;
+  }
+  par("Nombre completo", S.nombre, "Edad", S.edad);
+  par("Perfil laboral", S.tipo==="godin"?"Empleado":"Empresario/Freelance", "Fecha de asesoria", new Date().toLocaleDateString("es-MX"));
+  par("Resultado del diagnostico", resultadoTexto(), "Fondo de emergencia", S.fondoEm==="si"?"Si":"No");
+  par("Habito de ahorro", {cada_mes:"Cada mes",a_veces:"De vez en cuando",no:"No ahorra"}[S.ahorrHab]||"-", "Tiene dependientes", S.dep==="si"?"Si":"No");
+  r++;
+
+  // Dependientes
+  if(S.dep==="si" && S.dependientes.length){
+    secHdr(ws1,r,"Dependientes economicos",5); r++;
+    S.dependientes.forEach(function(dp){
+      var row=ws1.getRow(r); row.height=18;
+      var a=row.getCell(1); a.value=dp.tipo; a.font=ft({b:true,c:AZ_OSC}); a.fill=fill(AZ_CLAR); a.border=bd(); a.alignment=al("left");
+      var b=row.getCell(2); b.value=dp.cantidad; b.font=ft({}); b.fill=fill(BLANCO); b.border=bd(); b.alignment=al("center");
+      r++;
     });
-    row.height = 22;
-  }
-  var MESES = ["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
-  var MXN = '"$"#,##0';
-
-  // ══════════ HOJA 1: DIAGNOSTICO ══════════
-  var ws1 = wb.addWorksheet("Diagnostico", {properties:{tabColor:{argb:AZUL}}});
-  ws1.columns = [{width:42},{width:22}];
-  tituloHoja(ws1, "DIAGNOSTICO FINANCIERO RIZKORA", S.nombre + "  -  " + new Date().toLocaleDateString("es-MX"), 2);
-  var r = 4;
-  function infoRow(label, val, money, bold){
-    var rr = ws1.getRow(r);
-    var c1 = rr.getCell(1), c2 = rr.getCell(2);
-    c1.value = label; c2.value = val;
-    c1.font = {name:"Arial", size:10, bold:!!bold, color:{argb:TEXTO}};
-    c2.font = {name:"Arial", size:10, bold:!!bold, color:{argb:TEXTO}};
-    c2.alignment = {horizontal:"right"};
-    if(money) c2.numFmt = MXN;
-    if(bold){ c1.fill = fill(AZULCLARO); c2.fill = fill(AZULCLARO); }
-    r++;
-    return rr;
-  }
-  function seccion(txt){
-    ws1.mergeCells(r,1,r,2);
-    var c = ws1.getCell(r,1);
-    c.value = txt;
-    c.font = {name:"Arial", size:11, bold:true, color:{argb:AZUL}};
-    c.fill = fill(AMARILLO);
-    c.alignment = {vertical:"middle", indent:1};
-    ws1.getRow(r).height = 20;
     r++;
   }
-  seccion("Datos del cliente");
-  infoRow("Cliente", S.nombre);
-  infoRow("Edad", S.edad);
-  infoRow("Perfil", S.tipo==="godin"?"Empleado":"Empresario/Freelance");
-  infoRow("Resultado del diagnostico", resultadoTexto(), false, true);
-  r++;
-  seccion("Resumen financiero");
-  infoRow("Ingreso en cuenta", S.ingreso, true);
-  if(S.ingExtra==="si" && S.ingExtraList){ S.ingExtraList.forEach(function(x){ infoRow("Ingreso adicional: "+(x.desc||"otro"), x.monto, true); }); }
-  infoRow("Ingreso total", d.ingTotal, true, true);
-  infoRow("Gastos fijos", d.fijos, true);
-  infoRow("Gastos variables (incluye deuda fija)", d.variables, true);
-  var flujoRow = infoRow("Flujo libre", d.flujo, true, true);
-  // color flujo
-  flujoRow.getCell(2).font = {name:"Arial", size:10, bold:true, color:{argb: d.flujo<0?ROJO:VERDE}};
-  if(d.tcTotal>0) infoRow("Deuda total en tarjetas", d.tcTotal, true);
-  if(S.tieneMSI==="si") infoRow("Compras a MSI", S.numMSI);
-  r++;
-  seccion("Metas prioritarias");
-  S.metas.forEach(function(m,i){ infoRow((i+1)+". "+m.label, ""); });
-  r++;
-  seccion("Ahorros e inversiones");
-  infoRow("Fondo de emergencias", S.fondoEm==="si"?"Si":"No");
-  infoRow("Habito de ahorro", {cada_mes:"Cada mes",a_veces:"De vez en cuando",no:"No ahorra"}[S.ahorrHab]||"-");
-  if(S.inversiones){ S.inversiones.forEach(function(inv){ infoRow(inv.label, inv.monto, true); }); }
 
-  // ══════════ HOJA 2: PRESUPUESTO ══════════
-  var ws2 = wb.addWorksheet("Presupuesto", {properties:{tabColor:{argb:AZULMID}}});
-  ws2.columns = [{width:32},{width:16},{width:16},{width:16},{width:16}];
-  tituloHoja(ws2, "PRESUPUESTO SUGERIDO  -  REGLA 50 / 30 / 20", "Compara tu situacion real contra el presupuesto ideal", 5);
-  headerRow(ws2, 4, ["Categoria","Ideal (%)","Monto ideal","Monto real","Diferencia"]);
-  var presupData = [
-    ["Necesidades (gastos fijos)", 0.50, d.ingTotal*0.5, d.fijos],
-    ["Deseos + deuda fija", 0.30, d.ingTotal*0.3, d.variables],
-    ["Ahorro / inversion", 0.20, d.ingTotal*0.2, Math.max(0,d.flujo)]
-  ];
-  var rowi = 5;
-  presupData.forEach(function(p){
-    var row = ws2.getRow(rowi);
-    row.getCell(1).value = p[0];
-    row.getCell(2).value = p[1]; row.getCell(2).numFmt = "0%";
-    row.getCell(3).value = p[2]; row.getCell(3).numFmt = MXN;
-    row.getCell(4).value = p[3]; row.getCell(4).numFmt = MXN;
-    row.getCell(5).value = {formula:"D"+rowi+"-C"+rowi}; row.getCell(5).numFmt = MXN;
-    for(var k=1;k<=5;k++){
-      var c = row.getCell(k);
-      c.font = {name:"Arial", size:10, color:{argb:TEXTO}};
-      c.border = borderAll();
-      c.alignment = {horizontal:(k===1?"left":"right"), indent:(k===1?1:0)};
-      if(rowi%2===0) c.fill = fill(GRIS);
-    }
-    rowi++;
+  // Metas
+  secHdr(ws1,r,"Metas prioritarias",5); r++;
+  S.metas.forEach(function(m,i){
+    var row=ws1.getRow(r); row.height=18;
+    ws1.mergeCells(r,1,r,5);
+    var a=row.getCell(1); a.value=(i+1)+". "+m.label; a.font=ft({}); a.fill=fill(BLANCO); a.border=bd(); a.alignment=al("left");
+    r++;
   });
-  rowi++;
-  var ingr = ws2.getRow(rowi);
-  ingr.getCell(1).value = "Ingreso total mensual";
-  ingr.getCell(1).font = {name:"Arial", size:10, bold:true, color:{argb:AZUL}};
-  ingr.getCell(2).value = d.ingTotal; ingr.getCell(2).numFmt = MXN;
-  ingr.getCell(2).font = {name:"Arial", size:10, bold:true, color:{argb:AZUL}};
-  rowi += 2;
-  ws2.mergeCells(rowi,1,rowi,5);
-  var nota2 = ws2.getCell(rowi,1);
-  nota2.value = "Nota: una diferencia positiva en Necesidades o Deseos significa que estas por encima del presupuesto sugerido.";
-  nota2.font = {name:"Arial", size:9, italic:true, color:{argb:"FF527A93"}};
 
-  // ══════════ HOJA 3: TRACKER ══════════
-  var ws3 = wb.addWorksheet("Tracker mensual", {properties:{tabColor:{argb:AMARILLO}}, views:[{state:"frozen", xSplit:3, ySplit:4}]});
-  ws3.columns = [{width:22},{width:30},{width:13}].concat(MESES.map(function(){return{width:9};})).concat([{width:11}]);
-  tituloHoja(ws3, "TRACKER DE GASTOS MENSUALES", "Registra cada mes lo que realmente gastaste  -  " + S.nombre, 16);
-  headerRow(ws3, 4, ["Categoria general","Concepto","Presupuesto"].concat(MESES).concat(["Promedio"]));
+  /* ══════════ HOJA 2 — REGISTRO MENSUAL ══════════ */
+  var ws2 = wb.addWorksheet("Registro Mensual", {properties:{tabColor:{argb:AMARILLO}}, views:[{showGridLines:false, state:"frozen", xSplit:1, ySplit:6}]});
+  ws2.columns=[{width:40}].concat(MESES.map(function(){return{width:11};})).concat([{width:14},{width:13}]);
+  // col 1 concepto, 2..13 meses, 14 total, 15 promedio
+  banner(ws2,1,"REGISTRO MENSUAL DE FLUJO FINANCIERO - RIZKORA",15);
+  ws2.mergeCells(2,1,2,15);
+  var sub=ws2.getCell(2,1); sub.value="Cliente: "+S.nombre+"  |  Año: "+anio+"  |  Solo edita las celdas en AZUL; el resto se calcula solo.";
+  sub.font=ft({i:true,c:"FF444444"}); sub.fill=fill(GRIS); sub.alignment=al("left"); ws2.getRow(2).height=20;
 
-  // Construir partidas
-  var partidas = [];
-  partidas.push({gen:"Vivienda", cat:"Renta o hipoteca", monto:g.renta||0});
-  partidas.push({gen:"Servicios", cat:"Luz", monto:g._luz||0});
-  partidas.push({gen:"Servicios", cat:"Agua", monto:g._agua||0});
-  partidas.push({gen:"Servicios", cat:"Internet y telefono fijo", monto:g._internet||0});
-  partidas.push({gen:"Servicios", cat:"Celular / recargas", monto:g._celular||0});
-  partidas.push({gen:"Servicios", cat:"Gas", monto:g._gas||0});
-  partidas.push({gen:"Servicios", cat:"Basura", monto:g._basura||0});
-  partidas.push({gen:"Alimentacion", cat:"Comida (super / mercado)", monto:g.alim||0});
-  partidas.push({gen:"Transporte", cat:"Transporte o gasolina", monto:g.trans||0});
-  if(S.saludList){ S.saludList.forEach(function(x){ partidas.push({gen:"Salud", cat:x.tipo||"Salud", monto:x.monto||0}); }); }
-  if(S.segurosList){ S.segurosList.forEach(function(x){ partidas.push({gen:"Seguros", cat:x.tipo||"Seguro", monto:x.monto||0}); }); }
-  if(S.streamList){ S.streamList.forEach(function(x){ partidas.push({gen:"Streaming y suscripciones", cat:x.tipo||"Suscripcion", monto:x.monto||0}); }); }
-  if(S.eduList){ S.eduList.forEach(function(x){ partidas.push({gen:"Educacion", cat:x.tipo||"Educacion", monto:x.monto||0}); }); }
-  partidas.push({gen:"Gastos variables", cat:"Entretenimiento y salidas", monto:g.ent||0});
-  partidas.push({gen:"Gastos variables", cat:"Ropa y cuidado personal", monto:g.ropa||0});
-  partidas.push({gen:"Gastos variables", cat:"Mantenimientos (hogar, auto)", monto:g.mant||0});
-  partidas.push({gen:"Gastos variables", cat:"Compras electronicas", monto:g.elec||0});
-  partidas.push({gen:"Gastos variables", cat:"Otros gastos variables", monto:g.otros||0});
-  if(S.deudas){ S.deudas.forEach(function(x){ partidas.push({gen:"Deuda fija", cat:x.tipo||"Credito", monto:x.pago||0}); }); }
-  if(S.tieneTarjeta==="si" && S.tieneMSI==="si" && S.tarjetas){ S.tarjetas.forEach(function(t,i){ if((t.msiPago||0)>0) partidas.push({gen:"Deuda (tarjetas MSI)", cat:(t.nombre||"Tarjeta "+(i+1))+" - MSI", monto:t.msiPago||0}); }); }
-  partidas = partidas.filter(function(p){ return p.monto>0; });
-
-  // Colores por categoria general
-  var genColors = {
-    "Vivienda":"FFE8F4FB","Servicios":"FFF2F6FA","Alimentacion":"FFE8F4FB","Transporte":"FFF2F6FA",
-    "Salud":"FFE8F4FB","Seguros":"FFF2F6FA","Streaming y suscripciones":"FFE8F4FB","Educacion":"FFF2F6FA",
-    "Gastos variables":"FFFFF9E6","Deuda fija":"FFFDECEA","Deuda (tarjetas MSI)":"FFFDECEA"
-  };
-  var firstDataRow = 5;
-  var ri = firstDataRow;
-  partidas.forEach(function(p){
-    var row = ws3.getRow(ri);
-    row.getCell(1).value = p.gen;
-    row.getCell(2).value = p.cat;
-    row.getCell(3).value = p.monto; row.getCell(3).numFmt = MXN;
-    for(var mc=4; mc<=15; mc++){ row.getCell(mc).numFmt = MXN; }
-    row.getCell(16).value = {formula:"AVERAGE(D"+ri+":O"+ri+")"}; row.getCell(16).numFmt = MXN;
-    var bg = genColors[p.gen] || BLANCO;
-    for(var k=1;k<=16;k++){
-      var c = row.getCell(k);
-      c.font = {name:"Arial", size:9, color:{argb:TEXTO}};
-      c.border = borderAll();
-      c.fill = fill(bg);
-      c.alignment = {horizontal:(k<=2?"left":"right"), indent:(k<=2?1:0)};
+  function colHdrsMes(row){
+    ws2.getRow(row).height=24;
+    colHdr(ws2,row,1,"Concepto",AZ_OSC,9);
+    for(var i=0;i<12;i++){ colHdr(ws2,row,2+i,MESES[i]+(i===mesIdx?" (hoy)":""),(i===mesIdx?AZ_MED:AZ_OSC),8); }
+    colHdr(ws2,row,14,"TOTAL AÑO",VERDE,9);
+    colHdr(ws2,row,15,"PROM. MES",VERDE,9);
+  }
+  function filaInput(row,concepto,valorMesActual,hl){
+    ws2.getRow(row).height=19;
+    var bg=hl?AZ_CLAR:BLANCO;
+    var c=ws2.getCell(row,1); c.value=concepto; c.font=ft({}); c.fill=fill(bg); c.border=bd(); c.alignment=al("left");
+    for(var col=2;col<=13;col++){
+      var cell=ws2.getCell(row,col); cell.fill=fill(bg); cell.border=bd(); cell.numFmt=FMT_PESOS; cell.alignment=al("center");
+      if(valorMesActual && (col-2)===mesIdx){ cell.value=valorMesActual; cell.font=ft({b:true}); }
+      else { cell.font=ft({c:AZUL_INP}); }
     }
-    row.getCell(1).font = {name:"Arial", size:9, bold:true, color:{argb:AZUL}};
-    ri++;
-  });
-  var lastDataRow = ri-1;
-  // Fila TOTAL
-  var totRow = ws3.getRow(ri);
-  totRow.getCell(2).value = "TOTAL GASTADO";
-  totRow.getCell(3).value = {formula:"SUM(C"+firstDataRow+":C"+lastDataRow+")"}; totRow.getCell(3).numFmt = MXN;
-  for(var mc2=4; mc2<=15; mc2++){
-    var L = String.fromCharCode(64+mc2);
-    totRow.getCell(mc2).value = {formula:"SUM("+L+firstDataRow+":"+L+lastDataRow+")"};
-    totRow.getCell(mc2).numFmt = MXN;
+    var t=ws2.getCell(row,14); t.value={formula:"SUM(B"+row+":M"+row+")"}; t.font=ft({b:true}); t.fill=fill(VERDE_CL); t.border=bd(); t.numFmt=FMT_PESOS; t.alignment=al("center");
+    var p=ws2.getCell(row,15); p.value={formula:'IFERROR(N'+row+'/COUNTIF(B'+row+':M'+row+',"<>"),0)'}; p.font=ft({b:true}); p.fill=fill(VERDE_CL); p.border=bd(); p.numFmt=FMT_PESOS; p.alignment=al("center");
   }
-  totRow.getCell(16).value = {formula:"AVERAGE(D"+ri+":O"+ri+")"}; totRow.getCell(16).numFmt = MXN;
-  for(var k2=1;k2<=16;k2++){
-    var c=totRow.getCell(k2);
-    c.font={name:"Arial",size:10,bold:true,color:{argb:AMARILLO}};
-    c.fill=fill(AZUL); c.border=borderAll(AZUL);
-    c.alignment={horizontal:(k2<=2?"left":"right"),indent:(k2<=2?1:0)};
+  function filaTotal(row,concepto,filas,bg,fc){
+    ws2.getRow(row).height=22;
+    var c=ws2.getCell(row,1); c.value=concepto; c.font=ft({b:true,c:fc||BLANCO}); c.fill=fill(bg||ROJO); c.border=bd(); c.alignment=al("left");
+    for(var col=2;col<=13;col++){
+      var L=colLetter(col);
+      var expr=filas.map(function(rr){return L+rr;}).join("+");
+      var cell=ws2.getCell(row,col); cell.value={formula:expr}; cell.font=ft({b:true,c:fc||BLANCO}); cell.fill=fill(bg||ROJO); cell.border=bd(); cell.numFmt=FMT_PESOS; cell.alignment=al("center");
+    }
+    var t=ws2.getCell(row,14); t.value={formula:"SUM(B"+row+":M"+row+")"}; t.font=ft({b:true,c:fc||BLANCO}); t.fill=fill(bg||ROJO); t.border=bd(); t.numFmt=FMT_PESOS; t.alignment=al("center");
+    var pexpr=filas.map(function(rr){return "O"+rr;}).join("+");
+    var p=ws2.getCell(row,15); p.value={formula:pexpr}; p.font=ft({b:true,c:fc||BLANCO}); p.fill=fill(bg||ROJO); p.border=bd(); p.numFmt=FMT_PESOS; p.alignment=al("center");
   }
-  var totalRowIdx = ri;
-  ri++;
-  // Fila % ingreso
-  var ingRowIdx = lastDataRow + 4;
-  var pctRow = ws3.getRow(ri);
-  pctRow.getCell(2).value = "% del ingreso";
-  for(var mc3=4; mc3<=15; mc3++){
-    var L3 = String.fromCharCode(64+mc3);
-    pctRow.getCell(mc3).value = {formula:"IF($C$"+ingRowIdx+"=0,0,"+L3+totalRowIdx+"/$C$"+ingRowIdx+")"};
-    pctRow.getCell(mc3).numFmt = "0.0%";
+  function filaFormula(row,concepto,fn,bg,fc,fmt){
+    ws2.getRow(row).height=20;
+    var c=ws2.getCell(row,1); c.value=concepto; c.font=ft({b:true,c:fc||NEGRO}); c.fill=fill(bg||GRIS); c.border=bd(); c.alignment=al("left");
+    for(var col=2;col<=13;col++){
+      var L=colLetter(col);
+      var cell=ws2.getCell(row,col); cell.value={formula:fn(L)}; cell.font=ft({b:true,c:fc||NEGRO}); cell.fill=fill(bg||GRIS); cell.border=bd(); cell.numFmt=fmt||FMT_PESOS; cell.alignment=al("center");
+    }
+    var t=ws2.getCell(row,14); t.value={formula:"SUM(B"+row+":M"+row+")"}; t.font=ft({b:true,c:fc||NEGRO}); t.fill=fill(bg||GRIS); t.border=bd(); t.numFmt=fmt||FMT_PESOS; t.alignment=al("center");
+    var p=ws2.getCell(row,15); p.value={formula:'IFERROR(N'+row+'/COUNTIF(B'+row+':M'+row+',"<>"),0)'}; p.font=ft({b:true,c:fc||NEGRO}); p.fill=fill(bg||GRIS); p.border=bd(); p.numFmt=fmt||FMT_PESOS; p.alignment=al("center");
   }
-  for(var k3=1;k3<=16;k3++){
-    var c3=pctRow.getCell(k3);
-    c3.font={name:"Arial",size:9,bold:true,italic:true,color:{argb:AZULMID}};
-    c3.fill=fill(AZULCLARO); c3.border=borderAll();
-    c3.alignment={horizontal:(k3<=2?"left":"right"),indent:(k3<=2?1:0)};
-  }
-  ri += 2;
-  // Ingreso referencia
-  var ingRow = ws3.getRow(ingRowIdx);
-  ingRow.getCell(2).value = "Ingreso mensual de referencia";
-  ingRow.getCell(2).font = {name:"Arial",size:10,bold:true,color:{argb:AZUL}};
-  ingRow.getCell(3).value = d.ingTotal; ingRow.getCell(3).numFmt = MXN;
-  ingRow.getCell(3).font = {name:"Arial",size:10,bold:true,color:{argb:AZUL}};
 
-  // ══════════ HOJA 4: INSTRUCCIONES ══════════
-  var ws4 = wb.addWorksheet("Instrucciones", {properties:{tabColor:{argb:AZUL}}});
-  ws4.columns = [{width:100}];
-  tituloHoja(ws4, "COMO USAR TU TRACKER", "Guia rapida", 1);
-  var instr = [
-    "1. La hoja 'Tracker mensual' tiene tus categorias exactas agrupadas por categoria general (con colores).",
-    "2. La columna 'Presupuesto' viene de tu diagnostico: es tu meta mensual por concepto.",
-    "3. Cada mes, escribe en la columna del mes lo que realmente gastaste en cada concepto.",
-    "4. La fila azul 'TOTAL GASTADO' suma automaticamente todo lo del mes.",
-    "5. La fila '% del ingreso' te dice que porcentaje de tu ingreso se fue en gastos ese mes.",
-    "6. La columna 'Promedio' calcula tu gasto promedio del ano por concepto.",
-    "",
-    "RECOMENDACION: si un mes el TOTAL supera tu presupuesto, revisa que categoria se disparo.",
-    "Tu meta es que los gastos fijos no rebasen el 50% y los deseos + deuda el 30% de tu ingreso.",
-    "",
-    "Rizkora  -  contacto@rizkora.com"
+  var row=4;
+  // INGRESOS
+  secHdr(ws2,row,"INGRESOS",15); row++;
+  colHdrsMes(row); row++;
+  filaInput(row,"Ingreso mensual neto (sueldo)", S.ingreso||null); var ING_SUELDO=row; row++;
+  var ingExtraTotal = (S.ingExtra==="si")? S.ingExtraMonto : 0;
+  filaInput(row,"Ingresos adicionales / freelance", ingExtraTotal||null); var ING_EXTRA=row; row++;
+  filaInput(row,"Otros ingresos (rentas, pensiones)"); var ING_OTROS=row; row++;
+  filaTotal(row,"TOTAL INGRESOS",[ING_SUELDO,ING_EXTRA,ING_OTROS],AZ_OSC,AMARILLO); var ING_TOTAL=row; row+=2;
+
+  // GASTOS FIJOS
+  secHdr(ws2,row,"GASTOS FIJOS MENSUALES",15); row++;
+  colHdrsMes(row); row++;
+  var fijosDefs=[
+    ["Renta o hipoteca", g.renta||0],
+    ["Luz", g._luz||0],["Agua", g._agua||0],
+    ["Internet y telefono", g._internet||0],["Celular / recargas", g._celular||0],
+    ["Gas", g._gas||0],["Basura", g._basura||0],
+    ["Transporte o gasolina", g.trans||0],["Comida (super)", g.alim||0]
   ];
-  var ir = 4;
+  // salud, seguros, streaming, educacion como filas individuales
+  (S.saludList||[]).forEach(function(x){ fijosDefs.push(["Salud: "+x.tipo, x.monto||0]); });
+  (S.segurosList||[]).forEach(function(x){ fijosDefs.push(["Seguro: "+x.tipo, x.monto||0]); });
+  (S.streamList||[]).forEach(function(x){ fijosDefs.push(["Streaming: "+x.tipo, x.monto||0]); });
+  (S.eduList||[]).forEach(function(x){ fijosDefs.push(["Educacion: "+x.tipo, x.monto||0]); });
+  var GF_ROWS=[];
+  fijosDefs.forEach(function(def){ filaInput(row,def[0],def[1]||null); GF_ROWS.push(row); row++; });
+  filaTotal(row,"TOTAL GASTOS FIJOS",GF_ROWS,AZ_MED,AMARILLO); var GF_TOTAL=row; row+=2;
+
+  // GASTOS VARIABLES
+  secHdr(ws2,row,"GASTOS VARIABLES MENSUALES",15); row++;
+  colHdrsMes(row); row++;
+  var varDefs=[
+    ["Entretenimiento y salidas", g.ent||0],["Ropa y cuidado personal", g.ropa||0],
+    ["Mantenimientos (hogar, auto)", g.mant||0],["Compras electronicas", g.elec||0],
+    ["Otros gastos variables", g.otros||0]
+  ];
+  var GV_ROWS=[];
+  varDefs.forEach(function(def){ filaInput(row,def[0],def[1]||null); GV_ROWS.push(row); row++; });
+  filaTotal(row,"TOTAL GASTOS VARIABLES",GV_ROWS,NARANJA,BLANCO); var GV_TOTAL=row; row+=2;
+
+  // DEUDAS
+  secHdr(ws2,row,"PAGOS DE DEUDAS MENSUALES",15); row++;
+  colHdrsMes(row); row++;
+  var deudaDefs=[];
+  (S.deudas||[]).forEach(function(dd){ deudaDefs.push([dd.tipo, dd.pago||0]); });
+  if(S.tieneMSI==="si"){ (S.tarjetas||[]).forEach(function(t,i){ if((t.msiPago||0)>0) deudaDefs.push([(t.nombre||"Tarjeta "+(i+1))+" (MSI)", t.msiPago]); }); }
+  if(deudaDefs.length===0) deudaDefs.push(["Sin deudas registradas",0]);
+  var DD_ROWS=[];
+  deudaDefs.forEach(function(def){ filaInput(row,def[0],def[1]||null); DD_ROWS.push(row); row++; });
+  filaTotal(row,"TOTAL DEUDAS",DD_ROWS,ROJO,BLANCO); var DD_TOTAL=row; row+=2;
+
+  // RESUMEN DE FLUJO
+  secHdr(ws2,row,"RESUMEN DE FLUJO FINANCIERO",15); row++;
+  colHdrsMes(row); row++;
+  filaFormula(row,"TOTAL GASTOS (Fijos+Variables+Deudas)",function(L){return L+GF_TOTAL+"+"+L+GV_TOTAL+"+"+L+DD_TOTAL;},ROJO_CL,NEGRO); var GT_ROW=row; row++;
+  // Flujo libre (verde)
+  ws2.getRow(row).height=24;
+  var fc=ws2.getCell(row,1); fc.value="FLUJO LIBRE (disponible para invertir)"; fc.font=ft({b:true,sz:11,c:BLANCO}); fc.fill=fill(VERDE); fc.border=bd(); fc.alignment=al("left");
+  for(var col=2;col<=13;col++){ var L=colLetter(col); var cell=ws2.getCell(row,col); cell.value={formula:L+ING_TOTAL+"-"+L+GT_ROW}; cell.font=ft({b:true,sz:11,c:BLANCO}); cell.fill=fill(VERDE); cell.border=bd(); cell.numFmt=FMT_PESOS; cell.alignment=al("center"); }
+  var ft14=ws2.getCell(row,14); ft14.value={formula:"SUM(B"+row+":M"+row+")"}; ft14.font=ft({b:true,c:BLANCO}); ft14.fill=fill(VERDE); ft14.border=bd(); ft14.numFmt=FMT_PESOS; ft14.alignment=al("center");
+  var ft15=ws2.getCell(row,15); ft15.value={formula:'IFERROR(N'+row+'/COUNTIF(B'+row+':M'+row+',"<>"),0)'}; ft15.font=ft({b:true,c:BLANCO}); ft15.fill=fill(VERDE); ft15.border=bd(); ft15.numFmt=FMT_PESOS; ft15.alignment=al("center");
+  var FL_ROW=row; row++;
+  filaFormula(row,"% Gastos / Ingresos",function(L){return "IFERROR("+L+GT_ROW+"/"+L+ING_TOTAL+",0)";},GRIS,NEGRO,FMT_PCT); row++;
+  filaInput(row,"Inversion real realizada (aportacion)", (S.tieneInv==="si"? S.inversiones.reduce(function(a,i){return a+i.monto;},0):0)||null, true); var INV_ROW=row; row++;
+  filaFormula(row,"Superavit / Deficit del mes",function(L){return L+FL_ROW+"-"+L+INV_ROW;},GRIS,NEGRO); row++;
+
+  /* ══════════ HOJA 3 — SALUD FINANCIERA (KPIs) ══════════ */
+  var ws3 = wb.addWorksheet("Salud Financiera", {properties:{tabColor:{argb:VERDE}}, views:[{showGridLines:false}]});
+  ws3.columns=[{width:34},{width:18},{width:14},{width:14},{width:16},{width:30}];
+  var RM="'Registro Mensual'";
+  banner(ws3,1,"TABLERO DE SALUD FINANCIERA - RIZKORA",6);
+  ws3.getRow(2).height=6;
+  // estado inicial
+  ws3.mergeCells(3,1,3,6);
+  var est=ws3.getCell(3,1);
+  var resTxt=resultadoTexto();
+  var estVerde = (d.flujo>=0 && d.pct>20);
+  est.value="ESTADO FINANCIERO AL INICIO: "+resTxt.toUpperCase();
+  est.font=ft({b:true,sz:13,c:BLANCO});
+  est.fill=fill(d.flujo<0?ROJO:(d.pct<=20?NARANJA:VERDE));
+  est.alignment=al("center"); est.border=bd(); ws3.getRow(3).height=28;
+  secHdr(ws3,5,"KPIs FINANCIEROS (se actualizan con el Registro Mensual)",6);
+  var kh=6;
+  ["Indicador","Valor ($)","% s/Ingreso","Meta","Estado","Accion sugerida"].forEach(function(h,i){ colHdr(ws3,kh,1+i,h,AZ_OSC,9); });
+  ws3.getRow(kh).height=22;
+  var kr=7;
+  function kpiRow(ind,valF,pctF,meta,metaFmt,estF,accion,bg){
+    var row=ws3.getRow(kr); row.height=24;
+    var c1=row.getCell(1); c1.value=ind; c1.font=ft({}); c1.fill=fill(bg); c1.border=bd(); c1.alignment=al("left");
+    var c2=row.getCell(2); c2.value=valF?{formula:valF}:""; c2.font=ft({b:true}); c2.fill=fill(bg); c2.border=bd(); c2.numFmt=FMT_PESOS; c2.alignment=al("center");
+    var c3=row.getCell(3); c3.value=pctF?{formula:pctF}:""; c3.font=ft({b:true}); c3.fill=fill(bg); c3.border=bd(); c3.numFmt=FMT_PCT; c3.alignment=al("center");
+    var c4=row.getCell(4); c4.value=(meta!==null?meta:""); c4.font=ft({c:AZUL_INP}); c4.fill=fill(bg); c4.border=bd(); if(metaFmt)c4.numFmt=metaFmt; c4.alignment=al("center");
+    var c5=row.getCell(5); c5.value=estF?{formula:estF}:""; c5.font=ft({b:true}); c5.fill=fill(bg); c5.border=bd(); c5.alignment=al("center");
+    var c6=row.getCell(6); c6.value=accion; c6.font=ft({i:true,sz:9,c:VERDE}); c6.fill=fill(bg); c6.border=bd(); c6.alignment=al("left",true);
+    kr++;
+  }
+  kpiRow("Ingreso mensual promedio", RM+"!O"+ING_TOTAL, null, null, null, 'IF(B'+kr+'>0,"OK","Sin dato")', "Actualizar cada mes", AZ_CLAR);
+  ws3.getCell(kr-1,3).value="";
+  kpiRow("Gastos fijos / ingreso", RM+"!O"+GF_TOTAL, "IFERROR("+RM+"!O"+GF_TOTAL+"/"+RM+"!O"+ING_TOTAL+",0)", 0.50, FMT_PCT, 'IF(C'+kr+'<=D'+kr+',"Saludable","Revisar")', "Mantener bajo 50%", BLANCO);
+  kpiRow("Variables + deudas / ingreso", "IFERROR("+RM+"!O"+GV_TOTAL+"+"+RM+"!O"+DD_TOTAL+",0)", "IFERROR(("+RM+"!O"+GV_TOTAL+"+"+RM+"!O"+DD_TOTAL+")/"+RM+"!O"+ING_TOTAL+",0)", 0.30, FMT_PCT, 'IF(C'+kr+'<=D'+kr+',"Saludable","Atencion")', "Mantener bajo 30%", AZ_CLAR);
+  kpiRow("Inversion / ingreso", RM+"!O"+INV_ROW, "IFERROR("+RM+"!O"+INV_ROW+"/"+RM+"!O"+ING_TOTAL+",0)", 0.20, FMT_PCT, 'IF(C'+kr+'>=D'+kr+',"Saludable","Incrementar")', "Apuntar a 20% o mas", BLANCO);
+  kpiRow("Flujo libre mensual", RM+"!O"+FL_ROW, "IFERROR("+RM+"!O"+FL_ROW+"/"+RM+"!O"+ING_TOTAL+",0)", null, FMT_PESOS, 'IF(B'+kr+'>0,"Positivo","Deficit")', "Debe ser positivo", AZ_CLAR);
+  kr++;
+  // Notas de seguimiento mensual
+  secHdr(ws3,kr,"SEGUIMIENTO MENSUAL",6); kr++;
+  ["Mes","Ingreso real","Gasto real","Inversion real","Compromisos del cliente",""].forEach(function(h,i){ if(i<5) colHdr(ws3,kr,1+i,h,AZ_OSC,9); });
+  ws3.getCell(kr,6).fill=fill(AZ_OSC); ws3.getCell(kr,6).border=bd();
+  kr++;
+  for(var i=0;i<12;i++){
+    var row=ws3.getRow(kr); row.height=22;
+    var bg=(i%2===0)?AZ_CLAR:BLANCO;
+    var L=colLetter(2+i);
+    var c1=row.getCell(1); c1.value=MESES[i]; c1.font=ft({b:true,c:AZ_OSC}); c1.fill=fill(bg); c1.border=bd(); c1.alignment=al("center");
+    var c2=row.getCell(2); c2.value={formula:"IFERROR("+RM+"!"+L+ING_TOTAL+",0)"}; c2.font=ft({}); c2.fill=fill(bg); c2.border=bd(); c2.numFmt=FMT_PESOS; c2.alignment=al("center");
+    var c3=row.getCell(3); c3.value={formula:"IFERROR("+RM+"!"+L+GT_ROW+",0)"}; c3.font=ft({}); c3.fill=fill(bg); c3.border=bd(); c3.numFmt=FMT_PESOS; c3.alignment=al("center");
+    var c4=row.getCell(4); c4.value={formula:"IFERROR("+RM+"!"+L+INV_ROW+",0)"}; c4.font=ft({}); c4.fill=fill(bg); c4.border=bd(); c4.numFmt=FMT_PESOS; c4.alignment=al("center");
+    var c5=row.getCell(5); c5.font=ft({sz:9,c:AZUL_INP}); c5.fill=fill(bg); c5.border=bd(); c5.alignment=al("left",true);
+    var c6=row.getCell(6); c6.fill=fill(bg); c6.border=bd();
+    kr++;
+  }
+
+  /* ══════════ HOJA 4 — METAS FINANCIERAS ══════════ */
+  var ws4 = wb.addWorksheet("Metas Financieras", {properties:{tabColor:{argb:AZ_MED}}, views:[{showGridLines:false}]});
+  ws4.columns=[{width:32}].concat(MESES.map(function(){return{width:11};})).concat([{width:16},{width:14}]);
+  banner(ws4,1,"SEGUIMIENTO DE METAS FINANCIERAS - RIZKORA",15);
+  ws4.getRow(2).height=6;
+  secHdr(ws4,3,"PLAN: aportaciones reales por meta",15); var mr=4;
+  ws4.getRow(mr).height=24;
+  colHdr(ws4,mr,1,"Meta / Mes",AZ_OSC,9);
+  for(var i=0;i<12;i++){ colHdr(ws4,mr,2+i,MESES[i],AZ_OSC,8); }
+  colHdr(ws4,mr,14,"TOTAL AÑO",VERDE,9);
+  colHdr(ws4,mr,15,"OBJETIVO",AZ_MED,9);
+  mr++;
+  var metaRowsXl=[];
+  S.metas.forEach(function(m,i){
+    var row=ws4.getRow(mr); row.height=22;
+    var bg=(i%2===0)?AZ_CLAR:BLANCO;
+    var c1=row.getCell(1); c1.value=(i+1)+". "+m.label; c1.font=ft({b:true,c:AZ_OSC}); c1.fill=fill(bg); c1.border=bd(); c1.alignment=al("left");
+    for(var col=2;col<=13;col++){ var cell=row.getCell(col); cell.font=ft({c:AZUL_INP}); cell.fill=fill(bg); cell.border=bd(); cell.numFmt=FMT_PESOS; cell.alignment=al("center"); }
+    var t=row.getCell(14); t.value={formula:"SUM(B"+mr+":M"+mr+")"}; t.font=ft({b:true,c:BLANCO}); t.fill=fill(VERDE); t.border=bd(); t.numFmt=FMT_PESOS; t.alignment=al("center");
+    var o=row.getCell(15); o.font=ft({c:AZUL_INP}); o.fill=fill(bg); o.border=bd(); o.numFmt=FMT_PESOS; o.alignment=al("center");
+    metaRowsXl.push(mr); mr++;
+  });
+  // Total mes
+  var row=ws4.getRow(mr); row.height=24;
+  var c1=row.getCell(1); c1.value="TOTAL MES"; c1.font=ft({b:true,c:AMARILLO}); c1.fill=fill(AZ_OSC); c1.border=bd(); c1.alignment=al("left");
+  for(var col=2;col<=13;col++){
+    var L=colLetter(col);
+    var expr= metaRowsXl.length? metaRowsXl.map(function(rr){return L+rr;}).join("+") : "0";
+    var cell=row.getCell(col); cell.value={formula:expr}; cell.font=ft({b:true,c:AMARILLO}); cell.fill=fill(AZ_OSC); cell.border=bd(); cell.numFmt=FMT_PESOS; cell.alignment=al("center");
+  }
+  var t=row.getCell(14); t.value={formula: metaRowsXl.length? "SUM(N"+metaRowsXl[0]+":N"+metaRowsXl[metaRowsXl.length-1]+")":"0"}; t.font=ft({b:true,c:AMARILLO}); t.fill=fill(AZ_OSC); t.border=bd(); t.numFmt=FMT_PESOS; t.alignment=al("center");
+  row.getCell(15).fill=fill(AZ_OSC); row.getCell(15).border=bd();
+  mr+=2;
+  ws4.mergeCells(mr,1,mr,15);
+  var notaM=ws4.getCell(mr,1); notaM.value="Escribe en cada mes lo que aportes a cada meta. La columna OBJETIVO es para que definas tu meta anual; el TOTAL AÑO se calcula solo."; notaM.font=ft({i:true,sz:9,c:"FF666666"});
+
+  /* ══════════ HOJA 5 — INSTRUCCIONES ══════════ */
+  var ws5 = wb.addWorksheet("Instrucciones", {properties:{tabColor:{argb:AZ_OSC}}, views:[{showGridLines:false}]});
+  ws5.columns=[{width:3},{width:90},{width:3}];
+  banner(ws5,2,"GUIA DE USO - SEGUIMIENTO FINANCIERO RIZKORA",3);
+  var instr=[
+    ["",false,BLANCO],
+    ["COMO USAR ESTE ARCHIVO",true,AZ_MED],
+    ["",false,BLANCO],
+    ["1. HOJA 'Perfil del Cliente': tus datos capturados en la asesoria.",true,AZ_OSC],
+    ["2. HOJA 'Registro Mensual': el mes actual ya viene pre-llenado.",true,AZ_OSC],
+    ["   Cada mes, captura tus gastos reales SOLO en las celdas AZUL. El resto se calcula solo.",false,BLANCO],
+    ["3. HOJA 'Salud Financiera': KPIs automaticos que se actualizan con el registro mensual.",true,AZ_OSC],
+    ["   Metas: fijos <=50%, variables+deudas <=30%, inversion >=20% del ingreso.",false,BLANCO],
+    ["4. HOJA 'Metas Financieras': registra mes a mes lo que aportas a cada meta.",true,AZ_OSC],
+    ["",false,BLANCO],
+    ["CONVENCION DE COLORES",true,AZ_OSC],
+    ["   AZUL en celdas = dato que debes capturar.   NEGRO = formula automatica (no editar).",false,BLANCO],
+    ["   VERDE = resultado positivo / flujo libre.   ROJO = gasto o alerta.   AMARILLO = encabezado.",false,BLANCO],
+    ["",false,BLANCO],
+    ["FRECUENCIA RECOMENDADA",true,AZ_OSC],
+    ["   Mensual: actualizar registro y revisar KPIs.   Trimestral: revisar metas.   Anual: ajustar plan.",false,BLANCO],
+    ["",false,BLANCO],
+    ["NOTA: Esta es una herramienta de seguimiento y educacion financiera, no sustituye una asesoria completa.",true,ROJO],
+    ["Rizkora - contacto@rizkora.com - Generado el "+new Date().toLocaleDateString("es-MX"),false,GRIS]
+  ];
+  var ir=3;
   instr.forEach(function(line){
-    var c = ws4.getCell(ir,1);
-    c.value = line;
-    var isBold = line.indexOf("RECOMENDACION")>=0 || line.indexOf("Rizkora")>=0;
-    c.font = {name:"Arial", size:10, bold:isBold, color:{argb: isBold?AZUL:TEXTO}};
-    c.alignment = {wrapText:true, vertical:"middle"};
-    ws4.getRow(ir).height = 18;
+    ws5.getRow(ir).height=line[0]?20:8;
+    if(line[0]){
+      var c=ws5.getCell(ir,2); c.value=line[0];
+      var dark=(line[2]===AZ_OSC||line[2]===AZ_MED||line[2]===ROJO);
+      c.font=ft({b:line[1],c:dark?BLANCO:NEGRO}); c.fill=fill(line[2]); c.border=bd(); c.alignment=al("left",true);
+    }
     ir++;
   });
 
-  // Descargar
+  // ─── Descargar ───
   var buf = await wb.xlsx.writeBuffer();
   var blob = new Blob([buf], {type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"});
   var url = URL.createObjectURL(blob);
   var a = document.createElement("a");
-  a.href = url;
-  a.download = "Tracker_Rizkora_" + S.nombre.replace(/\s+/g,"_") + ".xlsx";
+  a.href = url; a.download = "Seguimiento_Rizkora_" + S.nombre.replace(/\s+/g,"_") + ".xlsx";
   document.body.appendChild(a); a.click(); document.body.removeChild(a);
   setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
 }
 
 /* ════════ INIT ════════ */
+
 
 
 $("fechaNac").max = new Date().toISOString().split("T")[0];
