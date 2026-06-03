@@ -367,24 +367,8 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
     <div class="section" id="s4">
       <div class="card">
         <div class="section-title"><i class="ti ti-home"></i> Gastos fijos: vivienda y servicios</div>
-        <div class="field"><label>Renta o hipoteca (si no aplica, deja en 0)</label><input type="number" id="gRenta" placeholder="0" min="0"></div>
-        <p style="font-size:13px;font-weight:600;color:var(--rz-dark);margin:1rem 0 .5rem">Servicios — captura cada uno:</p>
-        <div class="row2">
-          <div class="field"><label>Luz</label><input type="number" id="gLuz" placeholder="0" min="0"></div>
-          <div class="field"><label>Agua</label><input type="number" id="gAgua" placeholder="0" min="0"></div>
-        </div>
-        <div class="row2">
-          <div class="field"><label>Internet y teléfono fijo</label><input type="number" id="gInternet" placeholder="0" min="0"></div>
-          <div class="field"><label>Planes de celular o recargas</label><input type="number" id="gCelular" placeholder="0" min="0"></div>
-        </div>
-        <div class="row2">
-          <div class="field"><label>Gas</label><input type="number" id="gGas" placeholder="0" min="0"></div>
-          <div class="field"><label>Basura</label><input type="number" id="gBasura" placeholder="0" min="0"></div>
-        </div>
-        <div class="row2">
-          <div class="field"><label>Transporte o gasolina</label><input type="number" id="gTrans" placeholder="0" min="0"></div>
-          <div class="field"><label>Comida (super / mercado)</label><input type="number" id="gAlim" placeholder="0" min="0"></div>
-        </div>
+        <p style="font-size:13px;color:var(--muted);margin-bottom:10px">Captura cada concepto e indica si lo pagas en efectivo o con tarjeta.</p>
+        <div id="gastosViviendaRows"></div>
       </div>
 
       <div class="card">
@@ -424,15 +408,8 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
       </div>
       <div class="card">
         <div class="section-title"><i class="ti ti-shopping-cart"></i> Gastos variables</div>
-        <div class="row2">
-          <div class="field"><label>Entretenimiento y salidas</label><input type="number" id="gEnt" placeholder="0" min="0"></div>
-          <div class="field"><label>Ropa y cuidado personal</label><input type="number" id="gRopa" placeholder="0" min="0"></div>
-        </div>
-        <div class="row2">
-          <div class="field"><label>Mantenimientos (hogar, auto)</label><input type="number" id="gMant" placeholder="0" min="0"></div>
-          <div class="field"><label>Compras electrónicas (celular, laptop, cámaras)</label><input type="number" id="gElec" placeholder="0" min="0"></div>
-        </div>
-        <div class="field"><label>Otros gastos variables</label><input type="number" id="gOtros" placeholder="0" min="0"></div>
+        <p style="font-size:13px;color:var(--muted);margin-bottom:10px">Captura cada concepto e indica la forma de pago.</p>
+        <div id="gastosVariablesRows"></div>
       </div>
       <div class="nav-row">
         <button class="btn btn-secondary" data-back="4"><i class="ti ti-arrow-left"></i> Atrás</button>
@@ -770,16 +747,94 @@ function renderIngExtraRows(){
   });
 }
 
+/* ════════ FORMA DE PAGO: opciones (efectivo + tarjetas capturadas) ════════ */
+function formasDePago(){
+  var ops = [{val:"efectivo", txt:"Efectivo / débito"}];
+  if(S.tieneTarjeta === "si" && S.tarjetas && S.tarjetas.length){
+    S.tarjetas.forEach(function(t, i){
+      var nombre = (t.nombre && t.nombre.trim()) ? t.nombre : ("Tarjeta " + (i+1));
+      ops.push({val:"tc_"+i, txt:nombre});
+    });
+  }
+  return ops;
+}
+
+/* Conceptos fijos de vivienda/servicios y variables, como datos */
+var CONCEPTOS_VIVIENDA = [
+  {key:"renta", label:"Renta o hipoteca"},
+  {key:"luz", label:"Luz"},
+  {key:"agua", label:"Agua"},
+  {key:"internet", label:"Internet y teléfono fijo"},
+  {key:"celular", label:"Celular o recargas"},
+  {key:"gas", label:"Gas"},
+  {key:"basura", label:"Basura"},
+  {key:"trans", label:"Transporte o gasolina"},
+  {key:"alim", label:"Comida (super / mercado)"}
+];
+var CONCEPTOS_VARIABLES = [
+  {key:"ent", label:"Entretenimiento y salidas"},
+  {key:"ropa", label:"Ropa y cuidado personal"},
+  {key:"mant", label:"Mantenimientos (hogar, auto)"},
+  {key:"elec", label:"Compras electrónicas"},
+  {key:"otros", label:"Otros gastos variables"}
+];
+
+/* Estado de gastos con monto + forma de pago por concepto */
+var gastoState = {}; // key -> {monto, pago}
+function initGastoState(){
+  CONCEPTOS_VIVIENDA.concat(CONCEPTOS_VARIABLES).forEach(function(c){
+    if(!gastoState[c.key]) gastoState[c.key] = {monto:0, pago:"efectivo"};
+  });
+}
+
+/* Renderiza una lista de conceptos fijos con monto + select de forma de pago */
+function renderConceptos(contId, conceptos){
+  var cont = $(contId);
+  cont.innerHTML = "";
+  var fps = formasDePago();
+  conceptos.forEach(function(c){
+    if(!gastoState[c.key]) gastoState[c.key] = {monto:0, pago:"efectivo"};
+    var row = document.createElement("div");
+    row.style.cssText = "display:grid;grid-template-columns:1fr 110px 1fr;gap:8px;align-items:center;margin-bottom:8px";
+
+    var lbl = document.createElement("div");
+    lbl.textContent = c.label;
+    lbl.style.cssText = "font-size:13px;color:var(--text);font-weight:500";
+
+    var monto = document.createElement("input");
+    monto.type = "number"; monto.placeholder = "0"; monto.min = 0;
+    monto.value = gastoState[c.key].monto || "";
+    monto.style.cssText = "padding:8px 10px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;font-family:var(--font);text-align:right";
+    monto.addEventListener("input", function(){ gastoState[c.key].monto = parseFloat(monto.value)||0; });
+
+    var sel = document.createElement("select");
+    sel.style.cssText = "padding:8px 10px;border:1.5px solid var(--border);border-radius:10px;font-size:13px;font-family:var(--font);background:#fff";
+    fps.forEach(function(f){
+      var o = document.createElement("option");
+      o.value = f.val; o.textContent = f.txt;
+      if(f.val === gastoState[c.key].pago) o.selected = true;
+      sel.appendChild(o);
+    });
+    sel.addEventListener("change", function(){ gastoState[c.key].pago = sel.value; });
+
+    row.appendChild(lbl); row.appendChild(monto); row.appendChild(sel);
+    cont.appendChild(row);
+  });
+}
+function renderGastosFijos(){ renderConceptos("gastosViviendaRows", CONCEPTOS_VIVIENDA); }
+function renderGastosVariables(){ renderConceptos("gastosVariablesRows", CONCEPTOS_VARIABLES); }
+
 /* ════════ GENERADOR DE LISTAS DINÁMICAS (salud, seguros, streaming, educación) ════════ */
 function makeDynList(rowsArr, contId, opciones, phMonto, allowRepeat, render){
   var cont = $(contId);
   cont.innerHTML = "";
+  var fps = formasDePago();
   rowsArr.forEach(function(row, i){
     var wrap = document.createElement("div");
-    wrap.className = "dyn-row";
+    wrap.style.cssText = "display:grid;grid-template-columns:1fr 95px 1fr auto;gap:6px;align-items:center;margin-bottom:8px";
 
     var sel = document.createElement("select");
-    sel.style.flex = "1";
+    sel.style.cssText = "padding:8px 10px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;font-family:var(--font);background:#fff";
     var ph = document.createElement("option");
     ph.value = ""; ph.textContent = "Selecciona...";
     sel.appendChild(ph);
@@ -793,15 +848,27 @@ function makeDynList(rowsArr, contId, opciones, phMonto, allowRepeat, render){
 
     var monto = document.createElement("input");
     monto.type = "number"; monto.placeholder = phMonto || "$/mes"; monto.min = 0;
-    monto.value = row.monto || ""; monto.style.width = "110px";
+    monto.value = row.monto || "";
+    monto.style.cssText = "padding:8px 10px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;font-family:var(--font);text-align:right";
     monto.addEventListener("input", function(){ rowsArr[i].monto = parseFloat(monto.value) || 0; });
+
+    var selPago = document.createElement("select");
+    selPago.style.cssText = "padding:8px 10px;border:1.5px solid var(--border);border-radius:10px;font-size:13px;font-family:var(--font);background:#fff";
+    if(!row.pago) row.pago = "efectivo";
+    fps.forEach(function(f){
+      var o = document.createElement("option");
+      o.value = f.val; o.textContent = f.txt;
+      if(f.val === row.pago) o.selected = true;
+      selPago.appendChild(o);
+    });
+    selPago.addEventListener("change", function(){ rowsArr[i].pago = selPago.value; });
 
     var del = document.createElement("button");
     del.type = "button"; del.className = "dyn-del";
     del.innerHTML = '<i class="ti ti-trash"></i>';
     del.addEventListener("click", function(){ rowsArr.splice(i,1); render(); });
 
-    wrap.appendChild(sel); wrap.appendChild(monto); wrap.appendChild(del);
+    wrap.appendChild(sel); wrap.appendChild(monto); wrap.appendChild(selPago); wrap.appendChild(del);
     cont.appendChild(wrap);
   });
 }
@@ -1023,6 +1090,15 @@ function showSection(n){
   $("s"+n).classList.add("active");
   updateBar(n);
   $("errBox").style.display = "none";
+  // Al entrar al paso 4, generar los conceptos de gasto (ya conocemos las tarjetas del paso 3)
+  if(n === 4){
+    initGastoState();
+    renderGastosFijos();
+    renderGastosVariables();
+    // re-render listas dinámicas para que tomen las tarjetas como forma de pago
+    renderSalud(); renderSeguro(); renderStream();
+    if(S.tieneEdu === "si") renderEdu();
+  }
   window.scrollTo({top:0, behavior:"smooth"});
 }
 
@@ -1077,25 +1153,36 @@ function next(step){
     showSection(4);
 
   } else if(step === 4){
-    // Servicios desglosados se suman en "serv"
-    var serv = num("gLuz")+num("gAgua")+num("gInternet")+num("gCelular")+num("gGas")+num("gBasura");
-    // Salud, seguros, streaming, educación desde listas dinámicas
+    function gv(k){ return (gastoState[k] && gastoState[k].monto) || 0; }
+    var serv = gv("luz")+gv("agua")+gv("internet")+gv("celular")+gv("gas")+gv("basura");
     var saludTotal = saludRows.reduce(function(a,r){ return a + (r.monto||0); }, 0);
     var segurosTotal = seguroRows.reduce(function(a,r){ return a + (r.monto||0); }, 0);
     var subsTotal = streamRows.reduce(function(a,r){ return a + (r.monto||0); }, 0);
     var eduTotal = (S.tieneEdu === "si") ? eduRows.reduce(function(a,r){ return a + (r.monto||0); }, 0) : 0;
     S.gastos = {
-      renta:num("gRenta"), serv:serv, trans:num("gTrans"), alim:num("gAlim"),
+      renta:gv("renta"), serv:serv, trans:gv("trans"), alim:gv("alim"),
       edu:eduTotal, salud:saludTotal, seguros:segurosTotal, subs:subsTotal,
-      ent:num("gEnt"), ropa:num("gRopa"), mant:num("gMant"), elec:num("gElec"), otros:num("gOtros"),
-      // detalle de servicios para el desglose
-      _luz:num("gLuz"), _agua:num("gAgua"), _internet:num("gInternet"), _celular:num("gCelular"), _gas:num("gGas"), _basura:num("gBasura")
+      ent:gv("ent"), ropa:gv("ropa"), mant:gv("mant"), elec:gv("elec"), otros:gv("otros"),
+      _luz:gv("luz"), _agua:gv("agua"), _internet:gv("internet"), _celular:gv("celular"), _gas:gv("gas"), _basura:gv("basura")
     };
-    // Guardar detalles para PDF/email
     S.saludList = saludRows.filter(function(r){ return r.monto > 0; });
     S.segurosList = seguroRows.filter(function(r){ return r.monto > 0; });
     S.streamList = streamRows.filter(function(r){ return r.monto > 0; });
     S.eduList = (S.tieneEdu === "si") ? eduRows.filter(function(r){ return r.monto > 0; }) : [];
+
+    // Calcular cuánto de cada tarjeta se gastó este mes (para no duplicar con su saldo)
+    S.gastoPorTarjeta = {}; // "tc_0" -> monto mensual cargado
+    function acumPago(key, monto, pago){
+      if(pago && pago.indexOf("tc_") === 0){
+        S.gastoPorTarjeta[pago] = (S.gastoPorTarjeta[pago] || 0) + monto;
+      }
+    }
+    CONCEPTOS_VIVIENDA.concat(CONCEPTOS_VARIABLES).forEach(function(c){
+      var gs = gastoState[c.key]; if(gs && gs.monto>0) acumPago(c.key, gs.monto, gs.pago);
+    });
+    [saludRows, seguroRows, streamRows, eduRows].forEach(function(arr){
+      arr.forEach(function(r){ if(r.monto>0) acumPago(r.tipo, r.monto, r.pago); });
+    });
     showSection(5);
 
   } else if(step === 5){
@@ -1121,6 +1208,7 @@ function nuevoCliente(){
   S = newState();
   depRows = []; metasSelected = [];
   ingExtraRows = []; saludRows = []; seguroRows = []; streamRows = []; eduRows = [];
+  gastoState = {};
   lastChartImg = null;
   document.querySelectorAll("input").forEach(function(i){
     if(i.type === "checkbox"){ i.checked = false; i.disabled = (i.className==="inv-amount"); }
@@ -1144,34 +1232,76 @@ function nuevoCliente(){
 
 /* ════════ IMAGEN CUADRADA DE LA GRÁFICA PARA EL PDF ════════ */
 var chartPdf = null;
-function generarImagenGrafica(data, labels, colors){
+function generarImagenGrafica(data, labels, colors, total){
   lastChartImg = null;
   try {
-    // Canvas cuadrado oculto y de alta resolución
     var c = document.getElementById("pdfChartCanvas");
     if(!c){
       c = document.createElement("canvas");
       c.id = "pdfChartCanvas";
-      c.width = 600; c.height = 600;
+      c.width = 700; c.height = 600;
       c.style.position = "fixed";
       c.style.left = "-9999px";
       c.style.top = "0";
-      c.style.width = "600px";
-      c.style.height = "600px";
       document.body.appendChild(c);
     }
     if(chartPdf){ chartPdf.destroy(); chartPdf = null; }
+
+    // Plugin para dibujar % y monto sobre cada segmento
+    var dataLabelsPlugin = {
+      id: "pdfDataLabels",
+      afterDraw: function(chart){
+        var ctx = chart.ctx;
+        var meta = chart.getDatasetMeta(0);
+        var ds = chart.data.datasets[0];
+        var tot = ds.data.reduce(function(a,b){ return a+b; }, 0);
+        ctx.save();
+        ctx.font = "bold 18px Arial";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        meta.data.forEach(function(arc, i){
+          var val = ds.data[i];
+          if(!val) return;
+          var pct = tot>0 ? Math.round(val/tot*100) : 0;
+          if(pct < 4) return; // no etiquetar rebanadas muy chicas
+          var pos = arc.tooltipPosition();
+          // texto blanco con sombra para legibilidad
+          ctx.fillStyle = "rgba(0,0,0,0.45)";
+          ctx.fillText(pct + "%", pos.x+1, pos.y+1);
+          ctx.fillStyle = "#FFFFFF";
+          ctx.fillText(pct + "%", pos.x, pos.y);
+        });
+        ctx.restore();
+      }
+    };
+
     chartPdf = new Chart(c.getContext("2d"), {
       type:"doughnut",
       data:{labels:labels, datasets:[{data:data, backgroundColor:colors, borderWidth:4, borderColor:"#fff"}]},
       options:{
         responsive:false,
-        maintainAspectRatio:true,
+        maintainAspectRatio:false,
+        layout:{ padding:20 },
         animation:{ duration:0, onComplete:function(){ try{ lastChartImg = chartPdf.toBase64Image("image/png", 1.0); }catch(e){} } },
-        plugins:{ legend:{ display:true, position:"bottom", labels:{ padding:18, font:{size:16} } } }
-      }
+        plugins:{
+          legend:{ display:true, position:"bottom", labels:{ padding:16, font:{size:15}, generateLabels:function(chart){
+            var ds = chart.data.datasets[0];
+            var tot = ds.data.reduce(function(a,b){ return a+b; }, 0);
+            return chart.data.labels.map(function(lbl, i){
+              var v = ds.data[i];
+              var pct = tot>0 ? Math.round(v/tot*100) : 0;
+              return {
+                text: lbl + ": " + new Intl.NumberFormat("es-MX",{style:"currency",currency:"MXN",maximumFractionDigits:0}).format(v) + " (" + pct + "%)",
+                fillStyle: ds.backgroundColor[i],
+                strokeStyle: ds.backgroundColor[i],
+                index: i
+              };
+            });
+          }}}
+        }
+      },
+      plugins:[dataLabelsPlugin]
     });
-    // Respaldo: capturar tras un breve instante por si onComplete no dispara
     setTimeout(function(){ try{ if(!lastChartImg && chartPdf) lastChartImg = chartPdf.toBase64Image("image/png", 1.0); }catch(e){} }, 400);
   } catch(e){ console.warn("No se pudo generar imagen de gráfica:", e); }
 }
@@ -1337,14 +1467,27 @@ function renderDiag(){
 
   html += '<div class="card"><div class="section-title"><i class="ti ti-scale"></i> Regla 50/30/20</div>';
   html += '<div class="info-box"><i class="ti ti-bulb"></i> Referencia ideal: 50% necesidades · 30% deseos y deuda · 20% ahorro e inversión.</div>';
+  var ahorroReal = totalInv;
+  var ideal20 = Math.round(ing*0.2);
   var rows5030 = [
     ["Necesidades (50%)", Math.round(ing*0.5), d.fijos, "#185FA5"],
     ["Deseos + deuda fija (30%)", Math.round(ing*0.3), d.variables, "#92400e"],
-    ["Ahorro / inversión (20%)", Math.round(ing*0.2), Math.max(0,d.flujo), "#166534"]
+    ["Ahorro / inversión (20%)", ideal20, ahorroReal, "#166534"]
   ];
   rows5030.forEach(function(r){
     html += '<div class="prog-row"><div class="prog-row-head"><span>'+r[0]+'</span><span>Ideal '+fmt(r[1])+' · Real '+fmt(r[2])+'</span></div><div class="prog-wrap"><div class="prog-fill" style="width:'+Math.min(100,ing>0?Math.round(r[2]/ing*100):0)+'%;background:'+r[3]+'"></div></div></div>';
   });
+  var faltante20 = Math.max(0, ideal20 - ahorroReal);
+  if(d.flujo > 0){
+    if(faltante20 > 0){
+      var usarDelFlujo = Math.min(d.flujo, faltante20);
+      html += '<div class="ok-box" style="margin-top:12px"><i class="ti ti-coin"></i> Después de tus gastos y de lo que ya ahorras, te sobran <strong>'+fmt(d.flujo)+'</strong> de flujo libre. Para completar tu 20% ideal de ahorro ('+fmt(ideal20)+') necesitas apartar <strong>'+fmt(usarDelFlujo)+'</strong> más cada mes. Tienes el flujo para lograrlo.</div>';
+    } else {
+      html += '<div class="ok-box" style="margin-top:12px"><i class="ti ti-circle-check"></i> Ya cubres tu 20% de ahorro. Además te sobran <strong>'+fmt(d.flujo)+'</strong> de flujo libre que puedes destinar a inversión adicional o a adelantar el pago de deudas.</div>';
+    }
+  } else if(d.flujo < 0){
+    html += '<div class="warn-box" style="margin-top:12px"><i class="ti ti-alert-triangle"></i> Tu flujo es negativo ('+fmt(d.flujo)+'). Antes de aumentar tu ahorro, es prioritario equilibrar gastos e ingresos.</div>';
+  }
   html += '</div>';
 
   if(S.inversiones.length > 0){
@@ -1389,7 +1532,7 @@ function renderDiag(){
           tooltip:{callbacks:{label:function(c){ return c.label+": "+fmt(c.raw)+" ("+Math.round(c.raw/ing*100)+"%)"; }}}}}
     });
     // Generar imagen CUADRADA dedicada para el PDF (evita que salga aplastada)
-    generarImagenGrafica(data, labels, colors);
+    generarImagenGrafica(data, labels, colors, ing);
   }
 
   try { enviarNotificacion(false); } catch(e){ console.warn("Notificación:", e); }
@@ -1627,26 +1770,77 @@ function generarPDF(){
   rowp("Deuda fija mensual", fmt(d.deudaFija));
   if(d.tcPagos>0) rowp("Pago mensual MSI", fmt(d.tcPagos));
   rowpColor("Flujo libre", fmt(d.flujo), true, d.flujo < 0 ? [217,48,37] : [26,127,69]);
-  y += 4;
+  y += 6;
 
-  // ─── Gráfica de distribución (imagen) ───
-  // Intento de captura de último momento desde el canvas cuadrado dedicado
+  // ─── ADVERTENCIA GRANDE segun el flujo ───
+  (function(){
+    var verde = d.flujo >= 0;
+    var bg = verde ? [234,243,222] : [252,235,235];
+    var bord = verde ? [26,127,69] : [217,48,37];
+    var txtCol = verde ? [26,127,69] : [217,48,37];
+    var titulo = verde ? "FLUJO POSITIVO" : "FLUJO NEGATIVO - ATENCION";
+    var msg = verde
+      ? "Te sobran " + fmt(d.flujo) + " al mes. Destina este excedente a tu ahorro, inversion o a adelantar el pago de tus deudas."
+      : "Tus gastos superan tus ingresos por " + fmt(Math.abs(d.flujo)) + " al mes. Es urgente recortar gastos o aumentar ingresos para equilibrar tus finanzas.";
+    var boxH = 22;
+    if(y > 250){ doc.addPage(); y = 20; }
+    doc.setFillColor(bg[0],bg[1],bg[2]);
+    doc.setDrawColor(bord[0],bord[1],bord[2]);
+    doc.setLineWidth(0.6);
+    doc.roundedRect(margin, y, cw, boxH, 2, 2, "FD");
+    doc.setLineWidth(0.2);
+    doc.setTextColor(txtCol[0],txtCol[1],txtCol[2]);
+    doc.setFontSize(13); doc.setFont("helvetica","bold");
+    doc.text(titulo, margin+5, y+8);
+    doc.setFontSize(9); doc.setFont("helvetica","normal");
+    var ml = doc.splitTextToSize(msg, cw-10);
+    doc.text(ml, margin+5, y+14);
+    y += boxH + 6;
+    doc.setTextColor(50,50,50);
+  })();
+
+  // ─── Gráfica de distribución (imagen con % y montos) ───
   if(!lastChartImg && chartPdf){ try{ lastChartImg = chartPdf.toBase64Image("image/png", 1.0); }catch(e){} }
   if(lastChartImg){
-    if(y > 195){ doc.addPage(); y = 20; }
+    if(y > 175){ doc.addPage(); y = 20; }
     sec("Distribución del ingreso");
     try {
-      // La imagen es cuadrada (600x600), la mostramos centrada y proporcional
-      var imgSize = 80;
-      var imgX = (W - imgSize) / 2;
-      doc.addImage(lastChartImg, "PNG", imgX, y, imgSize, imgSize, undefined, "FAST");
-      y += imgSize + 4;
+      // La imagen es 700x600 (ratio ~1.17); la mostramos centrada y proporcional
+      var imgW = 110, imgH = imgW * (600/700);
+      var imgX = (W - imgW) / 2;
+      doc.addImage(lastChartImg, "PNG", imgX, y, imgW, imgH, undefined, "FAST");
+      y += imgH + 3;
       doc.setFontSize(8); doc.setFont("helvetica","italic"); doc.setTextColor(120,120,120);
       var nota = doc.splitTextToSize("No incluye pagos de tarjetas de credito para evitar duplicar gastos ya capturados por separado.", cw);
       doc.text(nota, margin, y); y += nota.length*4 + 4;
       doc.setFont("helvetica","normal"); doc.setTextColor(50,50,50);
     } catch(e){ /* si falla la imagen, continuar sin ella */ }
   }
+
+  // ─── DETALLE COMPLETO POR CATEGORÍA DE GASTOS ───
+  if(y > 230){ doc.addPage(); y = 20; }
+  sec("Detalle de gastos por categoria");
+  var gg = S.gastos;
+  function detRow(label, monto){ if(monto>0) rowp(label, fmt(monto)); }
+  // Vivienda y servicios
+  detRow("Renta o hipoteca", gg.renta);
+  detRow("Luz", gg._luz); detRow("Agua", gg._agua);
+  detRow("Internet y telefono", gg._internet); detRow("Celular / recargas", gg._celular);
+  detRow("Gas", gg._gas); detRow("Basura", gg._basura);
+  detRow("Transporte o gasolina", gg.trans); detRow("Comida (super)", gg.alim);
+  // Salud (cada partida)
+  if(S.saludList){ S.saludList.forEach(function(r){ detRow("Salud: "+r.tipo, r.monto); }); }
+  // Seguros
+  if(S.segurosList){ S.segurosList.forEach(function(r){ detRow("Seguro: "+r.tipo, r.monto); }); }
+  // Streaming
+  if(S.streamList){ S.streamList.forEach(function(r){ detRow("Streaming: "+r.tipo, r.monto); }); }
+  // Educacion
+  if(S.eduList){ S.eduList.forEach(function(r){ detRow("Educacion: "+r.tipo, r.monto); }); }
+  // Variables
+  detRow("Entretenimiento", gg.ent); detRow("Ropa y cuidado personal", gg.ropa);
+  detRow("Mantenimientos", gg.mant); detRow("Compras electronicas", gg.elec);
+  detRow("Otros variables", gg.otros);
+  y += 4;
 
   if(S.tieneTarjeta==="si" && (d.tcPagos>0 || d.tcTotal>0)){
     sec("Tarjetas de crédito");
