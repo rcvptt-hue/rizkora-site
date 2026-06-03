@@ -1581,7 +1581,8 @@ function renderDiag(){
     generarImagenGrafica(data, labels, colors, ing);
   }
 
-  try { enviarNotificacion(false); } catch(e){ console.warn("Notificación:", e); }
+  // Al terminar el diagnóstico: guardar en Google Sheets (ya NO se envía correo aquí)
+  try { guardarEnSheets(); } catch(e){ console.warn("Guardado Sheets:", e); }
 }
 
 /* ════════ CALENDLY (opcional, agendado en tiempo real) ════════
@@ -1749,6 +1750,62 @@ async function enviarNotificacion(conCita){
     console.warn("Correo no enviado:", e);
     return false;
   }
+}
+
+/* ════════ GUARDAR EN GOOGLE SHEETS ════════
+   Cada diagnostico completado se guarda como una fila en tu hoja de calculo.
+   CONFIGURACION (ver instrucciones detalladas en robots.txt):
+   1. Crea una Google Sheet nueva.
+   2. Extensiones -> Apps Script, pega el script que viene en robots.txt y publicalo
+      como "Aplicacion web" con acceso "Cualquier usuario".
+   3. Copia la URL que te da (termina en /exec) y pegala aqui abajo. */
+var SHEETS_ENDPOINT = "";
+
+function guardarEnSheets(){
+  if(!SHEETS_ENDPOINT || SHEETS_ENDPOINT.indexOf("script.google.com") < 0){
+    console.log("Google Sheets no configurado todavia (SHEETS_ENDPOINT vacio).");
+    return;
+  }
+  if(typeof fetch !== "function") return;
+
+  var d = calcData();
+  var totalInv = (S.inversiones||[]).reduce(function(a,i){ return a + (i.monto||0); }, 0);
+
+  var registro = {
+    fecha: new Date().toISOString(),
+    nombre: S.nombre,
+    edad: S.edad,
+    perfil: S.tipo === "godin" ? "Empleado" : "Empresario/Freelance",
+    dependientes: (S.dep === "si" && S.dependientes.length)
+      ? S.dependientes.map(function(x){ return x.tipo + ":" + x.cantidad; }).join(", ") : "Ninguno",
+    ingreso_cuenta: S.ingreso,
+    ingresos_adicionales: (S.ingExtra === "si") ? S.ingExtraMonto : 0,
+    ingreso_total: d.ingTotal,
+    gastos_fijos: d.fijos,
+    gastos_variables: d.variables,
+    deuda_fija_mensual: d.deudaFija,
+    deuda_tarjetas_total: d.tcTotal,
+    pago_msi_mensual: d.tcPagos,
+    flujo_libre: d.flujo,
+    porcentaje_flujo: d.pct,
+    resultado: resultadoTexto(),
+    fondo_emergencia: S.fondoEm === "si" ? "Si" : "No",
+    habito_ahorro: {cada_mes:"Cada mes", a_veces:"De vez en cuando", no:"No ahorra"}[S.ahorrHab] || "-",
+    ahorro_inversion_mensual: totalInv,
+    metas: (S.metas||[]).map(function(m,i){ return (i+1) + "." + m.label; }).join(", "),
+    quiere_asesoria: S.quiereAsesoria === "si" ? "Si" : (S.quiereAsesoria === "no" ? "No" : "Sin responder")
+  };
+
+  fetch(SHEETS_ENDPOINT, {
+    method: "POST",
+    mode: "no-cors",
+    headers: { "Content-Type": "text/plain;charset=utf-8" },
+    body: JSON.stringify(registro)
+  }).then(function(){
+    console.log("Registro guardado en Google Sheets.");
+  }).catch(function(e){
+    console.warn("No se pudo guardar en Sheets:", e);
+  });
 }
 
 /* ════════ PDF ════════ */
