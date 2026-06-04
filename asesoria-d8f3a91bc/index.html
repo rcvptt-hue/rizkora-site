@@ -69,6 +69,8 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 
 /* RADIO */
 .radio-group{display:flex;gap:8px;flex-wrap:wrap}
+.radio-group-col{flex-direction:column}
+.radio-group-col .radio-opt{width:100%;text-align:left}
 .radio-opt{padding:8px 16px;border:1.5px solid var(--border);border-radius:var(--radius);cursor:pointer;font-size:14px;color:var(--text);background:#f7fafd;transition:all .15s;user-select:none}
 .radio-opt:hover{border-color:var(--rz-dark)}
 .radio-opt.selected{background:var(--rz-dark);color:var(--rz-accent);border-color:var(--rz-dark);font-weight:500}
@@ -303,10 +305,6 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
             <p style="font-size:13px;font-weight:600;color:var(--rz-dark);margin-bottom:10px">¿De qué banco es cada tarjeta?</p>
             <div id="bancoRows"></div>
           </div>
-          <div class="field" id="numMSIField" style="display:none">
-            <label>¿Cuántas compras tiene actualmente a meses sin intereses?</label>
-            <input type="number" id="numMSI" placeholder="0" min="1" max="50">
-          </div>
           <div class="field">
             <label>¿Cómo paga mensualmente sus tarjetas?</label>
             <select id="formaPagoTC">
@@ -449,6 +447,55 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
             <div class="radio-opt" data-val="cada_mes">Cada mes</div>
             <div class="radio-opt" data-val="a_veces">De vez en cuando</div>
             <div class="radio-opt" data-val="no">No ahorro</div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="section-title"><i class="ti ti-chart-candle"></i> Perfil de inversionista</div>
+        <p style="font-size:13px;color:var(--muted);margin-bottom:14px">5 preguntas rápidas para conocer tu perfil y darte recomendaciones de dónde podrías invertir según tu estilo.</p>
+
+        <div class="field">
+          <label>1. ¿En cuánto tiempo crees que necesitarías usar el dinero que inviertas?</label>
+          <div class="radio-group radio-group-col" data-group="invHorizonte">
+            <div class="radio-opt" data-val="corto">En menos de 3 años (corto plazo)</div>
+            <div class="radio-opt" data-val="medio">Entre 3 y 10 años (mediano plazo)</div>
+            <div class="radio-opt" data-val="largo">En más de 10 años (largo plazo)</div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>2. ¿Qué tan dispuesto estás a que tu inversión suba y baje a cambio de mayor crecimiento?</label>
+          <div class="radio-group radio-group-col" data-group="invRiesgo">
+            <div class="radio-opt" data-val="bajo">Prefiero seguridad aunque gane menos</div>
+            <div class="radio-opt" data-val="medio">Acepto algo de variación por un equilibrio</div>
+            <div class="radio-opt" data-val="alto">Acepto bastante variación por mayor rendimiento</div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>3. Si tu inversión perdiera 15% de su valor en un mes, ¿qué harías?</label>
+          <div class="radio-group radio-group-col" data-group="invReaccion">
+            <div class="radio-opt" data-val="bajo">Saco mi dinero para no perder más</div>
+            <div class="radio-opt" data-val="medio">Espero a ver cómo evoluciona</div>
+            <div class="radio-opt" data-val="alto">Aprovecho para invertir más a precio bajo</div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>4. ¿Qué tanta experiencia tienes invirtiendo?</label>
+          <div class="radio-group radio-group-col" data-group="invExperiencia">
+            <div class="radio-opt" data-val="bajo">Ninguna o muy poca</div>
+            <div class="radio-opt" data-val="medio">Algo: pagarés, CETES, fondos básicos</div>
+            <div class="radio-opt" data-val="alto">Bastante: acciones, ETFs, etc.</div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>5. ¿Cuál es tu principal objetivo al invertir?</label>
+          <div class="radio-group radio-group-col" data-group="invObjetivo">
+            <div class="radio-opt" data-val="bajo">Proteger mi dinero y que no pierda valor</div>
+            <div class="radio-opt" data-val="medio">Crecerlo de forma equilibrada</div>
+            <div class="radio-opt" data-val="alto">Maximizar su crecimiento a largo plazo</div>
           </div>
         </div>
       </div>
@@ -598,6 +645,7 @@ function newState(){
     tieneCredito:null, deudas:[],
     gastos:{}, tieneEdu:null, saludList:[], segurosList:[], streamList:[], eduList:[],
     fondoEm:null, ahorrHab:null, tieneInv:null, inversiones:[],
+    invHorizonte:null, invRiesgo:null, invReaccion:null, invExperiencia:null, invObjetivo:null, perfilInv:null,
     metas:[], quiereAsesoria:null
   };
 }
@@ -667,11 +715,60 @@ function onRadioChange(key, val){
   if(key === "ingExtra"){ $("ingExtraPanel").style.display = (val==="si") ? "block" : "none"; if(val==="si" && ingExtraRows.length===0){ ingExtraRows.push({desc:"",monto:0}); renderIngExtraRows(); } }
   if(key === "tieneTarjeta"){ $("tarjetaPanel").style.display = (val==="si") ? "block" : "none"; }
   if(key === "tieneCredito"){ $("creditoPanel").style.display = (val==="si") ? "block" : "none"; }
-  if(key === "tieneMSI"){ $("numMSIField").style.display = (val==="si") ? "block" : "none"; }
+  if(key === "tieneMSI"){ refreshTCdetalle(); }
   if(key === "tieneEdu"){ $("eduPanel").style.display = (val==="si") ? "block" : "none"; if(val==="si" && eduRows.length===0){ eduRows.push({tipo:"",monto:0}); renderEdu(); } }
   if(key === "tieneInv"){ $("invPanel").style.display = (val==="si") ? "block" : "none"; }
   if(key === "quiereAsesoria"){ $("asesoriaPanel").style.display = (val==="si") ? "block" : "none"; }
 }
+
+
+/* ════════ PERFIL DE INVERSIONISTA (basado en marco GBM) ════════ */
+function calcPerfilInversionista(){
+  // Mapear cada respuesta a puntos: bajo/corto=1, medio=2, alto/largo=3
+  var map = {corto:1, medio:2, largo:3, bajo:1, alto:3};
+  var keys = ["invHorizonte","invRiesgo","invReaccion","invExperiencia","invObjetivo"];
+  var puntos = 0, respondidas = 0;
+  keys.forEach(function(k){
+    var v = S[k];
+    if(v){ respondidas++; puntos += (map[v] || 2); }
+  });
+  if(respondidas < 5) return null; // incompleto
+  // Rango 5..15 -> Conservador (5-8), Moderado (9-12), Agresivo (13-15)
+  var perfil;
+  if(puntos <= 8) perfil = "Conservador";
+  else if(puntos <= 12) perfil = "Moderado";
+  else perfil = "Agresivo";
+  S.perfilInv = perfil;
+  return perfil;
+}
+
+// Contenido de recomendaciones por perfil (marco GBM: renta fija vs variable según horizonte/tolerancia)
+var PERFIL_INFO = {
+  "Conservador": {
+    icono:"ti-shield-half",
+    color:"#1565C0",
+    resumen:"Priorizas la seguridad de tu dinero sobre el rendimiento. Prefieres instrumentos estables y de bajo riesgo, aunque eso signifique crecer más despacio.",
+    mezcla:"Aproximadamente 80% renta fija / 20% renta variable.",
+    instrumentos:["CETES (Cetesdirecto, sin comisiones)","Pagarés bancarios y fondos de deuda","Bonos gubernamentales de corto plazo","Fondos de liquidez gubernamental"],
+    nota:"Ideal para empezar y para metas de corto plazo o tu fondo de emergencia. Lo más importante: que tu dinero no pierda valor frente a la inflación."
+  },
+  "Moderado": {
+    icono:"ti-scale",
+    color:"#1A7F45",
+    resumen:"Buscas un equilibrio entre estabilidad y crecimiento. Aceptas cierta variación a cambio de mejores rendimientos en el mediano plazo.",
+    mezcla:"Aproximadamente 50% renta fija / 50% renta variable.",
+    instrumentos:["Fondos balanceados (mezcla de deuda y acciones)","ETFs diversificados","Bonos corporativos","Una porción en CETES para la parte estable"],
+    nota:"Buen perfil para metas a 3-10 años como una casa, una maestría o un negocio. Mantén aportaciones constantes y diversifica."
+  },
+  "Agresivo": {
+    icono:"ti-rocket",
+    color:"#E65100",
+    resumen:"Aceptas más riesgo y volatilidad a cambio de maximizar el crecimiento a largo plazo. Entiendes que las bajas son temporales.",
+    mezcla:"Aproximadamente 80% renta variable / 20% renta fija.",
+    instrumentos:["ETFs globales (ej. seguidores del S&P 500)","Acciones individuales","FIBRAS (bienes raíces)","Fondos de inversión de renta variable"],
+    nota:"Conviene para metas a más de 10 años como el retiro o independencia financiera. No vendas por pánico en las caídas y reinvierte tus rendimientos."
+  }
+};
 
 /* ════════ DEPENDIENTES ════════ */
 $("btnAddDep").addEventListener("click", addDepRow);
@@ -919,18 +1016,19 @@ function renderEdu(){ makeDynList(eduRows, "eduRows", eduOpciones(), "$/mes", tr
 $("numTarjetas").addEventListener("input", function(){
   var n = parseInt(this.value) || 0;
   S.numTarjetas = n;
-  while(S.tarjetas.length < n) S.tarjetas.push({nombre:"", msiPago:0, total:0});
+  while(S.tarjetas.length < n) S.tarjetas.push({nombre:"", numMSI:0, msiPago:0, total:0});
   if(S.tarjetas.length > n) S.tarjetas.length = n;
   renderBancoRows();
   refreshTCdetalle();
 });
-$("numMSI").addEventListener("input", function(){ S.numMSI = parseInt(this.value) || 0; });
 $("formaPagoTC").addEventListener("change", function(){
   S.formaPagoTC = this.value;
   refreshTCdetalle();
 });
 function refreshTCdetalle(){
-  var show = (S.formaPagoTC === "minimo" || S.formaPagoTC === "otra") && S.numTarjetas > 0;
+  // El detalle por tarjeta SIEMPRE se muestra cuando hay tarjetas,
+  // sin importar la forma de pago (para capturar MSI y saldo total).
+  var show = S.numTarjetas > 0;
   $("tarjetasDetalle").style.display = show ? "block" : "none";
   if(show) renderTarjetaRows();
 }
@@ -949,7 +1047,7 @@ function renderBancoRows(){
     inp.value = t.nombre || ""; inp.style.flex = "1";
     inp.addEventListener("input", function(){
       S.tarjetas[i].nombre = inp.value;
-      // Si el usuario ya capturó gastos con esta tarjeta, refrescar etiquetas no es crítico aquí
+      renderTarjetaRows();
     });
     wrap.appendChild(lbl); wrap.appendChild(inp);
     cont.appendChild(wrap);
@@ -958,6 +1056,7 @@ function renderBancoRows(){
 function renderTarjetaRows(){
   var cont = $("tarjetaRows");
   cont.innerHTML = "";
+  var conMSI = (S.tieneMSI === "si");
   S.tarjetas.forEach(function(t, i){
     var block = document.createElement("div");
     block.className = "tc-block";
@@ -970,8 +1069,11 @@ function renderTarjetaRows(){
     var grid = document.createElement("div");
     grid.className = "tc-grid";
 
-    grid.appendChild(makeTCField("Pago mensual de MSI", "number", "0", t.msiPago || "", function(v){ S.tarjetas[i].msiPago = parseFloat(v)||0; }));
-    grid.appendChild(makeTCField("Saldo total deuda", "number", "0", t.total || "", function(v){ S.tarjetas[i].total = parseFloat(v)||0; }));
+    if(conMSI){
+      grid.appendChild(makeTCField("# compras a MSI", "number", "0", t.numMSI || "", function(v){ S.tarjetas[i].numMSI = parseInt(v)||0; }));
+      grid.appendChild(makeTCField("Pago mensual de MSI", "number", "0", t.msiPago || "", function(v){ S.tarjetas[i].msiPago = parseFloat(v)||0; }));
+    }
+    grid.appendChild(makeTCField("Saldo total de la tarjeta", "number", "0", t.total || "", function(v){ S.tarjetas[i].total = parseFloat(v)||0; }));
 
     block.appendChild(grid);
     cont.appendChild(block);
@@ -1206,18 +1308,29 @@ function next(step){
     S.streamList = streamRows.filter(function(r){ return r.monto > 0; });
     S.eduList = (S.tieneEdu === "si") ? eduRows.filter(function(r){ return r.monto > 0; }) : [];
 
-    // Calcular cuánto de cada tarjeta se gastó este mes (para no duplicar con su saldo)
-    S.gastoPorTarjeta = {}; // "tc_0" -> monto mensual cargado
-    function acumPago(key, monto, pago){
+    // Calcular cuánto de cada tarjeta se gastó este mes, separando fijos vs variables.
+    // (para no duplicar con su saldo, y para el resumen por tarjeta)
+    S.gastoPorTarjeta = {};      // "tc_0" -> monto total cargado al mes
+    S.gastoPorTarjetaFijo = {};  // "tc_0" -> porcion de gastos FIJOS
+    S.gastoPorTarjetaVar = {};   // "tc_0" -> porcion de gastos VARIABLES
+    function acumPago(monto, pago, esFijo){
       if(pago && pago.indexOf("tc_") === 0){
         S.gastoPorTarjeta[pago] = (S.gastoPorTarjeta[pago] || 0) + monto;
+        if(esFijo) S.gastoPorTarjetaFijo[pago] = (S.gastoPorTarjetaFijo[pago] || 0) + monto;
+        else S.gastoPorTarjetaVar[pago] = (S.gastoPorTarjetaVar[pago] || 0) + monto;
       }
     }
-    CONCEPTOS_VIVIENDA.concat(CONCEPTOS_VARIABLES).forEach(function(c){
-      var gs = gastoState[c.key]; if(gs && gs.monto>0) acumPago(c.key, gs.monto, gs.pago);
+    // Vivienda/servicios = FIJOS
+    CONCEPTOS_VIVIENDA.forEach(function(c){
+      var gs = gastoState[c.key]; if(gs && gs.monto>0) acumPago(gs.monto, gs.pago, true);
     });
+    // Conceptos variables = VARIABLES
+    CONCEPTOS_VARIABLES.forEach(function(c){
+      var gs = gastoState[c.key]; if(gs && gs.monto>0) acumPago(gs.monto, gs.pago, false);
+    });
+    // Salud, seguros, streaming, educación = FIJOS
     [saludRows, seguroRows, streamRows, eduRows].forEach(function(arr){
-      arr.forEach(function(r){ if(r.monto>0) acumPago(r.tipo, r.monto, r.pago); });
+      arr.forEach(function(r){ if(r.monto>0) acumPago(r.monto, r.pago, true); });
     });
     showSection(5);
 
@@ -1229,6 +1342,10 @@ function next(step){
       S.inversiones = INV_OPTS.filter(function(o){ return invState[o.id].checked; })
         .map(function(o){ return {id:o.id, label:o.label, monto:invState[o.id].monto, pago:invState[o.id].pago}; });
     }
+    if(!S.invHorizonte || !S.invRiesgo || !S.invReaccion || !S.invExperiencia || !S.invObjetivo){
+      showErr("Responde las 5 preguntas del perfil de inversionista"); return;
+    }
+    calcPerfilInversionista();
     showSection(6);
 
   } else if(step === 6){
@@ -1252,7 +1369,7 @@ function nuevoCliente(){
   });
   document.querySelectorAll("select").forEach(function(s){ s.selectedIndex = 0; });
   document.querySelectorAll(".radio-opt").forEach(function(o){ o.classList.remove("selected"); });
-  ["depPanel","tarjetaPanel","tarjetasDetalle","creditoPanel","deudaTableWrap","ingExtraPanel","invPanel","asesoriaPanel","citaConfirm","infoGodin","infoEmp","numMSIField","eduPanel","tarjetaBancos"].forEach(function(id){
+  ["depPanel","tarjetaPanel","tarjetasDetalle","creditoPanel","deudaTableWrap","ingExtraPanel","invPanel","asesoriaPanel","citaConfirm","infoGodin","infoEmp","eduPanel","tarjetaBancos"].forEach(function(id){
     var el = $(id); if(el) el.style.display = "none";
   });
   ["depRows","tarjetaRows","bancoRows","deudaTbody","ingExtraRows","saludRows","seguroRows","streamRows","eduRows"].forEach(function(id){
@@ -1434,7 +1551,13 @@ function renderDiag(){
 
   // ═══ FONDO DE EMERGENCIA (cálculo corregido) ═══
   if(S.fondoEm === "no"){
-    tips.push({ico:"ti-shield", txt:"No tienes fondo de emergencias, y constituirlo debe ser tu <strong>primer objetivo</strong>. Acumula como mínimo <strong>"+fmt(ingBase*3)+"</strong> (equivalente a 3 meses de tu ingreso) o idealmente <strong>"+fmt(d.fijos*6)+"</strong> (6 meses de tus gastos fijos)."});
+    var fondoTxt = "No tienes fondo de emergencias, y constituirlo debe ser tu <strong>primer objetivo</strong>. Acumula como mínimo <strong>"+fmt(ingBase*3)+"</strong> (3 meses de tu ingreso) o idealmente <strong>"+fmt(d.fijos*6)+"</strong> (6 meses de tus gastos fijos).";
+    // Si le sobra flujo, recomendar destinar el 50% para iniciarlo en instrumentos sin riesgo
+    if(d.flujo > 0){
+      var mitad = Math.round(d.flujo * 0.5);
+      fondoTxt += " Como te sobra flujo, puedes destinar el <strong>50% de tu flujo libre ("+fmt(mitad)+"/mes)</strong> para empezar a construirlo. Te conviene guardarlo en instrumentos <strong>sin riesgo y de fácil acceso, tipo CETES a plazo de 1 mes</strong>, así el dinero genera rendimiento pero sigue disponible rápidamente ante cualquier emergencia.";
+    }
+    tips.push({ico:"ti-shield", txt:fondoTxt});
   }
 
   // ═══ HÁBITO DE AHORRO ═══
@@ -1443,15 +1566,19 @@ function renderDiag(){
   }
 
   // ═══ CONSEJOS POR META ═══
+  var esEmpresario = (S.tipo === "empresario");
+  var retiroTxt = esEmpresario
+    ? "<strong>Retiro:</strong> como trabajas por tu cuenta o eres freelance, prioriza crear tu plan de retiro <strong>antes</strong> de invertir o diversificar en cualquier otro lado, para asegurar un retiro digno a los 65 años. Entre más pronto empieces, mejor."
+    : "<strong>Retiro:</strong> te conviene combinar tu AFORE con un seguro para el retiro que complemente lo que aporta tu patrón. Entre más pronto empieces, mejor será el resultado gracias al interés compuesto.";
   var metaTips = {
-    casa: "<strong>Casa:</strong> tu objetivo es ahorrar para el enganche, que normalmente va del 10% al 20% del valor de la propiedad. También puedes explorar preventas, donde puedes pagar mensualmente sin descapitalizarte.",
+    casa: "<strong>Casa:</strong> tu objetivo dependerá del tipo de adquisición que vayas a realizar: crédito Infonavit, hipotecario, o una preventa. En cualquiera de los 3 escenarios, lo recomendable es asesorarte correctamente sobre los montos objetivo antes de iniciar.",
     viajes: "<strong>Viajes:</strong> el monto depende del destino, pero hoy hay formas accesibles de viajar al extranjero una semana por alrededor de <strong>$30,000</strong> incluyendo vuelos. Define el destino y ponle fecha.",
     estudiar: "<strong>Estudiar:</strong> en México una maestría ronda los <strong>$150,000 a $400,000</strong> y un doctorado puede superar los <strong>$500,000</strong> según la institución. Calcula la matrícula de tu programa objetivo y divídela en aportaciones mensuales.",
-    carro: "<strong>Carro:</strong> tu meta puede ser juntar el total o el mayor enganche posible. En 2026 hay autos económicos accesibles; considera opciones eléctricas o híbridas para ahorrar en gasolina a largo plazo.",
-    familia: "<strong>Familia:</strong> si deseas formalizar o crecer tu familia, conviene tener una solvencia de ingresos adicional al fondo de emergencia, para una correcta planificación.",
+    carro: "<strong>Carro:</strong> tienes dos caminos. Uno: juntar para un auto de medio uso que puedas pagar en su totalidad. Dos: ahorrar para el mayor enganche posible, ya que un auto nuevo pierde cerca del 20% de su valor al salir de la agencia. En ambos casos, presupuesta dentro de tus gastos fijos la gasolina, el seguro de auto y los mantenimientos.",
+    familia: "<strong>Familia:</strong> si ya piensan en formalizar o crecer su familia, conviene contar con un seguro de gastos médicos mayores (si aún no lo tienes) y generar un ahorro de al menos el primer año de gastos del bebé, para no descapitalizarse.",
     negocio: "<strong>Negocio:</strong> separa un capital semilla y no mezcles las finanzas personales con las del negocio. Calcula al menos 6 meses de gastos operativos antes de lanzarte.",
-    retiro: "<strong>Retiro:</strong> entre más temprano empieces, menos tendrás que aportar gracias al interés compuesto. Aprovecha las aportaciones voluntarias a tu AFORE, que además son deducibles de impuestos.",
-    salud: "<strong>Solvencia en salud:</strong> contar con un buen seguro de gastos médicos mayores protege tu patrimonio ante imprevistos. Complementa con un fondo específico para deducibles y coaseguros.",
+    retiro: retiroTxt,
+    salud: "<strong>Salud:</strong> se recomienda contar con algún tipo de cobertura: un seguro de gastos médicos mayores, un seguro indemnizatorio, o un fondo adicional para emergencias de salud. Si tienes dudas sobre cómo constituir ese fondo o elegir la mejor opción para tu caso, con gusto lo revisamos juntos en tu asesoría.",
     otro: "<strong>Otro objetivo:</strong> define un monto y una fecha concretos. Una meta sin número ni plazo es solo un deseo."
   };
   S.metas.forEach(function(m, i){
@@ -1487,23 +1614,31 @@ function renderDiag(){
   html += '</div></div>';
 
   if(S.tieneTarjeta === "si" && S.tarjetas.length > 0){
-    var gpt = S.gastoPorTarjeta || {};
+    var gptF = S.gastoPorTarjetaFijo || {};
+    var gptV = S.gastoPorTarjetaVar || {};
+    var conMSI = (S.tieneMSI === "si");
+    var totMSIcompras = S.tarjetas.reduce(function(a,t){ return a + (t.numMSI||0); }, 0);
     html += '<div class="card"><div class="section-title"><i class="ti ti-credit-card"></i> Resumen por tarjeta</div>';
-    if(S.tieneMSI==="si"){
-      html += '<div class="warn-box"><i class="ti ti-alert-triangle"></i> Compras a MSI: <strong>'+S.numMSI+'</strong> · Pago mensual MSI total: <strong>'+fmt(d.tcPagos)+'/mes</strong></div>';
+    if(conMSI){
+      html += '<div class="warn-box"><i class="ti ti-alert-triangle"></i> Compras a MSI activas: <strong>'+totMSIcompras+'</strong> · Pago mensual MSI total: <strong>'+fmt(d.tcPagos)+'/mes</strong></div>';
     }
-    html += '<table class="debt-table"><thead><tr><th>Tarjeta</th><th>Cargos del mes</th><th>Pago MSI</th><th>Saldo total</th></tr></thead><tbody>';
-    var sumCargos=0, sumMSI=0, sumSaldo=0;
+    var thMSI = conMSI ? '<th># MSI</th><th>Pago MSI</th>' : '';
+    html += '<table class="debt-table"><thead><tr><th>Tarjeta</th><th>A fijos</th><th>A variables</th>'+thMSI+'<th>Saldo total</th></tr></thead><tbody>';
+    var sF=0, sV=0, sMSI=0, sSaldo=0, sNumMSI=0;
     S.tarjetas.forEach(function(t,i){
-      var cargos = gpt["tc_"+i] || 0;
+      var cf = gptF["tc_"+i] || 0;
+      var cv = gptV["tc_"+i] || 0;
       var msi = t.msiPago || 0;
+      var nm = t.numMSI || 0;
       var saldo = t.total || 0;
-      sumCargos += cargos; sumMSI += msi; sumSaldo += saldo;
-      html += '<tr><td style="font-weight:600">'+(t.nombre||"Tarjeta "+(i+1))+'</td><td>'+(cargos>0?fmt(cargos)+"/mes":"—")+'</td><td>'+(msi>0?fmt(msi)+"/mes":"—")+'</td><td>'+(saldo>0?fmt(saldo):"—")+'</td></tr>';
+      sF+=cf; sV+=cv; sMSI+=msi; sSaldo+=saldo; sNumMSI+=nm;
+      var celdasMSI = conMSI ? '<td>'+(nm>0?nm:"—")+'</td><td>'+(msi>0?fmt(msi)+"/mes":"—")+'</td>' : '';
+      html += '<tr><td style="font-weight:600">'+(t.nombre||"Tarjeta "+(i+1))+'</td><td>'+(cf>0?fmt(cf)+"/mes":"—")+'</td><td>'+(cv>0?fmt(cv)+"/mes":"—")+'</td>'+celdasMSI+'<td>'+(saldo>0?fmt(saldo):"—")+'</td></tr>';
     });
     html += '</tbody></table>';
-    html += '<div class="debt-totals"><span>Cargos/mes: <strong>'+fmt(sumCargos)+'</strong></span><span>MSI/mes: <strong>'+fmt(sumMSI)+'</strong></span><span>Saldo total: <strong>'+fmt(sumSaldo)+'</strong></span></div>';
-    html += '<p style="font-size:12px;color:var(--muted);margin-top:8px"><i class="ti ti-info-circle"></i> "Cargos del mes" son los gastos que marcaste pagar con cada tarjeta. No se suman aparte al total de gastos para no duplicar, ya que cada concepto ya esta contado en su categoria.</p>';
+    var totMSItxt = conMSI ? '<span>MSI: <strong>'+sNumMSI+' compras · '+fmt(sMSI)+'/mes</strong></span>' : '';
+    html += '<div class="debt-totals"><span>A fijos: <strong>'+fmt(sF)+'</strong></span><span>A variables: <strong>'+fmt(sV)+'</strong></span>'+totMSItxt+'<span>Saldo total: <strong>'+fmt(sSaldo)+'</strong></span></div>';
+    html += '<p style="font-size:12px;color:var(--muted);margin-top:8px"><i class="ti ti-info-circle"></i> "A fijos" y "A variables" es cuánto de cada tarjeta se destina a esos gastos del mes (según lo que marcaste). No se suman aparte al total para no duplicar. El saldo total es tu deuda acumulada en cada tarjeta.</p>';
     html += '</div>';
   }
 
@@ -1551,6 +1686,22 @@ function renderDiag(){
     html += '<div class="ok-box"><i class="ti ti-check"></i> Situación financiera equilibrada. Mantén el control y sigue construyendo hacia tus metas.</div>';
   }
   html += '</div>';
+
+  // ─── PERFIL DE INVERSIONISTA ───
+  if(S.perfilInv && PERFIL_INFO[S.perfilInv]){
+    var pf = PERFIL_INFO[S.perfilInv];
+    html += '<div class="card" style="border-top:4px solid '+pf.color+'">';
+    html += '<div class="section-title"><i class="ti '+pf.icono+'"></i> Tu perfil de inversionista: <span style="color:'+pf.color+'">'+S.perfilInv+'</span></div>';
+    html += '<p style="font-size:14px;line-height:1.6;margin-bottom:12px">'+pf.resumen+'</p>';
+    html += '<div class="info-box"><i class="ti ti-chart-donut"></i> <strong>Mezcla sugerida:</strong> '+pf.mezcla+'</div>';
+    html += '<p style="font-size:13px;font-weight:700;color:var(--rz-dark);margin:12px 0 6px">Instrumentos que podrías considerar:</p>';
+    html += '<ul style="margin:0 0 12px;padding-left:20px;font-size:13.5px;line-height:1.8">';
+    pf.instrumentos.forEach(function(ins){ html += '<li>'+ins+'</li>'; });
+    html += '</ul>';
+    html += '<p style="font-size:13px;color:var(--muted);line-height:1.6;font-style:italic">'+pf.nota+'</p>';
+    html += '<div class="note-box" style="margin-top:10px"><i class="ti ti-info-circle"></i> Esto es orientativo y educativo, no constituye asesoría de inversión personalizada. En tu sesión podemos definir la estrategia adecuada para tu caso.</div>';
+    html += '</div>';
+  }
 
   html += '<div class="card" style="background:var(--rz-dark);border-color:var(--rz-dark)"><div style="color:var(--rz-accent);font-family:var(--font-head);font-size:17px;margin-bottom:8px">🎯 Tus 3 metas prioritarias</div>';
   S.metas.forEach(function(m,i){
@@ -1991,6 +2142,38 @@ function generarPDF(){
     });
   }
 
+
+  // ─── PERFIL DE INVERSIONISTA (PDF) ───
+  if(S.perfilInv && PERFIL_INFO[S.perfilInv]){
+    var pfPdf = PERFIL_INFO[S.perfilInv];
+    if(y > 235){ doc.addPage(); y = 20; }
+    sec("Tu perfil de inversionista: " + S.perfilInv);
+    doc.setFontSize(9.5); doc.setFont("helvetica","normal"); doc.setTextColor(50,50,50);
+    var resL = doc.splitTextToSize(pfPdf.resumen, cw-4);
+    doc.text(resL, margin+2, y); y += resL.length*5 + 3;
+    doc.setFont("helvetica","bold"); doc.setTextColor(6,76,120);
+    doc.text("Mezcla sugerida: ", margin+2, y);
+    doc.setFont("helvetica","normal"); doc.setTextColor(50,50,50);
+    var mezX = margin+2;
+    try { mezX = margin+2 + doc.getTextWidth("Mezcla sugerida: "); } catch(e){}
+    doc.text(pfPdf.mezcla, mezX, y); y += 7;
+    doc.setFont("helvetica","bold"); doc.setTextColor(6,76,120);
+    doc.text("Instrumentos a considerar:", margin+2, y); y += 5;
+    doc.setFont("helvetica","normal"); doc.setTextColor(50,50,50); doc.setFontSize(9);
+    pfPdf.instrumentos.forEach(function(ins){
+      if(y > 270){ doc.addPage(); y = 20; }
+      doc.text("-  " + ins, margin+4, y); y += 5;
+    });
+    y += 1;
+    doc.setFontSize(8.5); doc.setFont("helvetica","italic"); doc.setTextColor(90,90,90);
+    var notaL = doc.splitTextToSize(pfPdf.nota, cw-4);
+    doc.text(notaL, margin+2, y); y += notaL.length*4 + 3;
+    doc.setTextColor(120,120,120);
+    var disc = doc.splitTextToSize("Esto es orientativo y educativo, no constituye asesoria de inversion personalizada.", cw-4);
+    doc.text(disc, margin+2, y); y += disc.length*4 + 4;
+    doc.setFont("helvetica","normal"); doc.setTextColor(50,50,50);
+  }
+
   doc.setFillColor(6,76,120); doc.rect(0,285,W,12,"F");
   doc.setTextColor(255,245,157); doc.setFontSize(8); doc.setFont("helvetica","normal");
   doc.text("rizkora.com  |  contacto@rizkora.com  |  Diagnóstico confidencial", W/2, 292, {align:"center"});
@@ -2204,6 +2387,32 @@ async function generarExcel(){
   filaFormula(row,"% Gastos / Ingresos",function(L){return "IFERROR("+L+GT_ROW+"/"+L+ING_TOTAL+",0)";},GRIS,NEGRO,FMT_PCT); row++;
   filaInput(row,"Inversion real realizada (aportacion)", (S.tieneInv==="si"? S.inversiones.reduce(function(a,i){return a+i.monto;},0):0)||null, true); var INV_ROW=row; row++;
   filaFormula(row,"Superavit / Deficit del mes",function(L){return L+FL_ROW+"-"+L+INV_ROW;},GRIS,NEGRO); row++;
+  row++;
+
+  // ── SEGUIMIENTO DE PAGOS A TARJETAS DE CRÉDITO (por tarjeta) ──
+  if(S.tieneTarjeta==="si" && (S.tarjetas||[]).length > 0){
+    secHdr(ws2,row,"PAGO MESES SIN INTERESES - TARJETA DE CREDITO",15); row++;
+    colHdrsMes(row); row++;
+    var MSI_ROWS=[];
+    S.tarjetas.forEach(function(t,i){
+      filaInput(row, (t.nombre||"Tarjeta "+(i+1)) + " - pago MSI", (t.msiPago||0)||null);
+      MSI_ROWS.push(row); row++;
+    });
+    filaTotal(row,"TOTAL PAGO MSI",MSI_ROWS,AZ_MED,AMARILLO); row+=2;
+
+    secHdr(ws2,row,"PAGO TOTAL - TARJETA DE CREDITO",15); row++;
+    colHdrsMes(row); row++;
+    var PTC_ROWS=[];
+    S.tarjetas.forEach(function(t,i){
+      filaInput(row, (t.nombre||"Tarjeta "+(i+1)) + " - pago total");
+      PTC_ROWS.push(row); row++;
+    });
+    filaTotal(row,"TOTAL PAGADO A TARJETAS",PTC_ROWS,AZ_OSC,AMARILLO); row++;
+    ws2.mergeCells(row,1,row,15);
+    var notaTC=ws2.getCell(row,1);
+    notaTC.value="Captura mes a mes lo que pagaste de MSI y el pago total que hiciste a cada tarjeta. Asi puedes ver tu avance en liquidar saldos.";
+    notaTC.font=ft({i:true,sz:9,c:"FF666666"}); row++;
+  }
 
   /* ══════════ HOJA 3 — SALUD FINANCIERA (KPIs) ══════════ */
   var ws3 = wb.addWorksheet("Salud Financiera", {properties:{tabColor:{argb:VERDE}}, views:[{showGridLines:false}]});
@@ -2296,7 +2505,57 @@ async function generarExcel(){
   ws4.mergeCells(mr,1,mr,15);
   var notaM=ws4.getCell(mr,1); notaM.value="Escribe en cada mes lo que aportes a cada meta. La columna OBJETIVO es para que definas tu meta anual; el TOTAL AÑO se calcula solo."; notaM.font=ft({i:true,sz:9,c:"FF666666"});
 
-  /* ══════════ HOJA 5 — INSTRUCCIONES ══════════ */
+  /* ══════════ HOJA 5 — PERFIL DE INVERSIONISTA ══════════ */
+  if(S.perfilInv && PERFIL_INFO[S.perfilInv]){
+    var pf = PERFIL_INFO[S.perfilInv];
+    var wsP = wb.addWorksheet("Perfil Inversionista", {properties:{tabColor:{argb:NARANJA}}, views:[{showGridLines:false}]});
+    wsP.columns=[{width:3},{width:42},{width:42},{width:3}];
+    banner(wsP,1,"TU PERFIL DE INVERSIONISTA",4);
+    wsP.getRow(2).height=6;
+    // Tarjeta del perfil
+    wsP.mergeCells(3,2,3,3);
+    var pc=wsP.getCell(3,2); pc.value="Perfil: "+S.perfilInv; pc.font=ft({b:true,sz:14,c:BLANCO}); pc.fill=fill(AZ_OSC); pc.alignment=al("center"); pc.border=bd(); wsP.getRow(3).height=28;
+    var pr=4;
+    function pRow(lbl, val, lblBg){
+      wsP.getRow(pr).height=val&&val.length>60?40:20;
+      var a=wsP.getCell(pr,2); a.value=lbl; a.font=ft({b:true,c:AZ_OSC}); a.fill=fill(lblBg||AZ_CLAR); a.border=bd(); a.alignment=al("left",true);
+      var b=wsP.getCell(pr,3); b.value=val; b.font=ft({}); b.fill=fill(BLANCO); b.border=bd(); b.alignment=al("left",true);
+      pr++;
+    }
+    pr=4;
+    pRow("Descripcion", pf.resumen);
+    pRow("Mezcla sugerida", pf.mezcla);
+    pr++;
+    wsP.mergeCells(pr,2,pr,3);
+    var ih=wsP.getCell(pr,2); ih.value="INSTRUMENTOS QUE PODRIAS CONSIDERAR"; ih.font=ft({b:true,c:BLANCO}); ih.fill=fill(AZ_MED); ih.alignment=al("left"); ih.border=bd(); wsP.getRow(pr).height=20; pr++;
+    pf.instrumentos.forEach(function(ins){
+      wsP.mergeCells(pr,2,pr,3);
+      var c=wsP.getCell(pr,2); c.value="•  "+ins; c.font=ft({}); c.fill=fill(BLANCO); c.border=bd(); c.alignment=al("left"); wsP.getRow(pr).height=18; pr++;
+    });
+    pr++;
+    wsP.mergeCells(pr,2,pr,3);
+    var nt=wsP.getCell(pr,2); nt.value=pf.nota; nt.font=ft({i:true,sz:9,c:"FF555555"}); nt.alignment=al("left",true); wsP.getRow(pr).height=34; pr++;
+    pr++;
+    // Tabla guia GBM por plazo
+    wsP.mergeCells(pr,2,pr,3);
+    var gh=wsP.getCell(pr,2); gh.value="GUIA GENERAL POR PLAZO (referencia)"; gh.font=ft({b:true,c:AMARILLO}); gh.fill=fill(AZ_OSC); gh.alignment=al("left"); gh.border=bd(); wsP.getRow(pr).height=20; pr++;
+    var guia=[
+      ["Corto plazo (< 3 años)","Mas seguridad: CETES, fondos de deuda, bonos cortos"],
+      ["Mediano plazo (3-10 años)","Equilibrio: fondos balanceados, ETFs, bonos corporativos"],
+      ["Largo plazo (+10 años)","Mas crecimiento: ETFs globales, acciones, FIBRAS"]
+    ];
+    guia.forEach(function(gg,i){
+      var bg=(i%2===0)?AZ_CLAR:BLANCO;
+      var a=wsP.getCell(pr,2); a.value=gg[0]; a.font=ft({b:true,c:AZ_OSC}); a.fill=fill(bg); a.border=bd(); a.alignment=al("left",true);
+      var b=wsP.getCell(pr,3); b.value=gg[1]; b.font=ft({sz:9}); b.fill=fill(bg); b.border=bd(); b.alignment=al("left",true);
+      wsP.getRow(pr).height=28; pr++;
+    });
+    pr++;
+    wsP.mergeCells(pr,2,pr,3);
+    var disc=wsP.getCell(pr,2); disc.value="Nota: informacion orientativa y educativa. No constituye asesoria de inversion personalizada. Acercate a Rizkora para definir tu estrategia."; disc.font=ft({i:true,sz:9,c:ROJO}); disc.alignment=al("left",true); wsP.getRow(pr).height=30;
+  }
+
+  /* ══════════ HOJA 6 — INSTRUCCIONES ══════════ */
   var ws5 = wb.addWorksheet("Instrucciones", {properties:{tabColor:{argb:AZ_OSC}}, views:[{showGridLines:false}]});
   ws5.columns=[{width:3},{width:90},{width:3}];
   banner(ws5,2,"GUIA DE USO - SEGUIMIENTO FINANCIERO RIZKORA",3);
