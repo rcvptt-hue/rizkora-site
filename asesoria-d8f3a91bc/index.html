@@ -1471,8 +1471,10 @@ function calcData(){
   var tcTotal = S.tarjetas.reduce(function(a,t){ return a + t.total; }, 0);
   // La deuda fija se clasifica como VARIABLE (es temporal, se eliminará, no es algo con lo que vivan)
   var variables = variablesBase + deudaFija;
-  // Gastos totales NO incluye las tarjetas de crédito (se manejan aparte para no duplicar)
-  var totalGto = fijos + variables;
+  // Los pagos a MSI son una salida real de dinero cada mes (compras diferidas), pero NO se
+  // capturan en los conceptos de gasto del mes; por eso se suman aparte para el total y el flujo.
+  // Esto evita doble conteo: los conceptos de gasto son el consumo corriente; el MSI es deuda diferida.
+  var totalGto = fijos + variables + tcPagos;
   var flujo = ingTotal - totalGto;
   var pct = ingTotal > 0 ? Math.round((flujo/ingTotal)*100) : 0;
   return {ingTotal:ingTotal, fijos:fijos, variables:variables, variablesBase:variablesBase,
@@ -1643,7 +1645,7 @@ function renderDiag(){
   }
 
   html += '<div class="card"><div class="section-title"><i class="ti ti-chart-pie"></i> Distribución del ingreso</div>';
-  html += '<div class="note-box"><i class="ti ti-info-circle"></i> La gráfica muestra gastos fijos, variables (incluida la deuda fija) y flujo libre. <strong>No incluye los pagos de tarjetas de crédito</strong> para evitar duplicar gastos ya capturados por separado.</div>';
+  html += '<div class="note-box"><i class="ti ti-info-circle"></i> La gráfica muestra cómo se reparte tu ingreso: gastos fijos, variables (incluida la deuda fija), el pago de meses sin intereses (MSI) y tu flujo libre. Los gastos que pagas con tarjeta ya están contados en su categoría; el MSI se muestra aparte por ser deuda diferida.</div>';
   html += '<div class="chart-wrap"><canvas id="pieChart"></canvas></div></div>';
 
   html += '<div class="card"><div class="section-title"><i class="ti ti-scale"></i> Regla 50/30/20</div>';
@@ -1715,10 +1717,11 @@ function renderDiag(){
   if(pieChart){ pieChart.destroy(); pieChart = null; }
   var ctx = $("pieChart");
   if(ctx){
-    // Variables ya incluye deuda fija; la mostramos desglosada para claridad
-    var rawD = [d.fijos, d.variablesBase, d.deudaFija, Math.max(0,d.flujo)];
-    var rawL = ["Gastos fijos","Gastos variables","Deuda fija","Flujo libre"];
-    var rawC = ["#185FA5","#854F0B","#dc2626","#166534"];
+    // Variables ya incluye deuda fija; la mostramos desglosada para claridad.
+    // El MSI se incluye como rebanada propia (es salida real que ya resta del flujo).
+    var rawD = [d.fijos, d.variablesBase, d.deudaFija, d.tcPagos, Math.max(0,d.flujo)];
+    var rawL = ["Gastos fijos","Gastos variables","Deuda fija","Pago MSI","Flujo libre"];
+    var rawC = ["#185FA5","#854F0B","#dc2626","#e65100","#166534"];
     var data=[], labels=[], colors=[];
     rawD.forEach(function(v,i){ if(v>0){ data.push(v); labels.push(rawL[i]); colors.push(rawC[i]); } });
     pieChart = new Chart(ctx, {
@@ -1733,7 +1736,7 @@ function renderDiag(){
   }
 
   // Al terminar el diagnóstico: guardar en Google Sheets (ya NO se envía correo aquí)
-  try { guardarEnSheets(); } catch(e){ console.warn("Guardado Sheets:", e); }
+  try { guardarEnSheets("diagnostico"); } catch(e){ console.warn("Guardado Sheets:", e); }
 }
 
 /* ════════ CALENDLY (opcional, agendado en tiempo real) ════════
@@ -1786,6 +1789,9 @@ async function agendarCita(){
   btn.innerHTML = '<i class="ti ti-loader"></i> Enviando...';
 
   var ok = await enviarNotificacion(true);
+
+  // Guardar tambien en Sheets con el contacto y la cita (registro mas completo)
+  try { guardarEnSheets("cita_agendada"); } catch(e){ console.warn("Guardado Sheets cita:", e); }
 
   btn.disabled = false;
   btn.innerHTML = '<i class="ti ti-send"></i> Enviar solicitud de cita';
@@ -1912,7 +1918,7 @@ async function enviarNotificacion(conCita){
    3. Copia la URL que te da (termina en /exec) y pegala aqui abajo. */
 var SHEETS_ENDPOINT = "";
 
-function guardarEnSheets(){
+function guardarEnSheets(evento){
   if(!SHEETS_ENDPOINT || SHEETS_ENDPOINT.indexOf("script.google.com") < 0){
     console.log("Google Sheets no configurado todavia (SHEETS_ENDPOINT vacio).");
     return;
@@ -1924,6 +1930,7 @@ function guardarEnSheets(){
 
   var registro = {
     fecha: new Date().toISOString(),
+    evento: evento || "diagnostico",
     nombre: S.nombre,
     edad: S.edad,
     perfil: S.tipo === "godin" ? "Empleado" : "Empresario/Freelance",
@@ -1943,8 +1950,11 @@ function guardarEnSheets(){
     fondo_emergencia: S.fondoEm === "si" ? "Si" : "No",
     habito_ahorro: {cada_mes:"Cada mes", a_veces:"De vez en cuando", no:"No ahorra"}[S.ahorrHab] || "-",
     ahorro_inversion_mensual: totalInv,
+    perfil_inversionista: S.perfilInv || "Sin calcular",
     metas: (S.metas||[]).map(function(m,i){ return (i+1) + "." + m.label; }).join(", "),
-    quiere_asesoria: S.quiereAsesoria === "si" ? "Si" : (S.quiereAsesoria === "no" ? "No" : "Sin responder")
+    quiere_asesoria: S.quiereAsesoria === "si" ? "Si" : (S.quiereAsesoria === "no" ? "No" : "Sin responder"),
+    contacto_email: ($("ctEmail") && $("ctEmail").value) || "",
+    contacto_telefono: ($("ctTel") && $("ctTel").value) || ""
   };
 
   fetch(SHEETS_ENDPOINT, {
@@ -2065,7 +2075,7 @@ function generarPDF(){
       doc.addImage(lastChartImg, "PNG", imgX, y, imgW, imgH, undefined, "FAST");
       y += imgH + 3;
       doc.setFontSize(8); doc.setFont("helvetica","italic"); doc.setTextColor(120,120,120);
-      var nota = doc.splitTextToSize("No incluye pagos de tarjetas de credito para evitar duplicar gastos ya capturados por separado.", cw);
+      var nota = doc.splitTextToSize("Incluye gastos fijos, variables, deuda fija, pago de MSI y flujo libre. El consumo con tarjeta ya esta contado en su categoria; el MSI se muestra aparte por ser deuda diferida.", cw);
       doc.text(nota, margin, y); y += nota.length*4 + 4;
       doc.setFont("helvetica","normal"); doc.setTextColor(50,50,50);
     } catch(e){ /* si falla la imagen, continuar sin ella */ }
