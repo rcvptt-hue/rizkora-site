@@ -1562,11 +1562,16 @@ function calcData(){
   // NO se vuelve a sumar al flujo (evita doble conteo). Solo se usa para el desglose informativo.
   var msiEnConceptos = S.msiEnConceptos || 0;
   var msiTotal = tcPagos + msiEnConceptos; // total real que el cliente destina a MSI al mes
+  // La inversion/ahorro es un compromiso que el cliente ya tiene contemplado (parte de su 20%),
+  // por eso se resta para obtener el flujo libre NETO (lo que realmente queda sin asignar).
+  var inversion = (S.tieneInv === "si") ? (S.inversiones||[]).reduce(function(a,i){ return a + (i.monto||0); }, 0) : 0;
   var totalGto = fijos + variables + tcPagos;
-  var flujo = ingTotal - totalGto;
+  var flujoBruto = ingTotal - totalGto;      // antes de invertir (uso interno para 50/30/20)
+  var flujo = flujoBruto - inversion;        // flujo libre NETO (despues de invertir)
   var pct = ingTotal > 0 ? Math.round((flujo/ingTotal)*100) : 0;
   return {ingTotal:ingTotal, fijos:fijos, variables:variables, variablesBase:variablesBase,
           deudaFija:deudaFija, tcPagos:tcPagos, msiEnConceptos:msiEnConceptos, msiTotal:msiTotal,
+          inversion:inversion, flujoBruto:flujoBruto,
           tcTotal:tcTotal, totalGto:totalGto, flujo:flujo, pct:pct};
 }
 
@@ -1700,7 +1705,7 @@ function renderDiag(){
   html += '<div class="stat-grid">';
   html += '<div class="stat-card"><div class="slbl">Ingreso total</div><div class="sval">'+fmt(ing)+'</div></div>';
   html += '<div class="stat-card"><div class="slbl">Gastos totales</div><div class="sval">'+fmt(d.totalGto)+'</div></div>';
-  html += '<div class="stat-card"><div class="slbl">Flujo libre</div><div class="sval" style="color:'+(d.flujo>=0?"var(--ok)":"var(--danger)")+'">'+fmt(d.flujo)+'</div></div>';
+  html += '<div class="stat-card"><div class="slbl">Flujo libre neto</div><div class="sval" style="color:'+(d.flujo>=0?"var(--ok)":"var(--danger)")+'">'+fmt(d.flujo)+'</div></div>';
   html += '<div class="stat-card"><div class="slbl">Deuda fija/mes</div><div class="sval" style="color:'+(d.deudaFija>0?"var(--danger)":"var(--text)")+'">'+fmt(d.deudaFija)+'</div></div>';
   html += '</div></div>';
 
@@ -1733,7 +1738,7 @@ function renderDiag(){
   }
 
   html += '<div class="card"><div class="section-title"><i class="ti ti-chart-pie"></i> Distribución del ingreso</div>';
-  html += '<div class="note-box"><i class="ti ti-info-circle"></i> La gráfica muestra cómo se reparte tu ingreso: gastos fijos, variables (incluida la deuda fija), el pago de meses sin intereses (MSI) y tu flujo libre. Los gastos que pagas con tarjeta ya están contados en su categoría; el MSI se muestra aparte por ser deuda diferida.</div>';
+  html += '<div class="note-box"><i class="ti ti-info-circle"></i> La gráfica muestra cómo se reparte tu ingreso: gastos fijos, variables (incluida la deuda fija), el pago de meses sin intereses (MSI), tu ahorro/inversión y tu flujo libre neto. Los gastos con tarjeta ya están contados en su categoría; el MSI se muestra aparte por ser deuda diferida.</div>';
   html += '<div class="chart-wrap"><canvas id="pieChart"></canvas></div></div>';
 
   html += '<div class="card"><div class="section-title"><i class="ti ti-scale"></i> Regla 50/30/20</div>';
@@ -1749,15 +1754,24 @@ function renderDiag(){
     html += '<div class="prog-row"><div class="prog-row-head"><span>'+r[0]+'</span><span>Ideal '+fmt(r[1])+' · Real '+fmt(r[2])+'</span></div><div class="prog-wrap"><div class="prog-fill" style="width:'+Math.min(100,ing>0?Math.round(r[2]/ing*100):0)+'%;background:'+r[3]+'"></div></div></div>';
   });
   var faltante20 = Math.max(0, ideal20 - ahorroReal);
+  // d.flujo ya es NETO (despues de restar la inversion que el cliente aporta).
+  // El flujo neto positivo es dinero adicional que podria sumar a su ahorro para cerrar el 20%.
   if(d.flujo > 0){
     if(faltante20 > 0){
       var usarDelFlujo = Math.min(d.flujo, faltante20);
-      html += '<div class="ok-box" style="margin-top:12px"><i class="ti ti-coin"></i> Después de tus gastos y de lo que ya ahorras, te sobran <strong>'+fmt(d.flujo)+'</strong> de flujo libre. Para completar tu 20% ideal de ahorro ('+fmt(ideal20)+') necesitas apartar <strong>'+fmt(usarDelFlujo)+'</strong> más cada mes. Tienes el flujo para lograrlo.</div>';
+      html += '<div class="ok-box" style="margin-top:12px"><i class="ti ti-coin"></i> Ya apartas <strong>'+fmt(ahorroReal)+'</strong> a inversión y aún te queda un flujo libre neto de <strong>'+fmt(d.flujo)+'</strong>. Para completar tu 20% ideal de ahorro ('+fmt(ideal20)+') te falta sumar <strong>'+fmt(usarDelFlujo)+'</strong> más al mes, y tienes el flujo para lograrlo.</div>';
     } else {
-      html += '<div class="ok-box" style="margin-top:12px"><i class="ti ti-circle-check"></i> Ya cubres tu 20% de ahorro. Además te sobran <strong>'+fmt(d.flujo)+'</strong> de flujo libre que puedes destinar a inversión adicional o a adelantar el pago de deudas.</div>';
+      html += '<div class="ok-box" style="margin-top:12px"><i class="ti ti-circle-check"></i> Ya cubres tu 20% de ahorro con lo que inviertes. Además te queda un flujo libre neto de <strong>'+fmt(d.flujo)+'</strong> que puedes destinar a inversión adicional o a adelantar el pago de deudas.</div>';
     }
   } else if(d.flujo < 0){
-    html += '<div class="warn-box" style="margin-top:12px"><i class="ti ti-alert-triangle"></i> Tu flujo es negativo ('+fmt(d.flujo)+'). Antes de aumentar tu ahorro, es prioritario equilibrar gastos e ingresos.</div>';
+    // El flujo neto es negativo: puede ser por gastos altos o porque la inversion comprometida supera lo disponible
+    if(d.flujoBruto >= 0 && ahorroReal > 0){
+      html += '<div class="warn-box" style="margin-top:12px"><i class="ti ti-alert-triangle"></i> Después de tus gastos te quedaban <strong>'+fmt(d.flujoBruto)+'</strong>, pero tu aportación a inversión ('+fmt(ahorroReal)+') es mayor, dejando un flujo neto de <strong>'+fmt(d.flujo)+'</strong>. Revisa que tu nivel de inversión sea sostenible con tu ingreso actual.</div>';
+    } else {
+      html += '<div class="warn-box" style="margin-top:12px"><i class="ti ti-alert-triangle"></i> Tu flujo neto es negativo ('+fmt(d.flujo)+'). Antes de aumentar tu ahorro, es prioritario equilibrar gastos e ingresos.</div>';
+    }
+  } else {
+    html += '<div class="info-box" style="margin-top:12px"><i class="ti ti-equal"></i> Tu flujo libre neto es exactamente cero: todo tu ingreso está asignado entre gastos e inversión. Cualquier imprevisto te descuadraría, conviene generar un margen.</div>';
   }
   html += '</div>';
 
@@ -1807,9 +1821,11 @@ function renderDiag(){
   if(ctx){
     // Variables ya incluye deuda fija; la mostramos desglosada para claridad.
     // El MSI se incluye como rebanada propia (es salida real que ya resta del flujo).
-    var rawD = [d.fijos, d.variablesBase, d.deudaFija, d.tcPagos, Math.max(0,d.flujo)];
-    var rawL = ["Gastos fijos","Gastos variables","Deuda fija","Pago MSI","Flujo libre"];
-    var rawC = ["#185FA5","#854F0B","#dc2626","#e65100","#166534"];
+    // El flujo ya es NETO; la inversion se muestra como su propia rebanada para que el total
+    // sume el ingreso (fijos + variables + deuda + MSI + inversion + flujo neto = ingreso).
+    var rawD = [d.fijos, d.variablesBase, d.deudaFija, d.tcPagos, d.inversion, Math.max(0,d.flujo)];
+    var rawL = ["Gastos fijos","Gastos variables","Deuda fija","Pago MSI","Ahorro / inversión","Flujo libre neto"];
+    var rawC = ["#185FA5","#854F0B","#dc2626","#e65100","#0a6699","#166534"];
     var data=[], labels=[], colors=[];
     rawD.forEach(function(v,i){ if(v>0){ data.push(v); labels.push(rawL[i]); colors.push(rawC[i]); } });
     pieChart = new Chart(ctx, {
@@ -2093,6 +2109,8 @@ function generarPDF(){
   y += 10;
 
   function sec(t){
+    // Si no cabe el encabezado + al menos una fila antes del pie (285), salta de pagina
+    if(y > 262){ doc.addPage(); y = 20; }
     doc.setFillColor(230,242,250); doc.rect(margin,y,cw,7,"F");
     doc.setTextColor(6,76,120); doc.setFontSize(10); doc.setFont("helvetica","bold");
     doc.text(t, margin+3, y+5); y += 10;
@@ -2121,7 +2139,8 @@ function generarPDF(){
   rowp("Gastos variables", fmt(d.variables));
   rowp("Deuda fija mensual", fmt(d.deudaFija));
   if(d.tcPagos>0) rowp("Pago mensual MSI", fmt(d.tcPagos));
-  rowpColor("Flujo libre", fmt(d.flujo), true, d.flujo < 0 ? [217,48,37] : [26,127,69]);
+  if(d.inversion>0) rowp("Ahorro / inversion mensual", fmt(d.inversion));
+  rowpColor("Flujo libre neto (despues de invertir)", fmt(d.flujo), true, d.flujo < 0 ? [217,48,37] : [26,127,69]);
   y += 6;
 
   // ─── ADVERTENCIA GRANDE segun el flujo ───
@@ -2163,7 +2182,7 @@ function generarPDF(){
       doc.addImage(lastChartImg, "PNG", imgX, y, imgW, imgH, undefined, "FAST");
       y += imgH + 3;
       doc.setFontSize(8); doc.setFont("helvetica","italic"); doc.setTextColor(120,120,120);
-      var nota = doc.splitTextToSize("Incluye gastos fijos, variables, deuda fija, pago de MSI y flujo libre. El consumo con tarjeta ya esta contado en su categoria; el MSI se muestra aparte por ser deuda diferida.", cw);
+      var nota = doc.splitTextToSize("Incluye gastos fijos, variables, deuda fija, pago de MSI, ahorro/inversion y flujo libre neto. El consumo con tarjeta ya esta contado en su categoria; el MSI se muestra aparte por ser deuda diferida.", cw);
       doc.text(nota, margin, y); y += nota.length*4 + 4;
       doc.setFont("helvetica","normal"); doc.setTextColor(50,50,50);
     } catch(e){ /* si falla la imagen, continuar sin ella */ }
@@ -2194,10 +2213,25 @@ function generarPDF(){
   detRow("Otros variables", gg.otros);
   y += 4;
 
-  if(S.tieneTarjeta==="si" && (d.tcPagos>0 || d.tcTotal>0)){
-    sec("Tarjetas de crédito");
-    S.tarjetas.forEach(function(t,i){ rowp(t.nombre||"Tarjeta "+(i+1), (t.msiPago>0?fmt(t.msiPago)+" MSI/mes · ":"")+(t.total>0?fmt(t.total)+" total":"")); });
-    rowp("Total deuda tarjetas", fmt(d.tcTotal), true); y += 4;
+  if(S.tieneTarjeta==="si" && S.tarjetas.length>0){
+    sec("Resumen por tarjeta (pago mensual)");
+    var gpt = S.gastoPorTarjeta || {};
+    var mpt = S.msiPorTarjeta || {};
+    var sumMSI=0, sumContado=0;
+    S.tarjetas.forEach(function(t,i){
+      var cargado = gpt["tc_"+i] || 0;              // gastos del mes cargados a esta tarjeta (conceptos)
+      var msiConcepto = mpt["tc_"+i] || 0;          // parte de esos gastos que es a MSI
+      var msiPaso3 = t.msiPago || 0;                // MSI de compras no capturadas (paso 3)
+      var msiTotal = msiConcepto + msiPaso3;        // MSI total mensual de la tarjeta
+      var contado = Math.max(0, cargado - msiConcepto); // lo que se paga de contado este mes
+      sumMSI += msiTotal; sumContado += contado;
+      var partes = [];
+      if(msiTotal>0) partes.push(fmt(msiTotal)+" MSI/mes");
+      if(contado>0) partes.push(fmt(contado)+" de contado/mes");
+      rowp(t.nombre||"Tarjeta "+(i+1), partes.length? partes.join(" · ") : "Sin movimientos");
+    });
+    rowp("Total: MSI " + fmt(sumMSI) + "/mes · Contado " + fmt(sumContado) + "/mes", "", true);
+    y += 4;
   }
   if(S.deudas.length>0){
     sec("Créditos abiertos");
@@ -2475,16 +2509,17 @@ async function generarExcel(){
   secHdr(ws2,row,"RESUMEN DE FLUJO FINANCIERO",15); row++;
   colHdrsMes(row); row++;
   filaFormula(row,"TOTAL GASTOS (Fijos+Variables+Deudas)",function(L){return L+GF_TOTAL+"+"+L+GV_TOTAL+"+"+L+DD_TOTAL;},ROJO_CL,NEGRO); var GT_ROW=row; row++;
-  // Flujo libre (verde)
+  // Inversion / ahorro: es un compromiso que el cliente ya tiene contemplado, por eso se resta
+  // para obtener el flujo libre NETO (lo que realmente queda sin asignar).
+  filaInput(row,"Inversion / ahorro mensual (aportacion)", (S.tieneInv==="si"? S.inversiones.reduce(function(a,i){return a+i.monto;},0):0)||null, true); var INV_ROW=row; row++;
+  // Flujo libre NETO (verde) = Ingresos - Gastos - Inversion
   ws2.getRow(row).height=24;
-  var fc=ws2.getCell(row,1); fc.value="FLUJO LIBRE (disponible para invertir)"; fc.font=ft({b:true,sz:11,c:BLANCO}); fc.fill=fill(VERDE); fc.border=bd(); fc.alignment=al("left");
-  for(var col=2;col<=13;col++){ var L=colLetter(col); var cell=ws2.getCell(row,col); cell.value={formula:L+ING_TOTAL+"-"+L+GT_ROW}; cell.font=ft({b:true,sz:11,c:BLANCO}); cell.fill=fill(VERDE); cell.border=bd(); cell.numFmt=FMT_PESOS; cell.alignment=al("center"); }
+  var fc=ws2.getCell(row,1); fc.value="FLUJO LIBRE NETO (despues de invertir)"; fc.font=ft({b:true,sz:11,c:BLANCO}); fc.fill=fill(VERDE); fc.border=bd(); fc.alignment=al("left");
+  for(var col=2;col<=13;col++){ var L=colLetter(col); var cell=ws2.getCell(row,col); cell.value={formula:L+ING_TOTAL+"-"+L+GT_ROW+"-"+L+INV_ROW}; cell.font=ft({b:true,sz:11,c:BLANCO}); cell.fill=fill(VERDE); cell.border=bd(); cell.numFmt=FMT_PESOS; cell.alignment=al("center"); }
   var ft14=ws2.getCell(row,14); ft14.value={formula:"SUM(B"+row+":M"+row+")"}; ft14.font=ft({b:true,c:BLANCO}); ft14.fill=fill(VERDE); ft14.border=bd(); ft14.numFmt=FMT_PESOS; ft14.alignment=al("center");
   var ft15=ws2.getCell(row,15); ft15.value={formula:'IFERROR(N'+row+'/COUNTIF(B'+row+':M'+row+',"<>"),0)'}; ft15.font=ft({b:true,c:BLANCO}); ft15.fill=fill(VERDE); ft15.border=bd(); ft15.numFmt=FMT_PESOS; ft15.alignment=al("center");
   var FL_ROW=row; row++;
   filaFormula(row,"% Gastos / Ingresos",function(L){return "IFERROR("+L+GT_ROW+"/"+L+ING_TOTAL+",0)";},GRIS,NEGRO,FMT_PCT); row++;
-  filaInput(row,"Inversion real realizada (aportacion)", (S.tieneInv==="si"? S.inversiones.reduce(function(a,i){return a+i.monto;},0):0)||null, true); var INV_ROW=row; row++;
-  filaFormula(row,"Superavit / Deficit del mes",function(L){return L+FL_ROW+"-"+L+INV_ROW;},GRIS,NEGRO); row++;
   row++;
 
   // ── SEGUIMIENTO DE PAGOS A TARJETAS DE CRÉDITO (por tarjeta) ──
@@ -2547,7 +2582,7 @@ async function generarExcel(){
   kpiRow("Gastos fijos / ingreso", RM+"!O"+GF_TOTAL, "IFERROR("+RM+"!O"+GF_TOTAL+"/"+RM+"!O"+ING_TOTAL+",0)", 0.50, FMT_PCT, 'IF(C'+kr+'<=D'+kr+',"Saludable","Revisar")', "Mantener bajo 50%", BLANCO);
   kpiRow("Variables + deudas / ingreso", "IFERROR("+RM+"!O"+GV_TOTAL+"+"+RM+"!O"+DD_TOTAL+",0)", "IFERROR(("+RM+"!O"+GV_TOTAL+"+"+RM+"!O"+DD_TOTAL+")/"+RM+"!O"+ING_TOTAL+",0)", 0.30, FMT_PCT, 'IF(C'+kr+'<=D'+kr+',"Saludable","Atencion")', "Mantener bajo 30%", AZ_CLAR);
   kpiRow("Inversion / ingreso", RM+"!O"+INV_ROW, "IFERROR("+RM+"!O"+INV_ROW+"/"+RM+"!O"+ING_TOTAL+",0)", 0.20, FMT_PCT, 'IF(C'+kr+'>=D'+kr+',"Saludable","Incrementar")', "Apuntar a 20% o mas", BLANCO);
-  kpiRow("Flujo libre mensual", RM+"!O"+FL_ROW, "IFERROR("+RM+"!O"+FL_ROW+"/"+RM+"!O"+ING_TOTAL+",0)", null, FMT_PESOS, 'IF(B'+kr+'>0,"Positivo","Deficit")', "Debe ser positivo", AZ_CLAR);
+  kpiRow("Flujo libre neto mensual", RM+"!O"+FL_ROW, "IFERROR("+RM+"!O"+FL_ROW+"/"+RM+"!O"+ING_TOTAL+",0)", null, FMT_PESOS, 'IF(B'+kr+'>0,"Positivo","Deficit")', "Debe ser positivo", AZ_CLAR);
   kr++;
   // Notas de seguimiento mensual
   secHdr(ws3,kr,"SEGUIMIENTO MENSUAL",6); kr++;
