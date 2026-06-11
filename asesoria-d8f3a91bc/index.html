@@ -222,9 +222,9 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
       <div class="card">
         <div class="section-title"><i class="ti ti-user"></i> Datos básicos del cliente</div>
         <div class="field"><label>Nombre completo</label><input type="text" id="nombre" placeholder="Nombre completo..."></div>
-        <div class="row2">
-          <div class="field"><label>Fecha de nacimiento</label><input type="date" id="fechaNac"></div>
-          <div class="field"><label>O ingresa la edad directamente</label><input type="number" id="edadDirecta" placeholder="Años" min="1" max="99"></div>
+        <div class="field" style="max-width:240px">
+          <label>Fecha de nacimiento</label>
+          <input type="date" id="fechaNac">
         </div>
         <div class="field">
           <label>¿Tiene dependientes económicos?</label>
@@ -288,36 +288,35 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
           </div>
         </div>
         <div id="tarjetaPanel" style="display:none">
-          <div class="row2" style="margin-bottom:1rem">
-            <div class="field" style="margin:0">
-              <label>¿Cuántas tarjetas tiene?</label>
-              <input type="number" id="numTarjetas" placeholder="0" min="1" max="20">
-            </div>
-            <div class="field" style="margin:0">
-              <label>¿Tiene compras a MSI?</label>
-              <div class="radio-group" data-group="tieneMSI" style="margin-top:6px">
-                <div class="radio-opt" data-val="si">Sí</div>
-                <div class="radio-opt" data-val="no">No</div>
-              </div>
-            </div>
+          <div class="field" style="max-width:240px">
+            <label>¿Cuántas tarjetas tiene?</label>
+            <input type="number" id="numTarjetas" placeholder="0" min="1" max="20">
           </div>
           <div id="tarjetaBancos" style="display:none">
             <p style="font-size:13px;font-weight:600;color:var(--rz-dark);margin-bottom:10px">¿De qué banco es cada tarjeta?</p>
             <div id="bancoRows"></div>
           </div>
           <div class="field">
-            <label>¿Cómo paga mensualmente sus tarjetas?</label>
+            <label>¿Tiene compras a meses sin intereses (MSI)?</label>
+            <div class="radio-group" data-group="tieneMSI">
+              <div class="radio-opt" data-val="si">Sí</div>
+              <div class="radio-opt" data-val="no">No</div>
+            </div>
+          </div>
+          <div id="msiPanel" style="display:none">
+            <div class="note-box" style="font-size:12px"><i class="ti ti-info-circle"></i> Agrega cada compra a MSI. <strong>No incluyas aquí los seguros a MSI</strong> — esos se capturan en la sección de Seguros. El total de la compra, el saldo y el mes de término se calculan automáticamente.</div>
+            <div id="msiRows"></div>
+            <button class="btn btn-secondary btn-sm" id="btnAddMSI" style="margin-top:4px"><i class="ti ti-plus"></i> Agregar compra a MSI</button>
+          </div>
+          <div class="field" id="formaPagoTCField" style="margin-top:1rem">
+            <label>¿Cómo paga sus tarjetas de crédito?</label>
             <select id="formaPagoTC">
               <option value="">Selecciona...</option>
-              <option value="total">Pago total cada mes</option>
-              <option value="minimo">Pago mínimo (+ MSI si aplica)</option>
-              <option value="otra">Otra cantidad</option>
+              <option value="total">Total del mes</option>
+              <option value="total_adelanto">Total del mes + adelanto de pagos</option>
+              <option value="minimo_msi">Mínimo + MSI</option>
+              <option value="menor_minimo">Cantidad menor al mínimo</option>
             </select>
-          </div>
-          <div id="tarjetasDetalle" style="display:none">
-            <p style="font-size:13px;font-weight:600;color:var(--rz-dark);margin-bottom:6px">Detalle por tarjeta:</p>
-            <div class="note-box" style="font-size:11.5px"><i class="ti ti-info-circle"></i> El "pago mensual de MSI" aquí es para compras a meses que NO captures como gasto en los siguientes pasos (muebles, viajes, etc.). Si un seguro, electrónico u otro gasto a MSI lo vas a registrar en su categoría, ahí mismo indicarás cuánto es a MSI — no lo dupliques aquí.</div>
-            <div id="tarjetaRows"></div>
           </div>
         </div>
       </div>
@@ -383,7 +382,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 
       <div class="card">
         <div class="section-title"><i class="ti ti-shield"></i> Seguros</div>
-        <p style="font-size:13px;color:var(--muted);margin-bottom:10px">Agrega los seguros que pagas mensualmente.</p>
+        <p style="font-size:13px;color:var(--muted);margin-bottom:10px">Agrega los seguros actuales. Indica el monto anual aproximado y cómo lo pagas; calcularemos el costo mensual equivalente.</p>
         <div id="seguroRows"></div>
         <button class="btn btn-secondary btn-sm" id="btnAddSeguro" style="margin-top:4px"><i class="ti ti-plus"></i> Agregar seguro</button>
       </div>
@@ -642,7 +641,7 @@ function newState(){
   return {
     nombre:"", edad:null, dep:null, dependientes:[],
     tipo:null, ingreso:0, ingExtra:null, ingExtraMonto:0, ingExtraDesc:"", ingExtraList:[],
-    tieneTarjeta:null, numTarjetas:0, tieneMSI:null, numMSI:0, formaPagoTC:"", tarjetas:[],
+    tieneTarjeta:null, numTarjetas:0, tieneMSI:null, formaPagoTC:"", tarjetas:[], comprasMSI:[],
     tieneCredito:null, deudas:[],
     gastos:{}, tieneEdu:null, saludList:[], segurosList:[], streamList:[], eduList:[],
     fondoEm:null, ahorrHab:null, tieneInv:null, inversiones:[],
@@ -716,7 +715,11 @@ function onRadioChange(key, val){
   if(key === "ingExtra"){ $("ingExtraPanel").style.display = (val==="si") ? "block" : "none"; if(val==="si" && ingExtraRows.length===0){ ingExtraRows.push({desc:"",monto:0}); renderIngExtraRows(); } }
   if(key === "tieneTarjeta"){ $("tarjetaPanel").style.display = (val==="si") ? "block" : "none"; }
   if(key === "tieneCredito"){ $("creditoPanel").style.display = (val==="si") ? "block" : "none"; }
-  if(key === "tieneMSI"){ refreshTCdetalle(); }
+  if(key === "tieneMSI"){
+    $("msiPanel").style.display = (val==="si") ? "block" : "none";
+    if(val==="si" && S.comprasMSI.length===0){ S.comprasMSI.push({concepto:"", meses:"", pago:"", inicio:"", tarjeta:0}); }
+    renderMSIRows();
+  }
   if(key === "tieneEdu"){ $("eduPanel").style.display = (val==="si") ? "block" : "none"; if(val==="si" && eduRows.length===0){ eduRows.push({tipo:"",monto:0}); renderEdu(); } }
   if(key === "tieneInv"){ $("invPanel").style.display = (val==="si") ? "block" : "none"; }
   if(key === "quiereAsesoria"){ $("asesoriaPanel").style.display = (val==="si") ? "block" : "none"; }
@@ -877,14 +880,13 @@ var CONCEPTOS_VARIABLES = [
   {key:"ent", label:"Entretenimiento y salidas"},
   {key:"ropa", label:"Ropa y cuidado personal"},
   {key:"mant", label:"Mantenimientos (hogar, auto)"},
-  {key:"elec", label:"Compras electrónicas"},
   {key:"otros", label:"Otros gastos variables"}
 ];
 
 /* Estado de gastos con monto + forma de pago por concepto */
 var gastoState = {}; // key -> {monto, pago, msi}
 // Conceptos donde tiene sentido capturar parte a MSI (compras puntuales / anualidades diferidas)
-var MSI_CAPABLE_KEYS = ["ropa","mant","elec","otros"];
+var MSI_CAPABLE_KEYS = ["ropa","mant","otros"];
 function esMSICapable(key){ return MSI_CAPABLE_KEYS.indexOf(key) >= 0; }
 function initGastoState(){
   CONCEPTOS_VIVIENDA.concat(CONCEPTOS_VARIABLES).forEach(function(c){
@@ -1041,8 +1043,91 @@ function renderSalud(){ makeDynList(saludRows, "saludRows", SALUD_OPTS, "$/mes",
 /* ── SEGUROS ── */
 var seguroRows = [];
 var SEGURO_OPTS = ["Seguro de auto","Seguro de gastos médicos","Seguro de accidentes personales","Seguro de vida","Seguro de hogar","Otro seguro"];
-$("btnAddSeguro").addEventListener("click", function(){ seguroRows.push({tipo:"",monto:0}); renderSeguro(); });
-function renderSeguro(){ makeDynList(seguroRows, "seguroRows", SEGURO_OPTS, "$/mes", false, renderSeguro, "all"); }
+var SEGURO_FORMAS = [
+  {val:"mensual", txt:"Mensual", divisor:1, mesesPago:12},
+  {val:"trimestral", txt:"Trimestral", divisor:3, mesesPago:4},
+  {val:"semestral", txt:"Semestral", divisor:6, mesesPago:2},
+  {val:"contado", txt:"Contado (anual)", divisor:12, mesesPago:1},
+  {val:"msi", txt:"Meses sin intereses", divisor:12, mesesPago:12}
+];
+$("btnAddSeguro").addEventListener("click", function(){ seguroRows.push({tipo:"", anual:0, forma:"", tarjeta:0}); renderSeguro(); });
+function renderSeguro(){
+  var cont = $("seguroRows");
+  cont.innerHTML = "";
+  seguroRows.forEach(function(r, i){
+    var block = document.createElement("div");
+    block.className = "tc-block";
+
+    var top = document.createElement("div");
+    top.style.cssText = "display:grid;grid-template-columns:1.4fr .9fr 1.1fr auto;gap:6px;align-items:end";
+
+    // Tipo de seguro
+    var tipoWrap = document.createElement("div"); tipoWrap.className="field"; tipoWrap.style.margin="0";
+    var tl=document.createElement("label"); tl.style.fontSize="12px"; tl.textContent="Tipo de seguro";
+    var tsel=document.createElement("select");
+    tsel.style.cssText="padding:8px 10px;border:1.5px solid var(--border);border-radius:10px;font-size:13px;font-family:var(--font);background:#fff;width:100%";
+    var ph=document.createElement("option"); ph.value=""; ph.textContent="Selecciona..."; tsel.appendChild(ph);
+    SEGURO_OPTS.forEach(function(o){ var op=document.createElement("option"); op.value=o; op.textContent=o; if(o===r.tipo)op.selected=true; tsel.appendChild(op); });
+    tsel.addEventListener("change", function(){ r.tipo=tsel.value; });
+    tipoWrap.appendChild(tl); tipoWrap.appendChild(tsel);
+
+    // Monto anual
+    var montoWrap = document.createElement("div"); montoWrap.className="field"; montoWrap.style.margin="0";
+    var ml=document.createElement("label"); ml.style.fontSize="12px"; ml.textContent="Monto anual aprox.";
+    var minp=document.createElement("input"); minp.type="number"; minp.placeholder="0"; minp.min=0;
+    if(r.anual) minp.value=r.anual;
+    minp.style.cssText="padding:8px 10px;border:1.5px solid var(--border);border-radius:10px;font-size:13px;font-family:var(--font);text-align:right;width:100%";
+    minp.addEventListener("input", function(){ r.anual=parseFloat(minp.value)||0; renderSeguro(); });
+    montoWrap.appendChild(ml); montoWrap.appendChild(minp);
+
+    // Forma de pago
+    var formaWrap = document.createElement("div"); formaWrap.className="field"; formaWrap.style.margin="0";
+    var fl=document.createElement("label"); fl.style.fontSize="12px"; fl.textContent="Forma de pago";
+    var fsel=document.createElement("select");
+    fsel.style.cssText="padding:8px 10px;border:1.5px solid var(--border);border-radius:10px;font-size:13px;font-family:var(--font);background:#fff;width:100%";
+    var fph=document.createElement("option"); fph.value=""; fph.textContent="Selecciona..."; fsel.appendChild(fph);
+    SEGURO_FORMAS.forEach(function(o){ var op=document.createElement("option"); op.value=o.val; op.textContent=o.txt; if(o.val===r.forma)op.selected=true; fsel.appendChild(op); });
+    fsel.addEventListener("change", function(){ r.forma=fsel.value; renderSeguro(); });
+    formaWrap.appendChild(fl); formaWrap.appendChild(fsel);
+
+    var del=document.createElement("button"); del.type="button"; del.className="dyn-del";
+    del.innerHTML='<i class="ti ti-trash"></i>';
+    del.addEventListener("click", function(){ seguroRows.splice(i,1); renderSeguro(); });
+    var delWrap=document.createElement("div"); delWrap.appendChild(del);
+
+    top.appendChild(tipoWrap); top.appendChild(montoWrap); top.appendChild(formaWrap); top.appendChild(delWrap);
+    block.appendChild(top);
+
+    // Segunda fila: tarjeta (si aplica) + mensual calculado
+    var bottom=document.createElement("div");
+    bottom.style.cssText="display:grid;grid-template-columns:1fr 1.4fr;gap:8px;align-items:center;margin-top:8px";
+
+    // Tarjeta donde se carga (solo si hay tarjetas)
+    var tarjWrap=document.createElement("div"); tarjWrap.className="field"; tarjWrap.style.margin="0";
+    if(S.tieneTarjeta==="si" && S.tarjetas.length){
+      var cl=document.createElement("label"); cl.style.fontSize="12px"; cl.textContent="¿En qué tarjeta se carga?";
+      var csel=document.createElement("select");
+      csel.style.cssText="padding:8px 10px;border:1.5px solid var(--border);border-radius:10px;font-size:13px;font-family:var(--font);background:#fff;width:100%";
+      var cef=document.createElement("option"); cef.value="efectivo"; cef.textContent="Efectivo / débito"; if(!r.tarjeta||r.tarjeta==="efectivo")cef.selected=true; csel.appendChild(cef);
+      S.tarjetas.forEach(function(t,ti){ var op=document.createElement("option"); op.value="tc_"+ti; op.textContent=(t.nombre&&t.nombre.trim())?t.nombre:("Tarjeta "+(ti+1)); if(r.tarjeta==="tc_"+ti)op.selected=true; csel.appendChild(op); });
+      csel.addEventListener("change", function(){ r.tarjeta=csel.value; });
+      tarjWrap.appendChild(cl); tarjWrap.appendChild(csel);
+    }
+    bottom.appendChild(tarjWrap);
+
+    // Mensual equivalente calculado
+    var mens = (r.anual||0)/12;
+    r.monto = mens; // guardamos el mensual equivalente para los cálculos
+    var calcBox=document.createElement("div");
+    calcBox.style.cssText="font-size:12px;color:var(--muted);background:#f7fafd;border:1px solid var(--border);border-radius:8px;padding:7px 10px;line-height:1.6";
+    var formaTxt = (SEGURO_FORMAS.find(function(f){return f.val===r.forma;})||{}).txt || "—";
+    calcBox.innerHTML = 'Costo mensual equivalente: <strong style="color:var(--rz-dark)">'+fmt(mens)+'/mes</strong> · Forma: '+formaTxt;
+    bottom.appendChild(calcBox);
+    block.appendChild(bottom);
+
+    cont.appendChild(block);
+  });
+}
 
 /* ── STREAMING ── */
 var streamRows = [];
@@ -1074,22 +1159,14 @@ function renderEdu(){ makeDynList(eduRows, "eduRows", eduOpciones(), "$/mes", tr
 $("numTarjetas").addEventListener("input", function(){
   var n = parseInt(this.value) || 0;
   S.numTarjetas = n;
-  while(S.tarjetas.length < n) S.tarjetas.push({nombre:"", numMSI:0, msiPago:0, total:0});
+  while(S.tarjetas.length < n) S.tarjetas.push({nombre:""});
   if(S.tarjetas.length > n) S.tarjetas.length = n;
   renderBancoRows();
-  refreshTCdetalle();
+  renderMSIRows(); // refrescar el desplegable de tarjetas en las compras MSI
 });
 $("formaPagoTC").addEventListener("change", function(){
   S.formaPagoTC = this.value;
-  refreshTCdetalle();
 });
-function refreshTCdetalle(){
-  // El detalle por tarjeta SIEMPRE se muestra cuando hay tarjetas,
-  // sin importar la forma de pago (para capturar MSI y saldo total).
-  var show = S.numTarjetas > 0;
-  $("tarjetasDetalle").style.display = show ? "block" : "none";
-  if(show) renderTarjetaRows();
-}
 function renderBancoRows(){
   var cont = $("bancoRows");
   $("tarjetaBancos").style.display = S.numTarjetas > 0 ? "block" : "none";
@@ -1105,46 +1182,120 @@ function renderBancoRows(){
     inp.value = t.nombre || ""; inp.style.flex = "1";
     inp.addEventListener("input", function(){
       S.tarjetas[i].nombre = inp.value;
-      renderTarjetaRows();
+      renderMSIRows();
     });
     wrap.appendChild(lbl); wrap.appendChild(inp);
     cont.appendChild(wrap);
   });
 }
-function renderTarjetaRows(){
-  var cont = $("tarjetaRows");
+
+/* ════════ COMPRAS A MSI (lista con cálculos automáticos) ════════ */
+var MESES_ABBR = ["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
+function nombreMesAnio(d){ return MESES_ABBR[d.getMonth()] + "-" + String(d.getFullYear()).slice(2); }
+
+// Calcula campos derivados de una compra MSI: total, meses pagados, restantes, saldo, término
+function calcMSI(c){
+  var meses = parseInt(c.meses) || 0;
+  var pago = parseFloat(c.pago) || 0;
+  var total = meses * pago;
+  var inicio = c.inicio ? parseInputMonth(c.inicio) : null;
+  var hoy = new Date(); hoy.setDate(1); hoy.setHours(0,0,0,0);
+  var pagados = 0;
+  if(inicio){
+    // meses transcurridos desde el inicio hasta hoy (inclusive del mes de inicio)
+    pagados = (hoy.getFullYear()-inicio.getFullYear())*12 + (hoy.getMonth()-inicio.getMonth());
+    if(pagados < 0) pagados = 0;          // aún no empieza
+    if(pagados > meses) pagados = meses;  // ya terminó
+  }
+  var restantes = Math.max(0, meses - pagados);
+  var saldo = restantes * pago;           // lo que falta por pagar
+  var termino = null;
+  if(inicio && meses>0){
+    termino = new Date(inicio.getFullYear(), inicio.getMonth() + (meses-1), 1);
+  }
+  return {
+    total: total, pagados: pagados, restantes: restantes, saldo: saldo,
+    terminoTxt: termino ? nombreMesAnio(termino) : "—",
+    inicioTxt: inicio ? nombreMesAnio(inicio) : "—",
+    activa: restantes > 0
+  };
+}
+function parseInputMonth(val){
+  // val viene de <input type=month> como "YYYY-MM"
+  var p = String(val).split("-");
+  if(p.length>=2) return new Date(parseInt(p[0]), parseInt(p[1])-1, 1);
+  return null;
+}
+
+$("btnAddMSI").addEventListener("click", function(){
+  S.comprasMSI.push({concepto:"", meses:"", pago:"", inicio:"", tarjeta:0});
+  renderMSIRows();
+});
+function renderMSIRows(){
+  var cont = $("msiRows");
+  if(!cont) return;
   cont.innerHTML = "";
-  var conMSI = (S.tieneMSI === "si");
-  S.tarjetas.forEach(function(t, i){
+  S.comprasMSI.forEach(function(c, i){
+    var calc = calcMSI(c);
     var block = document.createElement("div");
     block.className = "tc-block";
 
-    var lbl = document.createElement("div");
-    lbl.className = "tc-label";
-    lbl.innerHTML = '<i class="ti ti-credit-card"></i> ' + (t.nombre || ('Tarjeta ' + (i+1)));
-    block.appendChild(lbl);
+    var top = document.createElement("div");
+    top.style.cssText = "display:grid;grid-template-columns:1.4fr .8fr 1fr 1.1fr auto;gap:6px;align-items:end";
 
-    var grid = document.createElement("div");
-    grid.className = "tc-grid";
+    top.appendChild(msiField("Concepto", "text", "Ej. Laptop", c.concepto, function(v){ c.concepto=v; }));
+    top.appendChild(msiField("No. meses", "number", "12", c.meses, function(v){ c.meses=v; renderMSIRows(); }));
+    top.appendChild(msiField("Pago mensual", "number", "0", c.pago, function(v){ c.pago=v; renderMSIRows(); }));
+    top.appendChild(msiField("Inicio del pago", "month", "", c.inicio, function(v){ c.inicio=v; renderMSIRows(); }));
 
-    if(conMSI){
-      grid.appendChild(makeTCField("# compras a MSI", "number", "0", t.numMSI || "", function(v){ S.tarjetas[i].numMSI = parseInt(v)||0; }));
-      grid.appendChild(makeTCField("Pago mensual de MSI", "number", "0", t.msiPago || "", function(v){ S.tarjetas[i].msiPago = parseFloat(v)||0; }));
-    }
-    grid.appendChild(makeTCField("Saldo total de la tarjeta", "number", "0", t.total || "", function(v){ S.tarjetas[i].total = parseFloat(v)||0; }));
+    var del = document.createElement("button");
+    del.type="button"; del.className="dyn-del";
+    del.innerHTML='<i class="ti ti-trash"></i>';
+    del.addEventListener("click", function(){ S.comprasMSI.splice(i,1); renderMSIRows(); });
+    var delWrap = document.createElement("div"); delWrap.appendChild(del);
+    top.appendChild(delWrap);
+    block.appendChild(top);
 
-    block.appendChild(grid);
+    // Segunda fila: tarjeta + cálculos
+    var bottom = document.createElement("div");
+    bottom.style.cssText = "display:grid;grid-template-columns:1fr 2fr;gap:8px;align-items:center;margin-top:8px";
+    var tarjWrap = document.createElement("div");
+    tarjWrap.className="field"; tarjWrap.style.margin="0";
+    var tl=document.createElement("label"); tl.style.fontSize="12px"; tl.textContent="¿En qué tarjeta?";
+    var sel=document.createElement("select");
+    sel.style.cssText="padding:8px 10px;border:1.5px solid var(--border);border-radius:10px;font-size:13px;font-family:var(--font);background:#fff;width:100%";
+    S.tarjetas.forEach(function(t, ti){
+      var o=document.createElement("option"); o.value=ti;
+      o.textContent=(t.nombre&&t.nombre.trim())?t.nombre:("Tarjeta "+(ti+1));
+      if(ti===(c.tarjeta||0)) o.selected=true;
+      sel.appendChild(o);
+    });
+    sel.addEventListener("change", function(){ c.tarjeta=parseInt(sel.value)||0; });
+    tarjWrap.appendChild(tl); tarjWrap.appendChild(sel);
+    bottom.appendChild(tarjWrap);
+
+    // Caja de cálculos
+    var calcBox = document.createElement("div");
+    calcBox.style.cssText="font-size:12px;color:var(--muted);background:#f7fafd;border:1px solid var(--border);border-radius:8px;padding:7px 10px;line-height:1.7";
+    calcBox.innerHTML =
+      'Total compra: <strong style="color:var(--rz-dark)">'+fmt(calc.total)+'</strong> · '+
+      'Saldo actual: <strong style="color:var(--rz-dark)">'+fmt(calc.saldo)+'</strong> · '+
+      'Termina: <strong style="color:var(--rz-dark)">'+calc.terminoTxt+'</strong>'+
+      (calc.restantes>0 ? ' · Restan <strong style="color:var(--rz-dark)">'+calc.restantes+'</strong> meses' : ' · <span style="color:var(--ok)">Liquidada</span>');
+    bottom.appendChild(calcBox);
+    block.appendChild(bottom);
+
     cont.appendChild(block);
   });
 }
-function makeTCField(labelTxt, type, ph, val, onInput){
-  var wrap = document.createElement("div");
-  wrap.className = "field"; wrap.style.margin = "0";
-  var l = document.createElement("label");
-  l.style.fontSize = "12px"; l.textContent = labelTxt;
-  var inp = document.createElement("input");
-  inp.type = type; inp.placeholder = ph;
-  if(val !== "" && val !== undefined) inp.value = val;
+function msiField(labelTxt, type, ph, val, onInput){
+  var wrap=document.createElement("div");
+  wrap.className="field"; wrap.style.margin="0";
+  var l=document.createElement("label"); l.style.fontSize="12px"; l.textContent=labelTxt;
+  var inp=document.createElement("input");
+  inp.type=type; inp.placeholder=ph;
+  if(val!=="" && val!==undefined && val!==null) inp.value=val;
+  inp.style.cssText="padding:8px 10px;border:1.5px solid var(--border);border-radius:10px;font-size:13px;font-family:var(--font);width:100%";
   inp.addEventListener("input", function(){ onInput(inp.value); });
   wrap.appendChild(l); wrap.appendChild(inp);
   return wrap;
@@ -1308,14 +1459,18 @@ $("btnContinuar").addEventListener("click", function(){ showSection(8); });
 $("btnNuevo").addEventListener("click", nuevoCliente);
 
 function getAge(){
-  var ed = parseFloat($("edadDirecta").value);
-  if(ed > 0) return ed;
   var fn = $("fechaNac").value;
   if(!fn) return null;
-  var d = new Date(fn), h = new Date();
-  var a = h.getFullYear() - d.getFullYear();
-  if(h.getMonth() < d.getMonth() || (h.getMonth()===d.getMonth() && h.getDate()<d.getDate())) a--;
-  return a > 0 ? a : null;
+  // Fecha de nacimiento sin ajuste de zona (viene como YYYY-MM-DD, sin hora)
+  var parts = fn.split("-");
+  var nacYear = parseInt(parts[0]), nacMonth = parseInt(parts[1])-1, nacDay = parseInt(parts[2]);
+  // Hoy en CDMX (America/Mexico_City) — evita que el cambio de día UTC/UTC-6 afecte el cálculo
+  var hoyStr = new Intl.DateTimeFormat("en-CA", {timeZone:"America/Mexico_City"}).format(new Date());
+  var hp = hoyStr.split("-");
+  var hYear = parseInt(hp[0]), hMonth = parseInt(hp[1])-1, hDay = parseInt(hp[2]);
+  var edad = hYear - nacYear;
+  if(hMonth < nacMonth || (hMonth===nacMonth && hDay < nacDay)) edad--;
+  return edad > 0 ? edad : null;
 }
 
 function next(step){
@@ -1323,7 +1478,7 @@ function next(step){
     var n = $("nombre").value.trim();
     var edad = getAge();
     if(!n){ showErr("Ingresa el nombre del cliente"); return; }
-    if(!edad){ showErr("Ingresa la fecha de nacimiento o edad"); return; }
+    if(!edad){ showErr("Ingresa la fecha de nacimiento"); return; }
     if(!S.dep){ showErr("Indica si tiene dependientes"); return; }
     S.nombre = n; S.edad = edad;
     if(S.dep === "si") S.dependientes = depRows.slice();
@@ -1352,72 +1507,51 @@ function next(step){
     function gv(k){ return (gastoState[k] && gastoState[k].monto) || 0; }
     var serv = gv("luz")+gv("agua")+gv("internet")+gv("celular")+gv("gas")+gv("basura");
     var saludTotal = saludRows.reduce(function(a,r){ return a + (r.monto||0); }, 0);
-    var segurosTotal = seguroRows.reduce(function(a,r){ return a + (r.monto||0); }, 0);
     var subsTotal = streamRows.reduce(function(a,r){ return a + (r.monto||0); }, 0);
     var eduTotal = (S.tieneEdu === "si") ? eduRows.reduce(function(a,r){ return a + (r.monto||0); }, 0) : 0;
     S.gastos = {
       renta:gv("renta"), serv:serv, trans:gv("trans"), alim:gv("alim"),
-      edu:eduTotal, salud:saludTotal, seguros:segurosTotal, subs:subsTotal,
-      ent:gv("ent"), ropa:gv("ropa"), mant:gv("mant"), elec:gv("elec"), otros:gv("otros"),
+      edu:eduTotal, salud:saludTotal, subs:subsTotal,
+      ent:gv("ent"), ropa:gv("ropa"), mant:gv("mant"), otros:gv("otros"),
       _luz:gv("luz"), _agua:gv("agua"), _internet:gv("internet"), _celular:gv("celular"), _gas:gv("gas"), _basura:gv("basura")
     };
     S.saludList = saludRows.filter(function(r){ return r.monto > 0; });
-    S.segurosList = seguroRows.filter(function(r){ return r.monto > 0; });
+    S.segurosList = seguroRows.filter(function(r){ return (r.anual||0) > 0; })
+      .map(function(r){ r.monto = (r.anual||0)/12; return r; });
     S.streamList = streamRows.filter(function(r){ return r.monto > 0; });
     S.eduList = (S.tieneEdu === "si") ? eduRows.filter(function(r){ return r.monto > 0; }) : [];
 
-    // ─── MSI embebido en conceptos de gasto ───
-    // Sumamos la parte que el usuario marcó como "a MSI" dentro de sus gastos.
-    // Esa parte se trata como deuda diferida (igual que el MSI del paso 3), pero como YA
-    // está contada dentro del gasto del concepto, la registramos aparte para NO duplicar:
-    // el flujo descuenta el gasto completo una sola vez; esta cifra solo alimenta el desglose MSI.
-    var msiEnConceptos = 0;
-    CONCEPTOS_VIVIENDA.concat(CONCEPTOS_VARIABLES).forEach(function(c){
-      var gs = gastoState[c.key];
-      if(gs && esMSICapable(c.key) && gs.pago && gs.pago.indexOf("tc_")===0){
-        var m = Math.min(gs.msi||0, gs.monto||0);
-        msiEnConceptos += m;
-      }
-    });
-    [saludRows, seguroRows, eduRows].forEach(function(arr){
-      arr.forEach(function(r){
-        if(r.monto>0 && r.pago && r.pago.indexOf("tc_")===0){
-          var m = Math.min(r.msi||0, r.monto||0);
-          msiEnConceptos += m;
-        }
-      });
-    });
-    S.msiEnConceptos = msiEnConceptos;
-
-    // Calcular cuánto de cada tarjeta se gastó este mes, separando fijos vs variables.
-    // (para no duplicar con su saldo, y para el resumen por tarjeta)
-    S.gastoPorTarjeta = {};      // "tc_0" -> monto total cargado al mes
-    S.gastoPorTarjetaFijo = {};  // "tc_0" -> porcion de gastos FIJOS
-    S.gastoPorTarjetaVar = {};   // "tc_0" -> porcion de gastos VARIABLES
-    S.msiPorTarjeta = {};        // "tc_0" -> porcion a MSI (subconjunto de lo cargado)
-    function acumPago(monto, pago, esFijo, msiParte){
+    // ─── Acumular gasto por tarjeta: fijos, variables, MSI y seguros ───
+    S.gastoPorTarjetaFijo = {};
+    S.gastoPorTarjetaVar = {};
+    S.msiPorTarjeta = {};
+    S.segurosPorTarjeta = {};
+    function acumGasto(monto, pago, esFijo){
       if(pago && pago.indexOf("tc_") === 0){
-        S.gastoPorTarjeta[pago] = (S.gastoPorTarjeta[pago] || 0) + monto;
         if(esFijo) S.gastoPorTarjetaFijo[pago] = (S.gastoPorTarjetaFijo[pago] || 0) + monto;
         else S.gastoPorTarjetaVar[pago] = (S.gastoPorTarjetaVar[pago] || 0) + monto;
-        if(msiParte>0) S.msiPorTarjeta[pago] = (S.msiPorTarjeta[pago] || 0) + msiParte;
       }
     }
-    // Vivienda/servicios = FIJOS
-    CONCEPTOS_VIVIENDA.forEach(function(c){
-      var gs = gastoState[c.key];
-      if(gs && gs.monto>0){ var mp = esMSICapable(c.key)?Math.min(gs.msi||0,gs.monto):0; acumPago(gs.monto, gs.pago, true, mp); }
+    CONCEPTOS_VIVIENDA.forEach(function(c){ var gs=gastoState[c.key]; if(gs && gs.monto>0) acumGasto(gs.monto, gs.pago, true); });
+    CONCEPTOS_VARIABLES.forEach(function(c){ var gs=gastoState[c.key]; if(gs && gs.monto>0) acumGasto(gs.monto, gs.pago, false); });
+    [saludRows, streamRows, eduRows].forEach(function(arr){ arr.forEach(function(r){ if(r.monto>0) acumGasto(r.monto, r.pago, true); }); });
+    S.segurosList.forEach(function(r){
+      var mensual = (r.anual||0)/12;
+      if(r.tarjeta && String(r.tarjeta).indexOf("tc_")===0){
+        S.segurosPorTarjeta[r.tarjeta] = (S.segurosPorTarjeta[r.tarjeta] || 0) + mensual;
+        S.gastoPorTarjetaFijo[r.tarjeta] = (S.gastoPorTarjetaFijo[r.tarjeta] || 0) + mensual;
+      }
     });
-    // Conceptos variables = VARIABLES
-    CONCEPTOS_VARIABLES.forEach(function(c){
-      var gs = gastoState[c.key];
-      if(gs && gs.monto>0){ var mp = esMSICapable(c.key)?Math.min(gs.msi||0,gs.monto):0; acumPago(gs.monto, gs.pago, false, mp); }
-    });
-    // Salud, seguros, streaming, educación = FIJOS
-    [saludRows, seguroRows, streamRows, eduRows].forEach(function(arr){
-      arr.forEach(function(r){ if(r.monto>0){ acumPago(r.monto, r.pago, true, Math.min(r.msi||0, r.monto)); } });
-    });
-    showSection(5);
+    if(S.tieneTarjeta==="si" && S.tieneMSI==="si"){
+      (S.comprasMSI||[]).forEach(function(c){
+        var calc = calcMSI(c);
+        if(calc.activa){
+          var key = "tc_" + (c.tarjeta||0);
+          S.msiPorTarjeta[key] = (S.msiPorTarjeta[key] || 0) + (parseFloat(c.pago)||0);
+        }
+      });
+    }
+        showSection(5);
 
   } else if(step === 5){
     if(!S.fondoEm){ showErr("Indica si tiene fondo de emergencias"); return; }
@@ -1454,10 +1588,10 @@ function nuevoCliente(){
   });
   document.querySelectorAll("select").forEach(function(s){ s.selectedIndex = 0; });
   document.querySelectorAll(".radio-opt").forEach(function(o){ o.classList.remove("selected"); });
-  ["depPanel","tarjetaPanel","tarjetasDetalle","creditoPanel","deudaTableWrap","ingExtraPanel","invPanel","asesoriaPanel","citaConfirm","infoGodin","infoEmp","eduPanel","tarjetaBancos"].forEach(function(id){
+  ["depPanel","tarjetaPanel","msiPanel","creditoPanel","deudaTableWrap","ingExtraPanel","invPanel","asesoriaPanel","citaConfirm","infoGodin","infoEmp","eduPanel","tarjetaBancos"].forEach(function(id){
     var el = $(id); if(el) el.style.display = "none";
   });
-  ["depRows","tarjetaRows","bancoRows","deudaTbody","ingExtraRows","saludRows","seguroRows","streamRows","eduRows"].forEach(function(id){
+  ["depRows","msiRows","bancoRows","deudaTbody","ingExtraRows","saludRows","seguroRows","streamRows","eduRows"].forEach(function(id){
     var el = $(id); if(el) el.innerHTML = "";
   });
   if(pieChart){ pieChart.destroy(); pieChart = null; }
@@ -1545,34 +1679,41 @@ function generarImagenGrafica(data, labels, colors, total){
 }
 
 /* ════════ DIAGNÓSTICO ════════ */
+// Suma del pago mensual de las compras MSI que siguen activas (excluye seguros, que van aparte)
+function msiMensualActivo(){
+  if(S.tieneTarjeta!=="si" || S.tieneMSI!=="si") return 0;
+  return (S.comprasMSI||[]).reduce(function(a,c){
+    var calc = calcMSI(c);
+    return a + (calc.activa ? (parseFloat(c.pago)||0) : 0);
+  }, 0);
+}
+// Suma del costo mensual equivalente de los seguros (monto anual / 12)
+function segurosMensual(){
+  return (S.segurosList||[]).reduce(function(a,r){ return a + ((r.anual||0)/12); }, 0);
+}
 function calcData(){
   var ingTotal = S.ingreso + (S.ingExtra === "si" ? S.ingExtraMonto : 0);
   var g = S.gastos;
-  var fijos = g.renta+g.serv+g.trans+g.alim+g.edu+g.salud+g.seguros+g.subs;
-  var variablesBase = g.ent+g.ropa+g.mant+g.elec+g.otros;
+  // ─── GASTOS FIJOS: vivienda/servicios + salud + streaming + educacion + SEGUROS ───
+  var seguros = segurosMensual();
+  var fijos = g.renta+g.serv+g.trans+g.alim+g.edu+g.salud+g.subs+seguros;
+  // ─── GASTOS VARIABLES: conceptos variables + DEUDAS + MSI (sin seguros) ───
+  var variablesBase = g.ent+g.ropa+g.mant+g.otros;
   var deudaFija = S.deudas.reduce(function(a,d){ return a + d.pago; }, 0);
-  var tcPagos = (S.tieneTarjeta==="si" && S.tieneMSI==="si")
-    ? S.tarjetas.reduce(function(a,t){ return a + (t.msiPago||0); }, 0) : 0;
-  var tcTotal = S.tarjetas.reduce(function(a,t){ return a + t.total; }, 0);
-  // La deuda fija se clasifica como VARIABLE (es temporal, se eliminará, no es algo con lo que vivan)
-  var variables = variablesBase + deudaFija;
-  // tcPagos = MSI del paso 3 (compras NO capturadas como concepto de gasto). Estos SÍ se suman
-  // aparte al total/flujo porque no están en ninguna categoría.
-  // El MSI embebido en conceptos (S.msiEnConceptos) YA está dentro de fijos/variables, así que
-  // NO se vuelve a sumar al flujo (evita doble conteo). Solo se usa para el desglose informativo.
-  var msiEnConceptos = S.msiEnConceptos || 0;
-  var msiTotal = tcPagos + msiEnConceptos; // total real que el cliente destina a MSI al mes
-  // La inversion/ahorro es un compromiso que el cliente ya tiene contemplado (parte de su 20%),
-  // por eso se resta para obtener el flujo libre NETO (lo que realmente queda sin asignar).
+  var msiPagos = msiMensualActivo();   // pago mensual de compras MSI activas (sin seguros)
+  var variables = variablesBase + deudaFija + msiPagos;
+  // Inversion/ahorro: compromiso ya contemplado (parte del 20%), se resta para el flujo NETO
   var inversion = (S.tieneInv === "si") ? (S.inversiones||[]).reduce(function(a,i){ return a + (i.monto||0); }, 0) : 0;
-  var totalGto = fijos + variables + tcPagos;
+  var totalGto = fijos + variables;
   var flujoBruto = ingTotal - totalGto;      // antes de invertir (uso interno para 50/30/20)
   var flujo = flujoBruto - inversion;        // flujo libre NETO (despues de invertir)
   var pct = ingTotal > 0 ? Math.round((flujo/ingTotal)*100) : 0;
+  // Saldo total de MSI pendiente (suma de saldos de compras activas)
+  var msiSaldo = (S.comprasMSI||[]).reduce(function(a,c){ return a + calcMSI(c).saldo; }, 0);
   return {ingTotal:ingTotal, fijos:fijos, variables:variables, variablesBase:variablesBase,
-          deudaFija:deudaFija, tcPagos:tcPagos, msiEnConceptos:msiEnConceptos, msiTotal:msiTotal,
+          seguros:seguros, deudaFija:deudaFija, msiPagos:msiPagos, msiSaldo:msiSaldo,
           inversion:inversion, flujoBruto:flujoBruto,
-          tcTotal:tcTotal, totalGto:totalGto, flujo:flujo, pct:pct};
+          totalGto:totalGto, flujo:flujo, pct:pct};
 }
 
 function resultadoTexto(){
@@ -1629,7 +1770,7 @@ function renderDiag(){
   }
 
   // ═══ TARJETAS DE CRÉDITO ═══
-  if(d.tcPagos > 0 || d.tcTotal > 0){
+  if(d.msiPagos > 0 || d.msiSaldo > 0){
     tips.push({ico:"ti-credit-card", txt:"Tienes deuda en tarjetas de crédito. Estrategia: liquida primero la tarjeta con el <strong>saldo más pequeño</strong> (bola de nieve). Los pagos mínimos te mantienen en deuda indefinidamente."});
   }
 
@@ -1661,6 +1802,16 @@ function renderDiag(){
     tips.push({ico:"ti-trending-up", txt:"Lo más importante es empezar el hábito del ahorro. No es necesario empezar con mucho — el hábito importa más que el monto. Automatiza aunque sea el <strong>5–10% de tu ingreso</strong> el día de pago. Generar el hábito de forma temprana es lo que te llevará a cumplir tus metas."});
   }
 
+  // ═══ RECOMENDACIONES DE SEGUROS (según forma de pago) ═══
+  // Si paga la prima de forma fraccionada (mensual/trimestral/semestral) suele haber recargos.
+  var segurosFraccionados = (S.segurosList||[]).filter(function(r){
+    return r.forma==="mensual" || r.forma==="trimestral" || r.forma==="semestral";
+  });
+  if(segurosFraccionados.length > 0){
+    var nombresSeg = segurosFraccionados.map(function(r){ return r.tipo || "seguro"; }).join(", ");
+    tips.push({ico:"ti-shield-dollar", txt:"<strong>Seguros ("+nombresSeg+"):</strong> los estás pagando de forma fraccionada (mensual, trimestral o semestral), lo que normalmente añade recargos por financiamiento. Te conviene buscar pagarlos a <strong>meses sin intereses</strong> con una tarjeta, o empezar a generar un <strong>fondo de ahorro para seguros</strong> e ir apartando mes a mes para pagar la prima de contado al renovar. Así eliminas esos recargos y el seguro te sale más barato."});
+  }
+
   // ═══ CONSEJOS POR META ═══
   var esEmpresario = (S.tipo === "empresario");
   var retiroTxt = esEmpresario
@@ -1690,7 +1841,7 @@ function renderDiag(){
   lastTips = tips.map(function(t){ return t.txt.replace(/<[^>]+>/g, ""); });
 
   // Mensaje de metas según situación financiera
-  var endeudado = (d.flujo < 0 || d.pct <= 20 || d.tcTotal > 0 || d.deudaFija > 0);
+  var endeudado = (d.flujo < 0 || d.pct <= 20 || d.msiSaldo > 0 || d.deudaFija > 0);
   if(endeudado){
     lastMetasMsg = "Tus metas y objetivos te esperan, solo necesitas trazar la ruta adecuada para llegar a ellas. Que tu diagnóstico sea el primer paso para trabajar en lograrlo.";
   } else {
@@ -1709,31 +1860,47 @@ function renderDiag(){
   html += '<div class="stat-card"><div class="slbl">Deuda fija/mes</div><div class="sval" style="color:'+(d.deudaFija>0?"var(--danger)":"var(--text)")+'">'+fmt(d.deudaFija)+'</div></div>';
   html += '</div></div>';
 
+  // ─── RESUMEN DE COMPRAS A MSI (estilo Excel: concepto, total, MSI, meses, inicio, termino, saldo) ───
+  if(S.tieneTarjeta === "si" && S.tieneMSI === "si" && (S.comprasMSI||[]).length > 0){
+    html += '<div class="card"><div class="section-title"><i class="ti ti-calendar-repeat"></i> Resumen de tus compras a MSI</div>';
+    html += '<div style="overflow-x:auto"><table class="debt-table"><thead><tr><th>Concepto</th><th>Tarjeta</th><th>Total</th><th>MSI/mes</th><th>Meses</th><th>Inicio</th><th>Termina</th><th>Restan</th><th>Saldo</th></tr></thead><tbody>';
+    var tMSImes=0, tSaldo=0;
+    S.comprasMSI.forEach(function(c){
+      var calc = calcMSI(c);
+      var tarj = S.tarjetas[c.tarjeta||0];
+      var tnom = (tarj && tarj.nombre && tarj.nombre.trim()) ? tarj.nombre : ("Tarjeta "+((c.tarjeta||0)+1));
+      var pagoM = calc.activa ? (parseFloat(c.pago)||0) : 0;
+      tMSImes += pagoM; tSaldo += calc.saldo;
+      html += '<tr><td style="font-weight:600">'+(c.concepto||"—")+'</td><td>'+tnom+'</td><td>'+fmt(calc.total)+'</td><td>'+(pagoM>0?fmt(pagoM):"—")+'</td><td>'+(c.meses||"—")+'</td><td>'+calc.inicioTxt+'</td><td>'+calc.terminoTxt+'</td><td>'+(calc.restantes>0?calc.restantes:"<span style=\'color:var(--ok)\'>Liquidada</span>")+'</td><td>'+fmt(calc.saldo)+'</td></tr>';
+    });
+    html += '</tbody></table></div>';
+    html += '<div class="debt-totals"><span>Pago MSI activo: <strong>'+fmt(tMSImes)+'/mes</strong></span><span>Saldo MSI pendiente: <strong>'+fmt(tSaldo)+'</strong></span></div>';
+    html += '<p style="font-size:12px;color:var(--muted);margin-top:8px"><i class="ti ti-info-circle"></i> El pago mensual de tus compras a MSI activas se contabiliza dentro de tus <strong>gastos variables</strong>, para que sea visible cuánto destinas a compras diferidas y puedas decidir si conviene bajarlas.</p>';
+    html += '</div>';
+  }
+
+  // ─── RESUMEN DE GASTOS TOTALES POR TARJETA (Fijos + Variables + MSI + Seguros) ───
   if(S.tieneTarjeta === "si" && S.tarjetas.length > 0){
     var gptF = S.gastoPorTarjetaFijo || {};
     var gptV = S.gastoPorTarjetaVar || {};
     var mpt = S.msiPorTarjeta || {};
-    var conMSI = (S.tieneMSI === "si");
-    var totMSIcompras = S.tarjetas.reduce(function(a,t){ return a + (t.numMSI||0); }, 0);
-    html += '<div class="card"><div class="section-title"><i class="ti ti-credit-card"></i> Resumen por tarjeta</div>';
-    if(d.msiTotal > 0){
-      html += '<div class="warn-box"><i class="ti ti-alert-triangle"></i> Pago a meses sin intereses (MSI) total: <strong>'+fmt(d.msiTotal)+'/mes</strong>'+(conMSI && totMSIcompras>0 ? ' · Compras MSI registradas: <strong>'+totMSIcompras+'</strong>' : '')+'. Este monto ya está considerado en tu flujo libre.</div>';
-    }
-    html += '<table class="debt-table"><thead><tr><th>Tarjeta</th><th>A fijos</th><th>A variables</th><th>De eso, a MSI</th><th>Saldo total</th></tr></thead><tbody>';
-    var sF=0, sV=0, sMSIcon=0, sSaldo=0;
+    var spt = S.segurosPorTarjeta || {};
+    html += '<div class="card"><div class="section-title"><i class="ti ti-credit-card"></i> Gasto mensual por tarjeta</div>';
+    html += '<div style="overflow-x:auto"><table class="debt-table"><thead><tr><th>Tarjeta</th><th>Fijos</th><th>Variables</th><th>MSI</th><th>Seguros</th><th>Total/mes</th></tr></thead><tbody>';
+    var TF=0,TV=0,TM=0,TS=0,TT=0;
     S.tarjetas.forEach(function(t,i){
-      var cf = gptF["tc_"+i] || 0;
-      var cv = gptV["tc_"+i] || 0;
-      var msiCon = mpt["tc_"+i] || 0;       // MSI embebido en conceptos pagados con esta tarjeta
-      var msiPaso3 = t.msiPago || 0;          // MSI del paso 3 (compras no capturadas)
-      var msiTarjeta = msiCon + msiPaso3;     // MSI total de esta tarjeta
-      var saldo = t.total || 0;
-      sF+=cf; sV+=cv; sMSIcon+=msiTarjeta; sSaldo+=saldo;
-      html += '<tr><td style="font-weight:600">'+(t.nombre||"Tarjeta "+(i+1))+'</td><td>'+(cf>0?fmt(cf)+"/mes":"—")+'</td><td>'+(cv>0?fmt(cv)+"/mes":"—")+'</td><td>'+(msiTarjeta>0?fmt(msiTarjeta)+"/mes":"—")+'</td><td>'+(saldo>0?fmt(saldo):"—")+'</td></tr>';
+      var key="tc_"+i;
+      // gptF ya incluye seguros; los separo para mostrar columnas claras
+      var seg = spt[key] || 0;
+      var fijosSinSeg = Math.max(0,(gptF[key]||0) - seg);
+      var varSinMSI = gptV[key] || 0;
+      var msi = mpt[key] || 0;
+      var totalTarj = fijosSinSeg + varSinMSI + msi + seg;
+      TF+=fijosSinSeg; TV+=varSinMSI; TM+=msi; TS+=seg; TT+=totalTarj;
+      html += '<tr><td style="font-weight:600">'+(t.nombre||"Tarjeta "+(i+1))+'</td><td>'+(fijosSinSeg>0?fmt(fijosSinSeg):"—")+'</td><td>'+(varSinMSI>0?fmt(varSinMSI):"—")+'</td><td>'+(msi>0?fmt(msi):"—")+'</td><td>'+(seg>0?fmt(seg):"—")+'</td><td style="font-weight:700">'+(totalTarj>0?fmt(totalTarj):"—")+'</td></tr>';
     });
-    html += '</tbody></table>';
-    html += '<div class="debt-totals"><span>A fijos: <strong>'+fmt(sF)+'</strong></span><span>A variables: <strong>'+fmt(sV)+'</strong></span><span>A MSI: <strong>'+fmt(sMSIcon)+'/mes</strong></span><span>Saldo total: <strong>'+fmt(sSaldo)+'</strong></span></div>';
-    html += '<p style="font-size:12px;color:var(--muted);margin-top:8px"><i class="ti ti-info-circle"></i> "A fijos" y "A variables" es cuánto de cada tarjeta se destina a esos gastos del mes. La columna "De eso, a MSI" muestra qué parte de tus compras es a meses sin intereses (incluye lo marcado en cada gasto y las compras MSI del paso de tarjetas). El saldo total es tu deuda acumulada.</p>';
+    html += '</tbody></table></div>';
+    html += '<div class="debt-totals"><span>Fijos: <strong>'+fmt(TF)+'</strong></span><span>Variables: <strong>'+fmt(TV)+'</strong></span><span>MSI: <strong>'+fmt(TM)+'</strong></span><span>Seguros: <strong>'+fmt(TS)+'</strong></span><span>Total: <strong>'+fmt(TT)+'/mes</strong></span></div>';
     html += '</div>';
   }
 
@@ -1775,8 +1942,72 @@ function renderDiag(){
   }
   html += '</div>';
 
+  // ═══ SEGMENTACIÓN DEL INGRESO (Fijo / Variable / Ahorro / Flujo libre) ═══
+  (function(){
+    function pctTxt(v){ return ing>0 ? Math.round(v/ing*100)+"%" : "0%"; }
+    function barra(lbl, val, color){
+      var w = Math.min(100, ing>0?Math.round(val/ing*100):0);
+      return '<div class="prog-row"><div class="prog-row-head"><span>'+lbl+'</span><span>'+fmt(val)+' · '+pctTxt(val)+'</span></div><div class="prog-wrap"><div class="prog-fill" style="width:'+w+'%;background:'+color+'"></div></div></div>';
+    }
+    html += '<div class="card"><div class="section-title"><i class="ti ti-chart-bar"></i> ¿Cómo está segmentado tu ingreso?</div>';
+    html += barra("Gastos fijos", d.fijos, "#185FA5");
+    html += barra("Gastos variables", d.variables, "#854F0B");
+    html += barra("Ahorro / inversión", d.inversion, "#0a6699");
+    html += barra("Flujo libre neto", Math.max(0,d.flujo), "#166534");
+    html += '</div>';
+  })();
+
+  // ═══ DESGLOSE DE GASTOS FIJOS (conceptos + seguros) ═══
+  (function(){
+    var g = S.gastos;
+    var items = [];
+    if(g.renta>0) items.push(["Renta o hipoteca", g.renta]);
+    var serv = (g._luz||0)+(g._agua||0)+(g._internet||0)+(g._celular||0)+(g._gas||0)+(g._basura||0);
+    if(serv>0) items.push(["Servicios (luz, agua, internet, etc.)", serv]);
+    if(g.trans>0) items.push(["Transporte o gasolina", g.trans]);
+    if(g.alim>0) items.push(["Comida (súper)", g.alim]);
+    if(g.salud>0) items.push(["Salud", g.salud]);
+    if(g.subs>0) items.push(["Streaming y suscripciones", g.subs]);
+    if(g.edu>0) items.push(["Educación", g.edu]);
+    if(d.seguros>0) items.push(["Seguros", d.seguros]);
+    if(items.length){
+      html += '<div class="card"><div class="section-title"><i class="ti ti-home"></i> Desglose de gastos fijos</div>';
+      items.forEach(function(it){
+        html += '<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #f0f4f8;font-size:14px"><span>'+it[0]+'</span><span style="font-weight:600">'+fmt(it[1])+'</span></div>';
+      });
+      html += '<div style="display:flex;justify-content:space-between;padding:10px 0 0;font-size:14px;font-weight:700"><span>Total gastos fijos</span><span style="color:#185FA5">'+fmt(d.fijos)+'</span></div></div>';
+    }
+  })();
+
+  // ═══ DESGLOSE DE GASTOS VARIABLES (conceptos + MSI + deudas) ═══
+  (function(){
+    var g = S.gastos;
+    var items = [];
+    if(g.ent>0) items.push(["Entretenimiento y salidas", g.ent]);
+    if(g.ropa>0) items.push(["Ropa y cuidado personal", g.ropa]);
+    if(g.mant>0) items.push(["Mantenimientos (hogar, auto)", g.mant]);
+    if(g.otros>0) items.push(["Otros gastos variables", g.otros]);
+    // Deudas
+    S.deudas.forEach(function(dd){ items.push(["Deuda: "+dd.tipo, dd.pago]); });
+    // MSI (compras activas)
+    if(S.tieneTarjeta==="si" && S.tieneMSI==="si"){
+      (S.comprasMSI||[]).forEach(function(c){
+        var calc = calcMSI(c);
+        if(calc.activa) items.push(["MSI: "+(c.concepto||"compra"), parseFloat(c.pago)||0]);
+      });
+    }
+    if(items.length){
+      html += '<div class="card"><div class="section-title"><i class="ti ti-shopping-cart"></i> Desglose de gastos variables</div>';
+      html += '<div class="note-box" style="font-size:12px"><i class="ti ti-info-circle"></i> Tus pagos a MSI y tus deudas se incluyen aquí, en variables. Son los rubros donde más rápido puedes liberar dinero si reduces compras a meses o liquidas deudas.</div>';
+      items.forEach(function(it){
+        html += '<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #f0f4f8;font-size:14px"><span>'+it[0]+'</span><span style="font-weight:600">'+fmt(it[1])+'</span></div>';
+      });
+      html += '<div style="display:flex;justify-content:space-between;padding:10px 0 0;font-size:14px;font-weight:700"><span>Total gastos variables</span><span style="color:#854F0B">'+fmt(d.variables)+'</span></div></div>';
+    }
+  })();
+
   if(S.inversiones.length > 0){
-    html += '<div class="card"><div class="section-title"><i class="ti ti-trending-up"></i> Inversiones y ahorros activos</div>';
+    html += '<div class="card"><div class="section-title"><i class="ti ti-trending-up"></i> Desglose de tu ahorro / inversión</div>';
     S.inversiones.forEach(function(inv){
       html += '<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f0f4f8;font-size:14px"><span>'+inv.label+'</span><span style="font-weight:600;color:var(--ok)">'+fmt(inv.monto)+'/mes</span></div>';
     });
@@ -1823,8 +2054,8 @@ function renderDiag(){
     // El MSI se incluye como rebanada propia (es salida real que ya resta del flujo).
     // El flujo ya es NETO; la inversion se muestra como su propia rebanada para que el total
     // sume el ingreso (fijos + variables + deuda + MSI + inversion + flujo neto = ingreso).
-    var rawD = [d.fijos, d.variablesBase, d.deudaFija, d.tcPagos, d.inversion, Math.max(0,d.flujo)];
-    var rawL = ["Gastos fijos","Gastos variables","Deuda fija","Pago MSI","Ahorro / inversión","Flujo libre neto"];
+    var rawD = [d.fijos, d.variablesBase, d.deudaFija, d.msiPagos, d.inversion, Math.max(0,d.flujo)];
+    var rawL = ["Gastos fijos","Gastos variables","Deudas","Pago MSI","Ahorro / inversión","Flujo libre neto"];
     var rawC = ["#185FA5","#854F0B","#dc2626","#e65100","#0a6699","#166534"];
     var data=[], labels=[], colors=[];
     rawD.forEach(function(v,i){ if(v>0){ data.push(v); labels.push(rawL[i]); colors.push(rawC[i]); } });
@@ -1951,8 +2182,7 @@ async function enviarNotificacion(conCita){
   resumen += "- Gastos fijos: " + fmt(d.fijos) + "\n";
   resumen += "- Gastos variables: " + fmt(d.variables) + "\n";
   resumen += "- Deuda fija mensual: " + fmt(d.deudaFija) + "\n";
-  if(S.tieneMSI === "si") resumen += "- Compras a MSI: " + S.numMSI + " (pago mensual: " + fmt(d.tcPagos) + ")\n";
-  if(d.tcTotal > 0) resumen += "- Deuda total tarjetas: " + fmt(d.tcTotal) + "\n";
+  if(S.tieneMSI === "si") resumen += "- Pago mensual MSI activo: " + fmt(d.msiPagos) + " (saldo pendiente: " + fmt(d.msiSaldo) + ")\n";
   resumen += "- FLUJO LIBRE: " + fmt(d.flujo) + (d.flujo < 0 ? " (NEGATIVO)" : "") + "\n\n";
 
   if(S.dep === "si" && S.dependientes.length > 0){
@@ -2046,8 +2276,8 @@ function guardarEnSheets(evento){
     gastos_fijos: d.fijos,
     gastos_variables: d.variables,
     deuda_fija_mensual: d.deudaFija,
-    deuda_tarjetas_total: d.tcTotal,
-    pago_msi_mensual: d.tcPagos,
+    deuda_tarjetas_total: d.msiSaldo,
+    pago_msi_mensual: d.msiPagos,
     flujo_libre: d.flujo,
     porcentaje_flujo: d.pct,
     resultado: resultadoTexto(),
@@ -2138,7 +2368,7 @@ function generarPDF(){
   rowp("Gastos fijos", fmt(d.fijos));
   rowp("Gastos variables", fmt(d.variables));
   rowp("Deuda fija mensual", fmt(d.deudaFija));
-  if(d.tcPagos>0) rowp("Pago mensual MSI", fmt(d.tcPagos));
+  if(d.msiPagos>0) rowp("Pago mensual MSI (en variables)", fmt(d.msiPagos));
   if(d.inversion>0) rowp("Ahorro / inversion mensual", fmt(d.inversion));
   rowpColor("Flujo libre neto (despues de invertir)", fmt(d.flujo), true, d.flujo < 0 ? [217,48,37] : [26,127,69]);
   y += 6;
@@ -2209,28 +2439,45 @@ function generarPDF(){
   if(S.eduList){ S.eduList.forEach(function(r){ detRow("Educacion: "+r.tipo, r.monto); }); }
   // Variables
   detRow("Entretenimiento", gg.ent); detRow("Ropa y cuidado personal", gg.ropa);
-  detRow("Mantenimientos", gg.mant); detRow("Compras electronicas", gg.elec);
+  detRow("Mantenimientos", gg.mant);
   detRow("Otros variables", gg.otros);
   y += 4;
 
   if(S.tieneTarjeta==="si" && S.tarjetas.length>0){
-    sec("Resumen por tarjeta (pago mensual)");
-    var gpt = S.gastoPorTarjeta || {};
+    sec("Gasto mensual por tarjeta");
+    var gptF = S.gastoPorTarjetaFijo || {};
+    var gptV = S.gastoPorTarjetaVar || {};
     var mpt = S.msiPorTarjeta || {};
-    var sumMSI=0, sumContado=0;
+    var spt = S.segurosPorTarjeta || {};
     S.tarjetas.forEach(function(t,i){
-      var cargado = gpt["tc_"+i] || 0;              // gastos del mes cargados a esta tarjeta (conceptos)
-      var msiConcepto = mpt["tc_"+i] || 0;          // parte de esos gastos que es a MSI
-      var msiPaso3 = t.msiPago || 0;                // MSI de compras no capturadas (paso 3)
-      var msiTotal = msiConcepto + msiPaso3;        // MSI total mensual de la tarjeta
-      var contado = Math.max(0, cargado - msiConcepto); // lo que se paga de contado este mes
-      sumMSI += msiTotal; sumContado += contado;
+      var key="tc_"+i;
+      var seg = spt[key] || 0;
+      var fijosSinSeg = Math.max(0,(gptF[key]||0) - seg);
+      var varSinMSI = gptV[key] || 0;
+      var msi = mpt[key] || 0;
+      var totalTarj = fijosSinSeg + varSinMSI + msi + seg;
       var partes = [];
-      if(msiTotal>0) partes.push(fmt(msiTotal)+" MSI/mes");
-      if(contado>0) partes.push(fmt(contado)+" de contado/mes");
-      rowp(t.nombre||"Tarjeta "+(i+1), partes.length? partes.join(" · ") : "Sin movimientos");
+      if(fijosSinSeg>0) partes.push(fmt(fijosSinSeg)+" fijos");
+      if(varSinMSI>0) partes.push(fmt(varSinMSI)+" var");
+      if(msi>0) partes.push(fmt(msi)+" MSI");
+      if(seg>0) partes.push(fmt(seg)+" seg");
+      rowp(t.nombre||"Tarjeta "+(i+1), totalTarj>0 ? (fmt(totalTarj)+"/mes  ("+partes.join(" · ")+")") : "Sin movimientos");
     });
-    rowp("Total: MSI " + fmt(sumMSI) + "/mes · Contado " + fmt(sumContado) + "/mes", "", true);
+    y += 4;
+  }
+  // Resumen de compras MSI en PDF
+  if(S.tieneTarjeta==="si" && S.tieneMSI==="si" && (S.comprasMSI||[]).length>0){
+    sec("Compras a MSI");
+    var tM=0, tS=0;
+    S.comprasMSI.forEach(function(c){
+      var calc=calcMSI(c);
+      var tarj=S.tarjetas[c.tarjeta||0];
+      var tnom=(tarj&&tarj.nombre&&tarj.nombre.trim())?tarj.nombre:("Tarjeta "+((c.tarjeta||0)+1));
+      var pagoM=calc.activa?(parseFloat(c.pago)||0):0;
+      tM+=pagoM; tS+=calc.saldo;
+      rowp((c.concepto||"Compra")+" ("+tnom+")", (pagoM>0?fmt(pagoM)+"/mes · ":"")+"saldo "+fmt(calc.saldo)+(calc.restantes>0?" · restan "+calc.restantes+"m":" · liquidada"));
+    });
+    rowp("Total MSI activo: "+fmt(tM)+"/mes · Saldo "+fmt(tS), "", true);
     y += 4;
   }
   if(S.deudas.length>0){
@@ -2487,7 +2734,7 @@ async function generarExcel(){
   colHdrsMes(row); row++;
   var varDefs=[
     ["Entretenimiento y salidas", g.ent||0],["Ropa y cuidado personal", g.ropa||0],
-    ["Mantenimientos (hogar, auto)", g.mant||0],["Compras electronicas", g.elec||0],
+    ["Mantenimientos (hogar, auto)", g.mant||0],
     ["Otros gastos variables", g.otros||0]
   ];
   var GV_ROWS=[];
@@ -2495,12 +2742,18 @@ async function generarExcel(){
   filaTotal(row,"TOTAL GASTOS VARIABLES",GV_ROWS,NARANJA,BLANCO); var GV_TOTAL=row; row+=2;
 
   // DEUDAS
-  secHdr(ws2,row,"PAGOS DE DEUDAS MENSUALES",15); row++;
+  secHdr(ws2,row,"DEUDAS Y MSI MENSUALES (gasto variable)",15); row++;
   colHdrsMes(row); row++;
   var deudaDefs=[];
   (S.deudas||[]).forEach(function(dd){ deudaDefs.push([dd.tipo, dd.pago||0]); });
-  if(S.tieneMSI==="si"){ (S.tarjetas||[]).forEach(function(t,i){ if((t.msiPago||0)>0) deudaDefs.push([(t.nombre||"Tarjeta "+(i+1))+" (MSI)", t.msiPago]); }); }
-  if(deudaDefs.length===0) deudaDefs.push(["Sin deudas registradas",0]);
+  // Compras MSI activas (sin seguros) tambien cuentan como gasto variable/deuda diferida
+  if(S.tieneTarjeta==="si" && S.tieneMSI==="si"){
+    (S.comprasMSI||[]).forEach(function(c){
+      var calc=calcMSI(c);
+      if(calc.activa) deudaDefs.push(["MSI: "+(c.concepto||"compra"), parseFloat(c.pago)||0]);
+    });
+  }
+  if(deudaDefs.length===0) deudaDefs.push(["Sin deudas ni MSI registrados",0]);
   var DD_ROWS=[];
   deudaDefs.forEach(function(def){ filaInput(row,def[0],def[1]||null); DD_ROWS.push(row); row++; });
   filaTotal(row,"TOTAL DEUDAS",DD_ROWS,ROJO,BLANCO); var DD_TOTAL=row; row+=2;
@@ -2508,7 +2761,7 @@ async function generarExcel(){
   // RESUMEN DE FLUJO
   secHdr(ws2,row,"RESUMEN DE FLUJO FINANCIERO",15); row++;
   colHdrsMes(row); row++;
-  filaFormula(row,"TOTAL GASTOS (Fijos+Variables+Deudas)",function(L){return L+GF_TOTAL+"+"+L+GV_TOTAL+"+"+L+DD_TOTAL;},ROJO_CL,NEGRO); var GT_ROW=row; row++;
+  filaFormula(row,"TOTAL GASTOS (Fijos+Variables+Deudas/MSI)",function(L){return L+GF_TOTAL+"+"+L+GV_TOTAL+"+"+L+DD_TOTAL;},ROJO_CL,NEGRO); var GT_ROW=row; row++;
   // Inversion / ahorro: es un compromiso que el cliente ya tiene contemplado, por eso se resta
   // para obtener el flujo libre NETO (lo que realmente queda sin asignar).
   filaInput(row,"Inversion / ahorro mensual (aportacion)", (S.tieneInv==="si"? S.inversiones.reduce(function(a,i){return a+i.monto;},0):0)||null, true); var INV_ROW=row; row++;
@@ -2527,8 +2780,9 @@ async function generarExcel(){
     secHdr(ws2,row,"PAGO MESES SIN INTERESES - TARJETA DE CREDITO",15); row++;
     colHdrsMes(row); row++;
     var MSI_ROWS=[];
+    var mptX = S.msiPorTarjeta || {};
     S.tarjetas.forEach(function(t,i){
-      filaInput(row, (t.nombre||"Tarjeta "+(i+1)) + " - pago MSI", (t.msiPago||0)||null);
+      filaInput(row, (t.nombre||"Tarjeta "+(i+1)) + " - pago MSI", (mptX["tc_"+i]||0)||null);
       MSI_ROWS.push(row); row++;
     });
     filaTotal(row,"TOTAL PAGO MSI",MSI_ROWS,AZ_MED,AMARILLO); row+=2;
@@ -2738,7 +2992,7 @@ async function generarExcel(){
 
 
 
-$("fechaNac").max = new Date().toISOString().split("T")[0];
+$("fechaNac").max = new Intl.DateTimeFormat("en-CA",{timeZone:"America/Mexico_City"}).format(new Date());
 $("ctFecha").min = new Date().toISOString().split("T")[0];
 initBar();
 initInversiones();
