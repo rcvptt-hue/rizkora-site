@@ -2250,7 +2250,7 @@ async function enviarNotificacion(conCita){
    2. Extensiones -> Apps Script, pega el script que viene en robots.txt y publicalo
       como "Aplicacion web" con acceso "Cualquier usuario".
    3. Copia la URL que te da (termina en /exec) y pegala aqui abajo. */
-var SHEETS_ENDPOINT = "";
+var SHEETS_ENDPOINT = "https://script.google.com/macros/s/AKfycbwsUyuF1G8O_PJGtVpSWy3ex8hWhRzetNMaAKfmqKCFnYckOYJrbogIaHD97iqdjLzY0Q/exec";
 
 function guardarEnSheets(evento){
   if(!SHEETS_ENDPOINT || SHEETS_ENDPOINT.indexOf("script.google.com") < 0){
