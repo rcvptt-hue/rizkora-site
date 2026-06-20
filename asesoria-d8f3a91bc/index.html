@@ -2629,7 +2629,7 @@ async function generarExcel(){
   // col 1 concepto, 2..13 meses, 14 total, 15 promedio
   banner(ws2,1,"REGISTRO MENSUAL DE FLUJO FINANCIERO - RIZKORA",15);
   ws2.mergeCells(2,1,2,15);
-  var sub=ws2.getCell(2,1); sub.value="Cliente: "+S.nombre+"  |  Año: "+anio+"  |  Solo edita las celdas en AZUL; el resto se calcula solo.";
+  var sub=ws2.getCell(2,1); sub.value="Cliente: "+S.nombre+"  |  Año: "+anio+"";
   sub.font=ft({i:true,c:"FF444444"}); sub.fill=fill(GRIS); sub.alignment=al("left"); ws2.getRow(2).height=20;
 
   function colHdrsMes(row){
