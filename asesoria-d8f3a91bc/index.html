@@ -884,26 +884,22 @@ var CONCEPTOS_VARIABLES = [
 ];
 
 /* Estado de gastos con monto + forma de pago por concepto */
-var gastoState = {}; // key -> {monto, pago, msi}
-// Conceptos donde tiene sentido capturar parte a MSI (compras puntuales / anualidades diferidas)
-var MSI_CAPABLE_KEYS = ["ropa","mant","otros"];
-function esMSICapable(key){ return MSI_CAPABLE_KEYS.indexOf(key) >= 0; }
+var gastoState = {}; // key -> {monto, pago}
 function initGastoState(){
   CONCEPTOS_VIVIENDA.concat(CONCEPTOS_VARIABLES).forEach(function(c){
-    if(!gastoState[c.key]) gastoState[c.key] = {monto:0, pago:"efectivo", msi:0};
+    if(!gastoState[c.key]) gastoState[c.key] = {monto:0, pago:"efectivo"};
   });
 }
 
 /* Renderiza una lista de conceptos con monto + forma de pago.
-   Si el concepto es MSI-capable y se paga con tarjeta, muestra el campo "¿cuánto a MSI?". */
+   El MSI ya NO se captura aqui: solo en la seccion inicial de MSI (paso 3). */
 function renderConceptos(contId, conceptos){
   var cont = $(contId);
   cont.innerHTML = "";
   var fps = formasDePago();
   conceptos.forEach(function(c){
-    if(!gastoState[c.key]) gastoState[c.key] = {monto:0, pago:"efectivo", msi:0};
+    if(!gastoState[c.key]) gastoState[c.key] = {monto:0, pago:"efectivo"};
     var st = gastoState[c.key];
-    var capable = esMSICapable(c.key);
 
     var row = document.createElement("div");
     row.style.cssText = "display:grid;grid-template-columns:1fr 100px 1fr;gap:8px;align-items:center;margin-bottom:6px";
@@ -916,6 +912,7 @@ function renderConceptos(contId, conceptos){
     monto.type = "number"; monto.placeholder = "0"; monto.min = 0;
     monto.value = st.monto || "";
     monto.style.cssText = "padding:8px 10px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;font-family:var(--font);text-align:right";
+    monto.addEventListener("input", function(){ st.monto = parseFloat(monto.value)||0; });
 
     var sel = document.createElement("select");
     sel.style.cssText = "padding:8px 10px;border:1.5px solid var(--border);border-radius:10px;font-size:13px;font-family:var(--font);background:#fff";
@@ -925,49 +922,21 @@ function renderConceptos(contId, conceptos){
       if(f.val === st.pago) o.selected = true;
       sel.appendChild(o);
     });
-
-    // Fila secundaria para MSI (solo conceptos capable + pago con tarjeta)
-    var msiRow = document.createElement("div");
-    msiRow.style.cssText = "grid-column:1 / -1;display:none;align-items:center;gap:8px;margin:2px 0 4px;padding:6px 10px;background:#fff7ed;border:1px solid #fed7aa;border-radius:8px";
-    var msiLbl = document.createElement("div");
-    msiLbl.innerHTML = '<i class="ti ti-calendar-repeat" style="color:#ea580c"></i> ¿Cuánto de este monto es a meses sin intereses?';
-    msiLbl.style.cssText = "font-size:12px;color:#9a3412;flex:1";
-    var msiInp = document.createElement("input");
-    msiInp.type = "number"; msiInp.placeholder = "0"; msiInp.min = 0;
-    msiInp.value = st.msi || "";
-    msiInp.style.cssText = "width:100px;padding:6px 8px;border:1.5px solid #fed7aa;border-radius:8px;font-size:13px;font-family:var(--font);text-align:right";
-    msiInp.addEventListener("input", function(){ st.msi = parseFloat(msiInp.value)||0; });
-
-    function toggleMSI(){
-      var conTarjeta = (st.pago && st.pago.indexOf("tc_")===0);
-      var mostrar = capable && conTarjeta && (st.monto>0);
-      msiRow.style.display = mostrar ? "flex" : "none";
-      if(!mostrar){ st.msi = 0; msiInp.value = ""; }
-    }
-    monto.addEventListener("input", function(){ st.monto = parseFloat(monto.value)||0; toggleMSI(); });
-    sel.addEventListener("change", function(){ st.pago = sel.value; toggleMSI(); });
+    sel.addEventListener("change", function(){ st.pago = sel.value; });
 
     row.appendChild(lbl); row.appendChild(monto); row.appendChild(sel);
     cont.appendChild(row);
-    msiRow.appendChild(msiLbl); msiRow.appendChild(msiInp);
-    cont.appendChild(msiRow);
-    toggleMSI();
   });
 }
 function renderGastosFijos(){ renderConceptos("gastosViviendaRows", CONCEPTOS_VIVIENDA); }
 function renderGastosVariables(){ renderConceptos("gastosVariablesRows", CONCEPTOS_VARIABLES); }
 
 /* ════════ GENERADOR DE LISTAS DINÁMICAS (salud, seguros, streaming, educación) ════════ */
-function makeDynList(rowsArr, contId, opciones, phMonto, allowRepeat, render, msiMode){
-  // msiMode: "all" (toda fila puede MSI), array de tipos capaces, o undefined (sin MSI)
+/* El MSI ya NO se captura en estas listas: solo en la seccion inicial de MSI (paso 3). */
+function makeDynList(rowsArr, contId, opciones, phMonto, allowRepeat, render){
   var cont = $(contId);
   cont.innerHTML = "";
   var fps = formasDePago();
-  function tipoEsCapable(tipo){
-    if(msiMode === "all") return true;
-    if(Array.isArray(msiMode)) return msiMode.indexOf(tipo) >= 0;
-    return false;
-  }
   rowsArr.forEach(function(row, i){
     var wrap = document.createElement("div");
     wrap.style.cssText = "display:grid;grid-template-columns:1fr 95px 1fr auto;gap:6px;align-items:center;margin-bottom:6px";
@@ -983,11 +952,13 @@ function makeDynList(rowsArr, contId, opciones, phMonto, allowRepeat, render, ms
       if(o === row.tipo) op.selected = true;
       sel.appendChild(op);
     });
+    sel.addEventListener("change", function(){ rowsArr[i].tipo = sel.value; });
 
     var monto = document.createElement("input");
     monto.type = "number"; monto.placeholder = phMonto || "$/mes"; monto.min = 0;
     monto.value = row.monto || "";
     monto.style.cssText = "padding:8px 10px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;font-family:var(--font);text-align:right";
+    monto.addEventListener("input", function(){ rowsArr[i].monto = parseFloat(monto.value) || 0; });
 
     var selPago = document.createElement("select");
     selPago.style.cssText = "padding:8px 10px;border:1.5px solid var(--border);border-radius:10px;font-size:13px;font-family:var(--font);background:#fff";
@@ -998,39 +969,15 @@ function makeDynList(rowsArr, contId, opciones, phMonto, allowRepeat, render, ms
       if(f.val === row.pago) o.selected = true;
       selPago.appendChild(o);
     });
+    selPago.addEventListener("change", function(){ rowsArr[i].pago = selPago.value; });
 
     var del = document.createElement("button");
     del.type = "button"; del.className = "dyn-del";
     del.innerHTML = '<i class="ti ti-trash"></i>';
     del.addEventListener("click", function(){ rowsArr.splice(i,1); render(); });
 
-    // Fila secundaria de MSI (si el tipo es capable y se paga con tarjeta)
-    var msiRow = document.createElement("div");
-    msiRow.style.cssText = "grid-column:1 / -1;display:none;align-items:center;gap:8px;margin:0 0 4px;padding:6px 10px;background:#fff7ed;border:1px solid #fed7aa;border-radius:8px";
-    var msiLbl = document.createElement("div");
-    msiLbl.innerHTML = '<i class="ti ti-calendar-repeat" style="color:#ea580c"></i> ¿Cuánto de este monto es a meses sin intereses?';
-    msiLbl.style.cssText = "font-size:12px;color:#9a3412;flex:1";
-    var msiInp = document.createElement("input");
-    msiInp.type = "number"; msiInp.placeholder = "0"; msiInp.min = 0;
-    msiInp.value = row.msi || "";
-    msiInp.style.cssText = "width:100px;padding:6px 8px;border:1.5px solid #fed7aa;border-radius:8px;font-size:13px;font-family:var(--font);text-align:right";
-    msiInp.addEventListener("input", function(){ rowsArr[i].msi = parseFloat(msiInp.value)||0; });
-
-    function toggleMSI(){
-      var conTarjeta = (row.pago && row.pago.indexOf("tc_")===0);
-      var mostrar = tipoEsCapable(row.tipo) && conTarjeta && (row.monto>0);
-      msiRow.style.display = mostrar ? "flex" : "none";
-      if(!mostrar){ rowsArr[i].msi = 0; msiInp.value = ""; }
-    }
-    sel.addEventListener("change", function(){ rowsArr[i].tipo = sel.value; toggleMSI(); });
-    monto.addEventListener("input", function(){ rowsArr[i].monto = parseFloat(monto.value) || 0; toggleMSI(); });
-    selPago.addEventListener("change", function(){ rowsArr[i].pago = selPago.value; toggleMSI(); });
-
     wrap.appendChild(sel); wrap.appendChild(monto); wrap.appendChild(selPago); wrap.appendChild(del);
     cont.appendChild(wrap);
-    msiRow.appendChild(msiLbl); msiRow.appendChild(msiInp);
-    cont.appendChild(msiRow);
-    toggleMSI();
   });
 }
 
@@ -1038,7 +985,7 @@ function makeDynList(rowsArr, contId, opciones, phMonto, allowRepeat, render, ms
 var saludRows = [];
 var SALUD_OPTS = ["Consultas médicas","Medicamentos","Estudios médicos","Nutriólogo","Psicólogo","Membresía deportiva / gimnasio","Otros"];
 $("btnAddSalud").addEventListener("click", function(){ saludRows.push({tipo:"",monto:0}); renderSalud(); });
-function renderSalud(){ makeDynList(saludRows, "saludRows", SALUD_OPTS, "$/mes", true, renderSalud, ["Membresía deportiva / gimnasio"]); }
+function renderSalud(){ makeDynList(saludRows, "saludRows", SALUD_OPTS, "$/mes", true, renderSalud); }
 
 /* ── SEGUROS ── */
 var seguroRows = [];
@@ -1077,7 +1024,7 @@ function renderSeguro(){
     var minp=document.createElement("input"); minp.type="number"; minp.placeholder="0"; minp.min=0;
     if(r.anual) minp.value=r.anual;
     minp.style.cssText="padding:8px 10px;border:1.5px solid var(--border);border-radius:10px;font-size:13px;font-family:var(--font);text-align:right;width:100%";
-    minp.addEventListener("input", function(){ r.anual=parseFloat(minp.value)||0; renderSeguro(); });
+    minp.addEventListener("input", function(){ r.anual=parseFloat(minp.value)||0; updateSeguroCalc(i); });
     montoWrap.appendChild(ml); montoWrap.appendChild(minp);
 
     // Forma de pago
@@ -1087,7 +1034,7 @@ function renderSeguro(){
     fsel.style.cssText="padding:8px 10px;border:1.5px solid var(--border);border-radius:10px;font-size:13px;font-family:var(--font);background:#fff;width:100%";
     var fph=document.createElement("option"); fph.value=""; fph.textContent="Selecciona..."; fsel.appendChild(fph);
     SEGURO_FORMAS.forEach(function(o){ var op=document.createElement("option"); op.value=o.val; op.textContent=o.txt; if(o.val===r.forma)op.selected=true; fsel.appendChild(op); });
-    fsel.addEventListener("change", function(){ r.forma=fsel.value; renderSeguro(); });
+    fsel.addEventListener("change", function(){ r.forma=fsel.value; updateSeguroCalc(i); });
     formaWrap.appendChild(fl); formaWrap.appendChild(fsel);
 
     var del=document.createElement("button"); del.type="button"; del.className="dyn-del";
@@ -1119,6 +1066,7 @@ function renderSeguro(){
     var mens = (r.anual||0)/12;
     r.monto = mens; // guardamos el mensual equivalente para los cálculos
     var calcBox=document.createElement("div");
+    calcBox.id = "seguroCalc_"+i;
     calcBox.style.cssText="font-size:12px;color:var(--muted);background:#f7fafd;border:1px solid var(--border);border-radius:8px;padding:7px 10px;line-height:1.6";
     var formaTxt = (SEGURO_FORMAS.find(function(f){return f.val===r.forma;})||{}).txt || "—";
     calcBox.innerHTML = 'Costo mensual equivalente: <strong style="color:var(--rz-dark)">'+fmt(mens)+'/mes</strong> · Forma: '+formaTxt;
@@ -1127,6 +1075,19 @@ function renderSeguro(){
 
     cont.appendChild(block);
   });
+}
+/* Actualiza SOLO la caja de cálculo de un seguro especifico, sin re-renderizar
+   toda la lista (evita que el input pierda el foco al escribir). */
+function updateSeguroCalc(i){
+  var r = seguroRows[i];
+  if(!r) return;
+  var mens = (r.anual||0)/12;
+  r.monto = mens;
+  var calcBox = document.getElementById("seguroCalc_"+i);
+  if(calcBox){
+    var formaTxt = (SEGURO_FORMAS.find(function(f){return f.val===r.forma;})||{}).txt || "—";
+    calcBox.innerHTML = 'Costo mensual equivalente: <strong style="color:var(--rz-dark)">'+fmt(mens)+'/mes</strong> · Forma: '+formaTxt;
+  }
 }
 
 /* ── STREAMING ── */
@@ -1153,7 +1114,7 @@ function eduOpciones(){
   ops.push("Otro");
   return ops;
 }
-function renderEdu(){ makeDynList(eduRows, "eduRows", eduOpciones(), "$/mes", true, renderEdu, "all"); }
+function renderEdu(){ makeDynList(eduRows, "eduRows", eduOpciones(), "$/mes", true, renderEdu); }
 
 /* ════════ TARJETAS ════════ */
 $("numTarjetas").addEventListener("input", function(){
@@ -1236,17 +1197,16 @@ function renderMSIRows(){
   if(!cont) return;
   cont.innerHTML = "";
   S.comprasMSI.forEach(function(c, i){
-    var calc = calcMSI(c);
     var block = document.createElement("div");
     block.className = "tc-block";
 
     var top = document.createElement("div");
     top.style.cssText = "display:grid;grid-template-columns:1.4fr .8fr 1fr 1.1fr auto;gap:6px;align-items:end";
 
-    top.appendChild(msiField("Concepto", "text", "Ej. Laptop", c.concepto, function(v){ c.concepto=v; }));
-    top.appendChild(msiField("No. meses", "number", "12", c.meses, function(v){ c.meses=v; renderMSIRows(); }));
-    top.appendChild(msiField("Pago mensual", "number", "0", c.pago, function(v){ c.pago=v; renderMSIRows(); }));
-    top.appendChild(msiField("Inicio del pago", "month", "", c.inicio, function(v){ c.inicio=v; renderMSIRows(); }));
+    top.appendChild(msiField("Concepto", "text", "Ej. Laptop", c.concepto, function(v){ c.concepto=v; }, null));
+    top.appendChild(msiField("No. meses", "number", "12", c.meses, function(v){ c.meses=v; }, function(){ updateMSICalc(i); }));
+    top.appendChild(msiField("Pago mensual", "number", "0", c.pago, function(v){ c.pago=v; }, function(){ updateMSICalc(i); }));
+    top.appendChild(msiField("Inicio del pago", "month", "", c.inicio, function(v){ c.inicio=v; }, function(){ updateMSICalc(i); }));
 
     var del = document.createElement("button");
     del.type="button"; del.className="dyn-del";
@@ -1274,21 +1234,34 @@ function renderMSIRows(){
     tarjWrap.appendChild(tl); tarjWrap.appendChild(sel);
     bottom.appendChild(tarjWrap);
 
-    // Caja de cálculos
+    // Caja de cálculos (se actualiza in-place vía updateMSICalc, sin re-render completo)
+    var calc = calcMSI(c);
     var calcBox = document.createElement("div");
+    calcBox.id = "msiCalc_"+i;
     calcBox.style.cssText="font-size:12px;color:var(--muted);background:#f7fafd;border:1px solid var(--border);border-radius:8px;padding:7px 10px;line-height:1.7";
-    calcBox.innerHTML =
-      'Total compra: <strong style="color:var(--rz-dark)">'+fmt(calc.total)+'</strong> · '+
-      'Saldo actual: <strong style="color:var(--rz-dark)">'+fmt(calc.saldo)+'</strong> · '+
-      'Termina: <strong style="color:var(--rz-dark)">'+calc.terminoTxt+'</strong>'+
-      (calc.restantes>0 ? ' · Restan <strong style="color:var(--rz-dark)">'+calc.restantes+'</strong> meses' : ' · <span style="color:var(--ok)">Liquidada</span>');
+    calcBox.innerHTML = msiCalcHTML(calc);
     bottom.appendChild(calcBox);
     block.appendChild(bottom);
 
     cont.appendChild(block);
   });
 }
-function msiField(labelTxt, type, ph, val, onInput){
+function msiCalcHTML(calc){
+  return 'Total compra: <strong style="color:var(--rz-dark)">'+fmt(calc.total)+'</strong> · '+
+    'Saldo actual: <strong style="color:var(--rz-dark)">'+fmt(calc.saldo)+'</strong> · '+
+    'Termina: <strong style="color:var(--rz-dark)">'+calc.terminoTxt+'</strong>'+
+    (calc.restantes>0 ? ' · Restan <strong style="color:var(--rz-dark)">'+calc.restantes+'</strong> meses' : ' · <span style="color:var(--ok)">Liquidada</span>');
+}
+/* Actualiza SOLO la caja de cálculo de una compra MSI especifica, sin re-renderizar
+   toda la lista (evita que el input pierda el foco al escribir el segundo dígito). */
+function updateMSICalc(i){
+  var c = S.comprasMSI[i];
+  if(!c) return;
+  var calc = calcMSI(c);
+  var calcBox = document.getElementById("msiCalc_"+i);
+  if(calcBox) calcBox.innerHTML = msiCalcHTML(calc);
+}
+function msiField(labelTxt, type, ph, val, onInput, onAfter){
   var wrap=document.createElement("div");
   wrap.className="field"; wrap.style.margin="0";
   var l=document.createElement("label"); l.style.fontSize="12px"; l.textContent=labelTxt;
@@ -1296,7 +1269,7 @@ function msiField(labelTxt, type, ph, val, onInput){
   inp.type=type; inp.placeholder=ph;
   if(val!=="" && val!==undefined && val!==null) inp.value=val;
   inp.style.cssText="padding:8px 10px;border:1.5px solid var(--border);border-radius:10px;font-size:13px;font-family:var(--font);width:100%";
-  inp.addEventListener("input", function(){ onInput(inp.value); });
+  inp.addEventListener("input", function(){ onInput(inp.value); if(onAfter) onAfter(); });
   wrap.appendChild(l); wrap.appendChild(inp);
   return wrap;
 }
@@ -1759,7 +1732,7 @@ function renderDiag(){
     if(g.subs > 300){
       tips.push({ico:"ti-device-tv", txt:"<strong>Streaming ("+fmt(g.subs)+"):</strong> reduce a un máximo de 2 servicios. Es de los recortes más fáciles y que menos afectan tu día a día."});
     }
-    if(g.seguros > 0){
+    if(d.seguros > 0){
       tips.push({ico:"ti-shield-check", txt:"<strong>Seguros:</strong> revisa tus planes contratados buscando mejores condiciones, pero sin dejar de tener cobertura. Nunca elimines un seguro sin uno que lo reemplace."});
     }
   }
@@ -1787,10 +1760,11 @@ function renderDiag(){
   }
 
   // ═══ FONDO DE EMERGENCIA (cálculo corregido) ═══
+  // Solo se sugiere destinar % del flujo si el flujo es positivo Y razonable (>= $2,000).
+  // Con flujo negativo o muy bajo, esa recomendación no aplica.
   if(S.fondoEm === "no"){
     var fondoTxt = "No tienes fondo de emergencias, y constituirlo debe ser tu <strong>primer objetivo</strong>. Acumula como mínimo <strong>"+fmt(ingBase*3)+"</strong> (3 meses de tu ingreso) o idealmente <strong>"+fmt(d.fijos*6)+"</strong> (6 meses de tus gastos fijos).";
-    // Si le sobra flujo, recomendar destinar el 50% para iniciarlo en instrumentos sin riesgo
-    if(d.flujo > 0){
+    if(d.flujo >= 2000){
       var mitad = Math.round(d.flujo * 0.5);
       fondoTxt += " Como te sobra flujo, puedes destinar el <strong>50% de tu flujo libre ("+fmt(mitad)+"/mes)</strong> para empezar a construirlo. Te conviene guardarlo en instrumentos <strong>sin riesgo y de fácil acceso, tipo CETES a plazo de 1 mes</strong>, así el dinero genera rendimiento pero sigue disponible rápidamente ante cualquier emergencia.";
     }
@@ -2675,7 +2649,7 @@ async function generarExcel(){
       else { cell.font=ft({c:AZUL_INP}); }
     }
     var t=ws2.getCell(row,14); t.value={formula:"SUM(B"+row+":M"+row+")"}; t.font=ft({b:true}); t.fill=fill(VERDE_CL); t.border=bd(); t.numFmt=FMT_PESOS; t.alignment=al("center");
-    var p=ws2.getCell(row,15); p.value={formula:'IFERROR(N'+row+'/COUNTIF(B'+row+':M'+row+',"<>"),0)'}; p.font=ft({b:true}); p.fill=fill(VERDE_CL); p.border=bd(); p.numFmt=FMT_PESOS; p.alignment=al("center");
+    var p=ws2.getCell(row,15); p.value={formula:'IFERROR(N'+row+'/COUNTIF(B'+row+':M'+row+',"<>0"),0)'}; p.font=ft({b:true}); p.fill=fill(VERDE_CL); p.border=bd(); p.numFmt=FMT_PESOS; p.alignment=al("center");
   }
   function filaTotal(row,concepto,filas,bg,fc){
     ws2.getRow(row).height=22;
@@ -2697,7 +2671,7 @@ async function generarExcel(){
       var cell=ws2.getCell(row,col); cell.value={formula:fn(L)}; cell.font=ft({b:true,c:fc||NEGRO}); cell.fill=fill(bg||GRIS); cell.border=bd(); cell.numFmt=fmt||FMT_PESOS; cell.alignment=al("center");
     }
     var t=ws2.getCell(row,14); t.value={formula:"SUM(B"+row+":M"+row+")"}; t.font=ft({b:true,c:fc||NEGRO}); t.fill=fill(bg||GRIS); t.border=bd(); t.numFmt=fmt||FMT_PESOS; t.alignment=al("center");
-    var p=ws2.getCell(row,15); p.value={formula:'IFERROR(N'+row+'/COUNTIF(B'+row+':M'+row+',"<>"),0)'}; p.font=ft({b:true,c:fc||NEGRO}); p.fill=fill(bg||GRIS); p.border=bd(); p.numFmt=fmt||FMT_PESOS; p.alignment=al("center");
+    var p=ws2.getCell(row,15); p.value={formula:'IFERROR(N'+row+'/COUNTIF(B'+row+':M'+row+',"<>0"),0)'}; p.font=ft({b:true,c:fc||NEGRO}); p.fill=fill(bg||GRIS); p.border=bd(); p.numFmt=fmt||FMT_PESOS; p.alignment=al("center");
   }
 
   var row=4;
@@ -2770,7 +2744,7 @@ async function generarExcel(){
   var fc=ws2.getCell(row,1); fc.value="FLUJO LIBRE NETO (despues de invertir)"; fc.font=ft({b:true,sz:11,c:BLANCO}); fc.fill=fill(VERDE); fc.border=bd(); fc.alignment=al("left");
   for(var col=2;col<=13;col++){ var L=colLetter(col); var cell=ws2.getCell(row,col); cell.value={formula:L+ING_TOTAL+"-"+L+GT_ROW+"-"+L+INV_ROW}; cell.font=ft({b:true,sz:11,c:BLANCO}); cell.fill=fill(VERDE); cell.border=bd(); cell.numFmt=FMT_PESOS; cell.alignment=al("center"); }
   var ft14=ws2.getCell(row,14); ft14.value={formula:"SUM(B"+row+":M"+row+")"}; ft14.font=ft({b:true,c:BLANCO}); ft14.fill=fill(VERDE); ft14.border=bd(); ft14.numFmt=FMT_PESOS; ft14.alignment=al("center");
-  var ft15=ws2.getCell(row,15); ft15.value={formula:'IFERROR(N'+row+'/COUNTIF(B'+row+':M'+row+',"<>"),0)'}; ft15.font=ft({b:true,c:BLANCO}); ft15.fill=fill(VERDE); ft15.border=bd(); ft15.numFmt=FMT_PESOS; ft15.alignment=al("center");
+  var ft15=ws2.getCell(row,15); ft15.value={formula:'IFERROR(N'+row+'/COUNTIF(B'+row+':M'+row+',"<>0"),0)'}; ft15.font=ft({b:true,c:BLANCO}); ft15.fill=fill(VERDE); ft15.border=bd(); ft15.numFmt=FMT_PESOS; ft15.alignment=al("center");
   var FL_ROW=row; row++;
   filaFormula(row,"% Gastos / Ingresos",function(L){return "IFERROR("+L+GT_ROW+"/"+L+ING_TOTAL+",0)";},GRIS,NEGRO,FMT_PCT); row++;
   row++;
