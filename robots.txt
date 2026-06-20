@@ -79,49 +79,48 @@ Disallow: /asesoria-d8f3a91bc/
 # del cliente automáticamente (ya incluido si Formspree falla).
 
 
+
 # ════════════════════════════════════════════════════════════
-# GUARDAR DIAGNOSTICOS EN GOOGLE SHEETS (registro de clientes)
+# GUARDAR DIAGNOSTICOS EN GOOGLE SHEETS (base de datos de clientes)
 # ════════════════════════════════════════════════════════════
-# Cada vez que alguien termina su diagnostico, los datos se guardan como
-# una fila en tu Google Sheet. El usuario NO instala nada: solo entra al
-# link, llena su diagnostico, y tu te quedas con el registro.
+# Cada diagnostico terminado y cada cita agendada se guardan como una fila
+# en tu Google Sheet. El usuario NO instala nada: entra al link, llena su
+# diagnostico, y tu te quedas con el registro consultable como administrador.
 #
-# NOTA: el correo (Formspree) ahora SOLO envia las citas de agenda.
-# Los diagnosticos completos van a Google Sheets, no al correo.
+# El correo (Formspree) SOLO envia las citas de agenda. El registro de datos
+# va a Google Sheets.
 #
 # ── CONFIGURACION (una sola vez, ~15 min) ──
 #
-# PASO 1. Crea una Google Sheet nueva (sheets.new). Ponle nombre, ej "Diagnosticos Rizkora".
+# PASO 1. Entra a https://sheets.new y crea una hoja nueva. Nombrala, ej. "Clientes Rizkora".
 #
-# PASO 2. En esa hoja ve al menu: Extensiones -> Apps Script.
-#         Borra lo que haya y pega EXACTAMENTE este codigo:
+# PASO 2. Menu: Extensiones -> Apps Script. Borra todo y pega EXACTAMENTE este codigo:
 #
 # ----------------------------------------------------------------
 # function doPost(e) {
 #   try {
 #     var hoja = SpreadsheetApp.getActiveSpreadsheet().getSheets()[0];
-#     var datos = JSON.parse(e.postData.contents);
+#     var d = JSON.parse(e.postData.contents);
 #
-#     // Si la hoja esta vacia, crear los encabezados primero
-#     if (hoja.getLastRow() === 0) {
-#       hoja.appendRow([
-#         "Fecha", "Nombre", "Edad", "Perfil", "Dependientes",
-#         "Ingreso cuenta", "Ingresos adicionales", "Ingreso total",
-#         "Gastos fijos", "Gastos variables", "Deuda fija/mes",
-#         "Deuda tarjetas total", "Pago MSI/mes", "Flujo libre",
-#         "% flujo", "Resultado", "Fondo emergencia", "Habito ahorro",
-#         "Ahorro/inversion mensual", "Metas", "Quiere asesoria"
-#       ]);
-#     }
+#     var encabezados = [
+#       "Fecha", "Evento", "Nombre", "Edad", "Perfil laboral", "Dependientes",
+#       "Ingreso cuenta", "Ingresos adicionales", "Ingreso total",
+#       "Gastos fijos", "Gastos variables", "Deuda fija/mes",
+#       "Deuda tarjetas total", "Pago MSI/mes", "Flujo libre", "% flujo",
+#       "Resultado", "Fondo emergencia", "Habito ahorro",
+#       "Ahorro/inversion mensual", "Perfil inversionista", "Metas",
+#       "Quiere asesoria", "Email contacto", "Telefono contacto"
+#     ];
+#     if (hoja.getLastRow() === 0) hoja.appendRow(encabezados);
 #
 #     hoja.appendRow([
-#       datos.fecha, datos.nombre, datos.edad, datos.perfil, datos.dependientes,
-#       datos.ingreso_cuenta, datos.ingresos_adicionales, datos.ingreso_total,
-#       datos.gastos_fijos, datos.gastos_variables, datos.deuda_fija_mensual,
-#       datos.deuda_tarjetas_total, datos.pago_msi_mensual, datos.flujo_libre,
-#       datos.porcentaje_flujo, datos.resultado, datos.fondo_emergencia,
-#       datos.habito_ahorro, datos.ahorro_inversion_mensual, datos.metas,
-#       datos.quiere_asesoria
+#       d.fecha, d.evento, d.nombre, d.edad, d.perfil, d.dependientes,
+#       d.ingreso_cuenta, d.ingresos_adicionales, d.ingreso_total,
+#       d.gastos_fijos, d.gastos_variables, d.deuda_fija_mensual,
+#       d.deuda_tarjetas_total, d.pago_msi_mensual, d.flujo_libre, d.porcentaje_flujo,
+#       d.resultado, d.fondo_emergencia, d.habito_ahorro,
+#       d.ahorro_inversion_mensual, d.perfil_inversionista, d.metas,
+#       d.quiere_asesoria, d.contacto_email, d.contacto_telefono
 #     ]);
 #
 #     return ContentService.createTextOutput("OK");
@@ -131,23 +130,29 @@ Disallow: /asesoria-d8f3a91bc/
 # }
 # ----------------------------------------------------------------
 #
-# PASO 3. Guarda (icono de diskette o Ctrl+S).
+# PASO 3. Guarda (Ctrl+S o el icono de diskette).
 #
-# PASO 4. Arriba a la derecha, clic en "Implementar" -> "Nueva implementacion".
-#         - Tipo: selecciona "Aplicacion web"
-#         - Descripcion: lo que quieras
+# PASO 4. Arriba a la derecha: "Implementar" -> "Nueva implementacion".
+#         - Tipo (engrane): "Aplicacion web"
 #         - Ejecutar como: "Yo" (tu cuenta)
-#         - Quien tiene acceso: "Cualquier usuario"  <-- IMPORTANTE
-#         Clic en "Implementar". Autoriza los permisos que pida.
+#         - Quien tiene acceso: "Cualquier usuario"   <-- IMPORTANTE
+#         Clic en "Implementar" y autoriza los permisos que pida.
 #
-# PASO 5. Te dara una URL que termina en /exec, algo como:
-#         https://script.google.com/macros/s/AKfy.../exec
-#         COPIALA.
+# PASO 5. Copia la URL que termina en /exec
+#         (ej. https://script.google.com/macros/s/AKfy.../exec)
 #
-# PASO 6. Abre asesoria-d8f3a91bc/index.html, busca esta linea:
+# PASO 6. Abre asesoria-d8f3a91bc/index.html, busca la linea:
 #            var SHEETS_ENDPOINT = "";
-#         y pega tu URL entre las comillas:
+#         y pega tu URL entre comillas:
 #            var SHEETS_ENDPOINT = "https://script.google.com/macros/s/AKfy.../exec";
 #
-# Listo. Cada diagnostico terminado aparecera como una fila nueva en tu hoja.
-# Si quieres cambiar que datos se guardan, avisa y se ajusta la fila.
+# LISTO. Cada diagnostico aparecera como fila (Evento = "diagnostico"). Cuando
+# alguien agende cita, se guarda otra fila (Evento = "cita_agendada") que ademas
+# incluye su email y telefono.
+#
+# NOTAS:
+# - Si actualizas el script despues, crea una "Nueva implementacion" o
+#   gestiona la existente para que tome los cambios.
+# - El plan de Google es gratuito para este uso.
+# - Para consultar: solo abre tu Google Sheet. Puedes filtrar por Evento,
+#   ordenar por fecha, o usar tablas dinamicas para analizar a tus clientes.
