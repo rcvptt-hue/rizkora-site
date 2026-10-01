@@ -87,24 +87,14 @@
         <a href="#talleres" class="btn-outline">Ver talleres</a>
       </div>
     </div>
-    <figure class="sheet" aria-label="Próximas fechas">
-      <div class="sheet-head">
-        <div>
-          <p class="sheet-title">Próximas fechas</p>
-          <p class="sheet-meta">Abrimos fechas varias veces al año</p>
-        </div>
-      </div>
-      <ul class="sheet-list">
-        <li><span class="mark" aria-hidden="true">✓</span><span>Sesiones de alrededor de 90 minutos</span></li>
-        <li><span class="mark" aria-hidden="true">✓</span><span>Cupo limitado para que sea práctico</span></li>
-        <li><span class="mark" aria-hidden="true">✓</span><span>Presenciales en Mérida</span></li>
-        <li><span class="mark" aria-hidden="true">✓</span><span>Herramientas que te llevas a casa</span></li>
-      </ul>
-      <figcaption class="sheet-foot">
-        <i class="fas fa-comment-dots" aria-hidden="true"></i>
-        <span>Por ahora no hay fechas abiertas. Escríbenos y te avisamos en cuanto abramos la siguiente.</span>
-      </figcaption>
-    </figure>
+    <div class="viz table-viz" aria-hidden="true">
+      <svg viewBox="0 0 420 420" id="tablesvg">
+        <circle class="tbl" cx="210" cy="210" r="104"/>
+        <rect class="seat" x="188.0" y="45.0" width="44" height="30" rx="12" transform="rotate(0.0 210.0 60.0)"/><rect class="seat" x="276.2" y="73.6" width="44" height="30" rx="12" transform="rotate(36.0 298.2 88.6)"/><rect class="seat" x="330.7" y="148.6" width="44" height="30" rx="12" transform="rotate(72.0 352.7 163.6)"/><rect class="seat" x="330.7" y="241.4" width="44" height="30" rx="12" transform="rotate(108.0 352.7 256.4)"/><rect class="seat" x="276.2" y="316.4" width="44" height="30" rx="12" transform="rotate(144.0 298.2 331.4)"/><rect class="seat" x="188.0" y="345.0" width="44" height="30" rx="12" transform="rotate(180.0 210.0 360.0)"/><rect class="seat" x="99.8" y="316.4" width="44" height="30" rx="12" transform="rotate(216.0 121.8 331.4)"/><rect class="seat" x="45.3" y="241.4" width="44" height="30" rx="12" transform="rotate(252.0 67.3 256.4)"/><rect class="seat" x="45.3" y="148.6" width="44" height="30" rx="12" transform="rotate(288.0 67.3 163.6)"/><rect class="seat" x="99.8" y="73.6" width="44" height="30" rx="12" transform="rotate(324.0 121.8 88.6)"/>
+        <text class="count-l" x="210" y="203">Grupos</text>
+        <text class="count" x="210" y="236" style="font-size:30px">pequeños</text>
+      </svg>
+    </div>
   </div>
 </section>
 
@@ -233,6 +223,18 @@
     mobileNav.classList.remove('open');
     toggle.setAttribute('aria-expanded', 'false');
   }));
+</script>
+
+<script>
+(() => {
+  const s = document.querySelectorAll('#tablesvg .seat'); if (!s.length) return;
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) { s.forEach(e => e.classList.add('on')); return; }
+  let k = 0;
+  setInterval(() => {
+    if (k < s.length) { s[k].classList.add('on'); k++; }
+    else if (k++ > s.length + 4) { s.forEach(e => e.classList.remove('on')); k = 0; }
+  }, 420);
+})();
 </script>
 </body>
 </html>

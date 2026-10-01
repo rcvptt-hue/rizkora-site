@@ -87,25 +87,13 @@
         <a href="#que-hacemos" class="btn-outline">Ver qué hacemos</a>
       </div>
     </div>
-    <figure class="sheet" aria-label="Señales de que conviene revisar">
-      <div class="sheet-head">
-        <div>
-          <p class="sheet-title">Señales de que conviene revisar</p>
-          <p class="sheet-meta">Si reconoces dos o más, vale la pena hablar</p>
-        </div>
-      </div>
-      <ul class="sheet-list">
-        <li><span class="mark" aria-hidden="true">!</span><span>Procesos que dependen de una sola persona</span></li>
-        <li><span class="mark" aria-hidden="true">!</span><span>Prestaciones que cuestan mucho y casi nadie usa</span></li>
-        <li><span class="mark" aria-hidden="true">!</span><span>Rotación alta sin un diagnóstico claro</span></li>
-        <li><span class="mark" aria-hidden="true">!</span><span>Indicadores que se reportan pero no cambian decisiones</span></li>
-        <li><span class="mark" aria-hidden="true">!</span><span>Un presupuesto que se arma copiando el del año pasado</span></li>
-      </ul>
-      <figcaption class="sheet-foot">
-        <i class="fas fa-comment-dots" aria-hidden="true"></i>
-        <span>Optimizar no siempre es recortar. A veces es dejar de hacer lo que no aporta.</span>
-      </figcaption>
-    </figure>
+    <div class="viz flow" aria-hidden="true">
+      <svg viewBox="0 0 520 380" id="flowsvg">
+        <path class="path" id="flowpath" d=""/>
+        <g id="flownodes"></g>
+      </svg>
+      <p class="state">Pasos del proceso: <b id="flowstate">6 hoy</b></p>
+    </div>
   </div>
 </section>
 
@@ -219,6 +207,56 @@
     mobileNav.classList.remove('open');
     toggle.setAttribute('aria-expanded', 'false');
   }));
+</script>
+
+<script>
+(() => {
+  const svg = document.getElementById('flowsvg'); if (!svg) return;
+  const NS = 'http://www.w3.org/2000/svg';
+  const messy = [[50,300],[200,80],[110,190],[330,270],[260,70],[470,170]];
+  const clean = [[50,190],[50,190],[190,190],[330,190],[470,190],[470,190]];
+  const labMessy = ['Solicitud','Correo','Excel','Aprobación','Re-aprobación','Entrega'];
+  const labClean = ['Solicitud','','Aprobación','Ejecución','','Entrega'];
+  // nodos 1 y 4 se fusionan con sus vecinos en la versión limpia
+  const g = document.getElementById('flownodes'), path = document.getElementById('flowpath'), st = document.getElementById('flowstate');
+  const nodes = messy.map((p, i) => {
+    const n = document.createElementNS(NS, 'g'); n.setAttribute('class', 'node');
+    const c = document.createElementNS(NS, 'circle'); c.setAttribute('r', 11);
+    const t = document.createElementNS(NS, 'text'); t.setAttribute('y', -20); t.textContent = labMessy[i];
+    n.append(c, t); g.append(n); return {n, c, t};
+  });
+  const ease = x => x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
+  function curve(P) {               // Catmull-Rom → Bézier
+    let d = `M${P[0][0]},${P[0][1]}`;
+    for (let i = 0; i < P.length - 1; i++) {
+      const p0 = P[i - 1] || P[i], p1 = P[i], p2 = P[i + 1], p3 = P[i + 2] || p2, k = .9 / 6;
+      d += ` C${p1[0] + (p2[0] - p0[0]) * k},${p1[1] + (p2[1] - p0[1]) * k} ${p2[0] - (p3[0] - p1[0]) * k},${p2[1] - (p3[1] - p1[1]) * k} ${p2[0]},${p2[1]}`;
+    }
+    return d;
+  }
+  function draw(f) {                 // f: 0 = enredado, 1 = limpio
+    const P = messy.map((m, i) => [m[0] + (clean[i][0] - m[0]) * f, m[1] + (clean[i][1] - m[1]) * f]);
+    path.setAttribute('d', curve(P));
+    nodes.forEach((o, i) => {
+      o.n.setAttribute('transform', `translate(${P[i][0]},${P[i][1]})`);
+      const fades = (i === 1 || i === 4);
+      o.n.style.opacity = fades ? 1 - f : 1;
+      const lab = f > .5 ? labClean[i] : labMessy[i];
+      if (o.t.textContent !== lab) o.t.textContent = lab;
+      o.t.setAttribute('y', i % 2 && f < .5 ? 30 : -20);
+    });
+    st.textContent = f > .5 ? '4 después' : '6 hoy';
+  }
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) { draw(1); return; }
+  const hold1 = 2600, morph = 1700, hold2 = 3600, total = hold1 + morph + hold2 + morph;
+  const t0 = performance.now();
+  (function loop(now) {
+    const t = (now - t0) % total; let f;
+    if (t < hold1) f = 0; else if (t < hold1 + morph) f = ease((t - hold1) / morph);
+    else if (t < hold1 + morph + hold2) f = 1; else f = 1 - ease((t - hold1 - morph - hold2) / morph);
+    draw(f); requestAnimationFrame(loop);
+  })(t0);
+})();
 </script>
 </body>
 </html>

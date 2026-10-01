@@ -76,7 +76,7 @@
 
 <main>
 
-<section class="hero">
+<section class="hero hero-canvas">
   <div class="wrap hero-inner">
     <div class="hero-text">
       <p class="hero-kicker">Leadership &amp; Talent</p>
@@ -87,23 +87,10 @@
         <a href="#programas" class="btn-outline">Ver programas</a>
       </div>
     </div>
-    <figure class="sheet" aria-label="Tres formatos, según el reto">
-      <div class="sheet-head">
-        <div>
-          <p class="sheet-title">Tres formatos, según el reto</p>
-          <p class="sheet-meta">Todos se adaptan a tu operación</p>
-        </div>
-      </div>
-      <ul class="sheet-list">
-        <li><span class="mark" aria-hidden="true">1</span><span><strong>Taller.</strong> <span class="muted">Una sesión práctica para un tema puntual.</span></span></li>
-        <li><span class="mark" aria-hidden="true">2</span><span><strong>Programa.</strong> <span class="muted">Varias sesiones, con seguimiento entre una y otra.</span></span></li>
-        <li><span class="mark" aria-hidden="true">3</span><span><strong>Acompañamiento.</strong> <span class="muted">Sesiones individuales con líderes clave.</span></span></li>
-      </ul>
-      <figcaption class="sheet-foot">
-        <i class="fas fa-comment-dots" aria-hidden="true"></i>
-        <span>Todos empiezan con un diagnóstico y terminan con indicadores.</span>
-      </figcaption>
-    </figure>
+    <div class="viz" aria-hidden="true">
+      <div class="flock"><canvas id="flock"></canvas></div>
+      <div class="flock-legend"><span class="lead">Líder</span><span>Equipo</span></div>
+    </div>
   </div>
 </section>
 
@@ -111,22 +98,18 @@
   <div class="wrap">
     <h2 class="block-title">Lo que más escuchamos en las empresas</h2>
     <p class="block-lead">Si alguna de estas te suena, el problema probablemente no es la gente. Es cómo se está liderando.</p>
-    <div class="quotes">
-      <div>
-        <p class="quote">“El supervisor termina haciendo el trabajo de todos en lugar de delegar.”</p>
-        <p class="quote">“Las juntas terminan sin acuerdos y nadie da seguimiento.”</p>
-        <p class="quote">“Nadie da retroalimentación hasta la evaluación anual, y ahí ya es tarde.”</p>
-      </div>
-      <div>
-        <p class="quote">“Crecimos rápido y los líderes no crecieron al mismo ritmo.”</p>
-        <p class="quote">“Revisamos los indicadores cada mes, pero nadie cambia nada.”</p>
-        <p class="quote">“Se nos van buenas personas y no sabemos bien por qué.”</p>
-      </div>
+    <div class="quotes-big">
+      <p>“El supervisor termina haciendo el trabajo de todos en lugar de delegar.”</p>
+      <p>“Crecimos rápido y los líderes no crecieron al mismo ritmo.”</p>
+      <p>“Las juntas terminan sin acuerdos y nadie da seguimiento.”</p>
+      <p>“Revisamos los indicadores cada mes, pero nadie cambia nada.”</p>
+      <p>“Nadie da retroalimentación hasta la evaluación anual, y ahí ya es tarde.”</p>
+      <p>“Se nos van buenas personas y no sabemos bien por qué.”</p>
     </div>
   </div>
 </section>
 
-<section class="section dark" id="programas">
+<section class="paper" id="programas">
   <div class="wrap">
     <h2 class="block-title">Programas</h2>
     <p class="block-lead">Pueden darse como taller, programa o acompañamiento individual.</p>
@@ -141,7 +124,7 @@
   </div>
 </section>
 
-<section class="paper">
+<section class="gold-band">
   <div class="wrap split">
     <h2>No es un taller motivacional.</h2>
     <div>
@@ -151,11 +134,11 @@
   </div>
 </section>
 
-<section class="steps">
+<section class="section dark">
   <div class="wrap">
-    <h2>Cómo trabajamos</h2>
-    <p class="steps-lead">Cinco pasos, del diagnóstico a la medición.</p>
-    <ol class="steps-list five">
+    <h2 class="block-title">Cómo trabajamos</h2>
+    <p class="block-lead">Cinco pasos, del diagnóstico a la medición.</p>
+    <ol class="timeline">
       <li><h3>Diagnóstico</h3><p>Entrevistas y datos para entender qué está pasando con tus líderes y equipos.</p></li>
       <li><h3>Diseño</h3><p>Un programa a la medida de tu operación y de tus objetivos.</p></li>
       <li><h3>Implementación</h3><p>Sesiones prácticas con casos de tu propia empresa.</p></li>
@@ -165,7 +148,7 @@
   </div>
 </section>
 
-<section class="section dark">
+<section class="section mid">
   <div class="wrap person-row">
     <img src="assets/img/joanne.jpeg" alt="Joanne Maldonado" loading="lazy" width="120" height="120">
     <div>
@@ -245,6 +228,56 @@
     mobileNav.classList.remove('open');
     toggle.setAttribute('aria-expanded', 'false');
   }));
+</script>
+
+<script>
+(() => {
+  const cv = document.getElementById('flock'); if (!cv) return;
+  const ctx = cv.getContext('2d');
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let W, H, dpr;
+  const N = 24, dots = [];
+  for (let i = 0; i < N; i++) dots.push({x: Math.random(), y: Math.random(), hx: Math.random(), hy: Math.random(), ph: Math.random() * 6.28});
+  const lead = {x: .3, y: .5};
+  function formation() {           // triángulo que apunta a la derecha: 3+5+7+9
+    const pts = [], dx = Math.min(W, 560) * .085, dy = Math.min(H, 440) * .07;
+    let k = 0; const lx = W * .74, ly = H * .5;
+    for (let c = 1; c <= 4; c++) { const n = 2 * c + 1; for (let r = 0; r < n; r++) pts.push([lx - c * dx, ly + (r - (n - 1) / 2) * dy]); }
+    return {pts, lx, ly};
+  }
+  function size() {
+    dpr = window.devicePixelRatio || 1; W = cv.clientWidth; H = cv.clientHeight;
+    cv.width = W * dpr; cv.height = H * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  size(); addEventListener('resize', size);
+  let t0 = performance.now();
+  function frame(now) {
+    const t = (now - t0) / 1000, cycle = t % 11, aligned = reduce || (cycle > 3.5 && cycle < 9.5);
+    const F = formation();
+    ctx.clearRect(0, 0, W, H);
+    // líder
+    const tlx = aligned ? F.lx + Math.sin(t * .8) * 6 : W * (.45 + .25 * Math.sin(t * .5)), tly = aligned ? F.ly : H * (.5 + .3 * Math.sin(t * .7 + 1));
+    lead.x += (tlx - lead.x) * (reduce ? 1 : .05); lead.y += (tly - lead.y) * (reduce ? 1 : .05);
+    dots.forEach((p, i) => {
+      let tx, ty;
+      if (aligned) { tx = F.pts[i][0] + (lead.x - F.lx); ty = F.pts[i][1] + (lead.y - F.ly); }
+      else { tx = (p.hx * .9 + .05) * W + Math.sin(t * .9 + p.ph) * 18; ty = (p.hy * .9 + .05) * H + Math.cos(t * .7 + p.ph) * 18; }
+      if (reduce) { p.px = tx; p.py = ty; }
+      else { p.px = (p.px ?? tx) + (tx - (p.px ?? tx)) * .045; p.py = (p.py ?? ty) + (ty - (p.py ?? ty)) * .045; }
+    });
+    // líneas hacia el líder cuando están alineados
+    const done = dots.reduce((s, p, i) => s + Math.hypot(p.px - (F.pts[i][0] + lead.x - F.lx), p.py - (F.pts[i][1] + lead.y - F.ly)), 0) / N;
+    const a = Math.max(0, 1 - done / 40) * .35;
+    if (a > .01) { ctx.strokeStyle = `rgba(255,245,157,${a})`; ctx.lineWidth = 1;
+      dots.forEach(p => { ctx.beginPath(); ctx.moveTo(p.px, p.py); ctx.lineTo(lead.x, lead.y); ctx.stroke(); }); }
+    ctx.fillStyle = 'rgba(255,255,255,.8)';
+    dots.forEach(p => { ctx.beginPath(); ctx.arc(p.px, p.py, 4.5, 0, 6.283); ctx.fill(); });
+    ctx.fillStyle = 'rgba(255,245,157,.18)'; ctx.beginPath(); ctx.arc(lead.x, lead.y, 18, 0, 6.283); ctx.fill();
+    ctx.fillStyle = '#fff59d'; ctx.beginPath(); ctx.arc(lead.x, lead.y, 8, 0, 6.283); ctx.fill();
+    if (!reduce) requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();
 </script>
 </body>
 </html>

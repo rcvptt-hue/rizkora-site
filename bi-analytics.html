@@ -76,36 +76,67 @@
 
 <main>
 
-<section class="hero">
+<section class="hero hero-stack">
   <div class="wrap hero-inner">
     <div class="hero-text">
       <p class="hero-kicker">BI &amp; Strategic Analytics</p>
       <h1>Tienes datos. Te ayudamos a saber qué preguntarles.</h1>
-      <p class="hero-sub">Un tablero bonito no sirve si nadie sabe qué decisión tomar con él. Usamos análisis, indicadores y pronósticos para entender qué está pasando en tu negocio y decidir qué hacer después.</p>
+      <div class="hero-right"><p class="hero-sub">Un tablero bonito no sirve si nadie sabe qué decisión tomar con él. Usamos análisis, indicadores y pronósticos para entender qué está pasando en tu negocio y decidir qué hacer después.</p>
       <div class="hero-btns">
         <a href="https://wa.me/529991178631?text=Hola%2C%20me%20interesa%20platicar%20sobre%20an%C3%A1lisis%20de%20datos%20para%20mi%20empresa." class="btn-gold" target="_blank" rel="noopener"><i class="fab fa-whatsapp"></i> Platicar mi caso</a>
         <a href="#que-hacemos" class="btn-outline">Ver qué hacemos</a>
-      </div>
+      </div></div>
     </div>
-    <figure class="sheet" aria-label="Preguntas de negocio">
-      <div class="sheet-head">
-        <div>
-          <p class="sheet-title">Preguntas de negocio</p>
-          <p class="sheet-meta">El tipo de preguntas que un buen análisis responde</p>
-        </div>
-      </div>
-      <ul class="sheet-list">
-        <li><span class="mark" aria-hidden="true">?</span><span>¿Qué zonas, productos o clientes explican la caída en ventas?</span></li>
-        <li><span class="mark" aria-hidden="true">?</span><span>¿Cuánto vamos a vender el próximo trimestre?</span></li>
-        <li><span class="mark" aria-hidden="true">?</span><span>¿Qué pasa con el volumen si subo el precio 5%?</span></li>
-        <li><span class="mark" aria-hidden="true">?</span><span>¿Qué clientes tienen más potencial y cuáles se están yendo?</span></li>
-        <li><span class="mark" aria-hidden="true">?</span><span>¿Qué promociones sí funcionaron y cuáles solo costaron?</span></li>
-      </ul>
-      <figcaption class="sheet-foot">
-        <i class="fas fa-comment-dots" aria-hidden="true"></i>
-        <span>Primero la pregunta, después el tablero.</span>
-      </figcaption>
-    </figure>
+    <div class="viz chart-viz" id="chartviz" aria-hidden="true">
+      <svg viewBox="0 0 1000 320" role="presentation">
+        <g class="grid">
+        <line x1="40" x2="980" y1="30" y2="30"/>
+        <line x1="40" x2="980" y1="150.0" y2="150.0"/>
+        <line x1="40" x2="980" y1="270" y2="270"/>
+        </g>
+        <text class="yr" x="40" y="296">2024</text><text class="yr" x="345" y="296">2025</text><text class="yr" x="650" y="296">2026</text>
+        <line class="divider" x1="776.8" x2="776.8" y1="30" y2="270"/>
+        <path class="band" d="M776.8,63.3 L802.2,70.2 L827.6,77.0 L853.0,80.3 L878.4,77.2 L903.8,67.0 L929.2,50.4 L954.6,30.3 L980.0,10.1 L980.0,73.3 L954.6,87.1 L929.2,100.8 L903.8,111.0 L878.4,114.8 L853.0,111.5 L827.6,101.8 L802.2,88.6 L776.8,75.3 Z"/>
+        <circle class="pt" style="--i:0" cx="40.0" cy="183.2" r="3.2"/>
+        <circle class="pt" style="--i:1" cx="65.4" cy="169.5" r="3.2"/>
+        <circle class="pt" style="--i:2" cx="90.8" cy="147.3" r="3.2"/>
+        <circle class="pt" style="--i:3" cx="116.2" cy="150.8" r="3.2"/>
+        <circle class="pt" style="--i:4" cx="141.6" cy="142.8" r="3.2"/>
+        <circle class="pt" style="--i:5" cx="167.0" cy="152.4" r="3.2"/>
+        <circle class="pt" style="--i:6" cx="192.4" cy="168.2" r="3.2"/>
+        <circle class="pt" style="--i:7" cx="217.8" cy="170.3" r="3.2"/>
+        <circle class="pt" style="--i:8" cx="243.2" cy="185.3" r="3.2"/>
+        <circle class="pt" style="--i:9" cx="268.6" cy="178.5" r="3.2"/>
+        <circle class="pt" style="--i:10" cx="294.1" cy="178.1" r="3.2"/>
+        <circle class="pt" style="--i:11" cx="319.5" cy="164.6" r="3.2"/>
+        <circle class="pt" style="--i:12" cx="344.9" cy="141.8" r="3.2"/>
+        <circle class="pt" style="--i:13" cx="370.3" cy="117.7" r="3.2"/>
+        <circle class="pt" style="--i:14" cx="395.7" cy="117.2" r="3.2"/>
+        <circle class="pt" style="--i:15" cx="421.1" cy="108.5" r="3.2"/>
+        <circle class="pt" style="--i:16" cx="446.5" cy="101.5" r="3.2"/>
+        <circle class="pt" style="--i:17" cx="471.9" cy="102.3" r="3.2"/>
+        <circle class="pt" style="--i:18" cx="497.3" cy="119.2" r="3.2"/>
+        <circle class="pt" style="--i:19" cx="522.7" cy="132.7" r="3.2"/>
+        <circle class="pt" style="--i:20" cx="548.1" cy="146.8" r="3.2"/>
+        <circle class="pt" style="--i:21" cx="573.5" cy="187.9" r="3.2"/>
+        <circle class="pt" style="--i:22" cx="598.9" cy="178.3" r="3.2"/>
+        <circle class="pt" style="--i:23" cx="624.3" cy="148.4" r="3.2"/>
+        <circle class="pt" style="--i:24" cx="649.7" cy="107.2" r="3.2"/>
+        <circle class="pt" style="--i:25" cx="675.1" cy="90.9" r="3.2"/>
+        <circle class="pt" style="--i:26" cx="700.5" cy="74.3" r="3.2"/>
+        <circle class="pt" style="--i:27" cx="725.9" cy="58.2" r="3.2"/>
+        <circle class="pt" style="--i:28" cx="751.4" cy="70.0" r="3.2"/>
+        <circle class="pt" style="--i:29" cx="776.8" cy="69.3" r="3.2"/>
+        <path class="actual" style="--len:876" d="M40.0,183.2 L65.4,169.5 L90.8,147.3 L116.2,150.8 L141.6,142.8 L167.0,152.4 L192.4,168.2 L217.8,170.3 L243.2,185.3 L268.6,178.5 L294.1,178.1 L319.5,164.6 L344.9,141.8 L370.3,117.7 L395.7,117.2 L421.1,108.5 L446.5,101.5 L471.9,102.3 L497.3,119.2 L522.7,132.7 L548.1,146.8 L573.5,187.9 L598.9,178.3 L624.3,148.4 L649.7,107.2 L675.1,90.9 L700.5,74.3 L725.9,58.2 L751.4,70.0 L776.8,69.3"/>
+        <path class="fc" d="M776.8,69.3 L802.2,79.4 L827.6,89.4 L853.0,95.9 L878.4,96.0 L903.8,89.0 L929.2,75.6 L954.6,58.7 L980.0,41.7"/>
+        <path class="alt" d="M776.8,69.3 L802.2,84.2 L827.6,99.0 L853.0,110.3 L878.4,115.2 L903.8,113.0 L929.2,104.4 L954.6,92.3 L980.0,80.1"/>
+        <circle class="ring" cx="573.5" cy="187.9" r="26"/>
+        <g class="note note-dip"><line x1="573.5" y1="215.9" x2="573.5" y2="266"/><text x="563.5" y="296" text-anchor="end" class="gold">¿Qué explica esta caída?</text></g>
+        <g class="note note-fc"><text x="974.0" y="7.7" text-anchor="end">Pronóstico</text></g>
+        <g class="note note-alt"><text x="974.0" y="142.1" text-anchor="end">¿Y si subo el precio 5%?</text></g>
+      </svg>
+      <p class="viz-caption">Ejemplo ilustrativo: ventas mensuales, una caída por explicar y dos escenarios a futuro.</p>
+    </div>
   </div>
 </section>
 
@@ -113,17 +144,13 @@
   <div class="wrap">
     <h2 class="block-title">Lo que más escuchamos</h2>
     <p class="block-lead">El problema casi nunca es la falta de datos. Es que no están conectados con una decisión.</p>
-    <div class="quotes">
-      <div>
-        <p class="quote">“Tenemos muchos reportes y ninguno nos dice qué hacer.”</p>
-        <p class="quote">“Cada mes alguien pasa días armando el mismo Excel.”</p>
-        <p class="quote">“Cada área tiene su propio número de ventas.”</p>
-      </div>
-      <div>
-        <p class="quote">“Sabemos que algo cambió, pero no sabemos por qué.”</p>
-        <p class="quote">“Compramos una herramienta de BI y casi nadie la usa.”</p>
-        <p class="quote">“Los datos llegan tarde, así que decidimos por intuición.”</p>
-      </div>
+    <div class="quote-tiles">
+      <p>Tenemos muchos reportes y ninguno nos dice qué hacer.</p>
+      <p>Cada mes alguien pasa días armando el mismo Excel.</p>
+      <p>Cada área tiene su propio número de ventas.</p>
+      <p>Sabemos que algo cambió, pero no sabemos por qué.</p>
+      <p>Compramos una herramienta de BI y casi nadie la usa.</p>
+      <p>Los datos llegan tarde, así que decidimos por intuición.</p>
     </div>
   </div>
 </section>
@@ -132,13 +159,13 @@
   <div class="wrap">
     <h2 class="block-title">Qué hacemos</h2>
     <p class="block-lead">De ordenar los indicadores a construir modelos que anticipan escenarios.</p>
-    <div class="rule-grid">
-      <article class="rule"><h3>Diagnóstico de indicadores</h3><p>Qué medir, qué sobra, qué falta y cómo definir cada número para que todas las áreas hablen de lo mismo.</p></article>
-      <article class="rule"><h3>Análisis comercial y operativo</h3><p>Ventas, márgenes, clientes y canales: qué explica tus resultados y dónde están las oportunidades.</p></article>
-      <article class="rule"><h3>Pronósticos y escenarios</h3><p>Cuánto vas a vender y qué pasaría si cambias precio, promociones o mezcla de productos.</p></article>
-      <article class="rule"><h3>Segmentación de clientes</h3><p>Grupos de clientes con comportamiento parecido, para priorizar esfuerzos y recursos.</p></article>
-      <article class="rule"><h3>Automatización de reportes</h3><p>Que el reporte se arme solo y tu equipo use ese tiempo en analizar, no en copiar y pegar.</p></article>
-      <article class="rule"><h3>Tableros que se usan</h3><p>Pocos indicadores, bien definidos y conectados a decisiones concretas.</p></article>
+    <div class="glyph-list">
+      <article class="glyph-item"><svg viewBox="0 0 64 48"><rect x="6" y="6" width="52" height="36" rx="5" class="soft"/><path d="M14 18h14M14 26h22M14 34h10"/><circle class="dot" cx="48" cy="18" r="3"/></svg><div><h3>Diagnóstico de indicadores</h3><p>Qué medir, qué sobra, qué falta y cómo definir cada número para que todas las áreas hablen de lo mismo.</p></div></article>
+      <article class="glyph-item"><svg viewBox="0 0 64 48"><path class="soft" d="M6 42h52"/><path d="M12 36V24M24 36V14M36 36V28M48 36V8"/></svg><div><h3>Análisis comercial y operativo</h3><p>Ventas, márgenes, clientes y canales: qué explica tus resultados y dónde están las oportunidades.</p></div></article>
+      <article class="glyph-item"><svg viewBox="0 0 64 48"><path d="M4 36l12-10 10 6 12-14"/><path d="M38 18l10-6 12 2" stroke-dasharray="3 4"/><circle class="dot" cx="38" cy="18" r="3"/></svg><div><h3>Pronósticos y escenarios</h3><p>Cuánto vas a vender y qué pasaría si cambias precio, promociones o mezcla de productos.</p></div></article>
+      <article class="glyph-item"><svg viewBox="0 0 64 48"><circle cx="18" cy="18" r="9" class="soft"/><circle cx="42" cy="16" r="7"/><circle cx="32" cy="34" r="8" class="soft"/><circle class="dot" cx="42" cy="16" r="2.5"/></svg><div><h3>Segmentación de clientes</h3><p>Grupos de clientes con comportamiento parecido, para priorizar esfuerzos y recursos.</p></div></article>
+      <article class="glyph-item"><svg viewBox="0 0 64 48"><path d="M44 12a16 16 0 1 0 4 14"/><path d="M48 6v8h-8"/><path class="soft" d="M26 22h12M26 28h8"/></svg><div><h3>Automatización de reportes</h3><p>Que el reporte se arme solo y tu equipo use ese tiempo en analizar, no en copiar y pegar.</p></div></article>
+      <article class="glyph-item"><svg viewBox="0 0 64 48"><rect x="6" y="6" width="52" height="36" rx="5" class="soft"/><path d="M14 32l8-8 6 4 10-10"/><circle class="dot" cx="48" cy="16" r="3"/></svg><div><h3>Tableros que se usan</h3><p>Pocos indicadores, bien definidos y conectados a decisiones concretas.</p></div></article>
     </div>
   </div>
 </section>
@@ -255,6 +282,10 @@
     mobileNav.classList.remove('open');
     toggle.setAttribute('aria-expanded', 'false');
   }));
+</script>
+
+<script>
+(() => { const c = document.getElementById('chartviz'); if (c) requestAnimationFrame(() => c.classList.add('play')); })();
 </script>
 </body>
 </html>
