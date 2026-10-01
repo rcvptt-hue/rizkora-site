@@ -3,7 +3,22 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Risk & Protection — Rizkora</title>
+<title>Seguros de vida, GMM y retiro en Mérida | Risk &amp; Protection — Rizkora</title>
+<meta name="description" content="Comparamos seguros de vida, ahorro, retiro (PPR) y gastos médicos mayores entre aseguradoras y te explicamos las diferencias antes de que firmes. Para personas y empresas." />
+<link rel="canonical" href="https://rizkora.com/risk-protection.html" />
+<meta name="theme-color" content="#041e35" />
+<link rel="icon" type="image/png" sizes="32x32" href="assets/img/favicon-32.png" />
+<link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png" />
+<meta property="og:type" content="website" />
+<meta property="og:locale" content="es_MX" />
+<meta property="og:site_name" content="Rizkora" />
+<meta property="og:title" content="Seguros de vida, GMM y retiro en Mérida | Risk &amp; Protection — Rizkora" />
+<meta property="og:description" content="Comparamos seguros de vida, ahorro, retiro (PPR) y gastos médicos mayores entre aseguradoras y te explicamos las diferencias antes de que firmes. Para personas y empresas." />
+<meta property="og:url" content="https://rizkora.com/risk-protection.html" />
+<meta property="og:image" content="https://rizkora.com/assets/img/og-rizkora.jpg" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta name="twitter:card" content="summary_large_image" />
 <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
@@ -114,6 +129,40 @@
 
   @media(max-width:960px){.page-hero-inner{grid-template-columns:1fr;}.page-hero-icon{display:none;}.footer-grid{grid-template-columns:1fr 1fr;}}
   @media(max-width:680px){nav{display:none;}.nav-toggle{display:block;}.footer-grid{grid-template-columns:1fr;}.footer-bottom{flex-direction:column;gap:8px;text-align:center;}}
+
+  /* ─── Risk & Protection 2026 ─── */
+  .page-kicker{color:var(--gold);font-weight:600;font-size:14px;margin-bottom:14px;}
+  .page-hero h1{max-width:18ch;}
+  .hero-btns{display:flex;gap:14px;flex-wrap:wrap;}
+  .block-title{font-size:clamp(26px,3.2vw,36px);font-weight:800;line-height:1.2;margin-bottom:10px;}
+  .block-lead{color:var(--text-soft);font-size:16px;max-width:60ch;margin-bottom:40px;}
+  .situations{padding:90px 0;background:var(--blue-mid);}
+  .sit-grid{display:grid;grid-template-columns:1fr 1fr;gap:48px;}
+  .sit-col h3{font-size:15px;font-weight:700;color:var(--gold);margin-bottom:10px;}
+  .sit{display:block;padding:16px 36px 16px 0;border-bottom:1px solid rgba(255,255,255,.12);color:var(--white);
+    text-decoration:none;font-size:16px;position:relative;transition:color .2s;}
+  .sit::after{content:'\f232';font-family:'Font Awesome 6 Brands';position:absolute;right:4px;top:16px;color:var(--gold);opacity:.6;}
+  .sit:hover{color:var(--gold);} .sit:hover::after{opacity:1;}
+  .sub-services .block-title{margin-bottom:36px;}
+  .cover-grid{display:grid;grid-template-columns:1fr 1fr 1.2fr;gap:40px;}
+  .cover h3{font-size:18px;font-weight:700;margin-bottom:14px;display:flex;gap:10px;align-items:center;}
+  .cover h3 i{color:var(--gold);}
+  .cover ul{list-style:none;}
+  .cover li{padding:9px 0;border-bottom:1px solid rgba(255,255,255,.08);color:var(--text-soft);font-size:15px;}
+  .cover-trust{background:rgba(255,245,157,.07);border:1px solid rgba(255,245,157,.25);border-radius:var(--radius);padding:26px;}
+  .cover-trust p{color:var(--text-soft);font-size:15px;line-height:1.7;}
+  .trust-badge{margin-top:16px;color:var(--white) !important;font-weight:600;display:flex;gap:8px;align-items:center;}
+  .trust-badge i{color:var(--gold);}
+  .cta-band-left h2{max-width:620px;}
+  @media (max-width:960px){.sit-grid,.cover-grid{grid-template-columns:1fr;gap:36px;}}
+  /* ─── WhatsApp flotante ─── */
+  .wa-float{position:fixed;right:18px;bottom:18px;z-index:1200;display:flex;align-items:center;gap:10px;
+    background:#25d366;color:#05301a;font-weight:700;font-size:14px;text-decoration:none;
+    padding:12px 18px 12px 14px;border-radius:50px;box-shadow:0 10px 28px rgba(0,0,0,.35);
+    transition:transform .2s, box-shadow .2s;}
+  .wa-float i{font-size:22px;}
+  .wa-float:hover{transform:translateY(-2px);box-shadow:0 14px 32px rgba(0,0,0,.45);}
+  @media (max-width:680px){.wa-float span{display:none;}.wa-float{padding:14px;}}
 </style>
 </head>
 <body>
@@ -122,45 +171,45 @@
   <div class="wrap header-inner">
     <a href="index.html" class="logo-wrap">
       <img src="assets/img/logo.png" alt="Rizkora">
-      <div class="logo-tagline">Strategic Consulting &amp; Advisory Firm</div>
+      <div class="logo-tagline">Aliados estratégicos,<br>no proveedores</div>
     </a>
     <nav>
       <a href="index.html" class="nav-link">Inicio</a>
-      <a href="index.html#nosotros" class="nav-link">Nosotros</a>
+      <a href="index.html#equipo" class="nav-link">Equipo</a>
       <div class="nav-dropdown">
         <a href="index.html#servicios" class="nav-link">Servicios</a>
         <div class="dropdown-menu">
           <a href="risk-protection.html"><i class="fas fa-shield-alt" style="color:var(--gold);margin-right:8px;"></i>Risk &amp; Protection</a>
-          <a href="growth-people.html"><i class="fas fa-users" style="color:var(--gold);margin-right:8px;"></i>Growth People Advisory</a>
+          <a href="growth-people.html"><i class="fas fa-compass" style="color:var(--gold);margin-right:8px;"></i>Leadership &amp; Talent</a>
           <a href="bi-analytics.html"><i class="fas fa-chart-bar" style="color:var(--gold);margin-right:8px;"></i>BI &amp; Strategic Analytics</a>
           <a href="business-optimization.html"><i class="fas fa-cogs" style="color:var(--gold);margin-right:8px;"></i>Business Optimization</a>
         </div>
       </div>
-      <a href="workshops.html" class="nav-link">Workshops</a>
+      <a href="workshops.html" class="nav-link">Talleres</a>
       <a href="index.html#contacto" class="nav-link">Contacto</a>
-      <a href="index.html#contacto" class="nav-link nav-cta">Agenda una consultoría</a>
+      <a href="index.html#contacto" class="nav-link nav-cta">Cuéntanos tu caso</a>
     </nav>
     <button class="nav-toggle" id="navToggle"><span></span><span></span><span></span></button>
   </div>
 </header>
 <div class="mobile-nav" id="mobileNav">
   <a href="index.html">Inicio</a>
-  <a href="index.html#nosotros">Nosotros</a>
+  <a href="index.html#equipo">Equipo</a>
   <span style="color:var(--gold);font-size:12px;font-weight:700;padding:8px 16px;text-transform:uppercase;letter-spacing:1.5px;">Servicios</span>
   <a href="risk-protection.html" class="mn-sub">Risk &amp; Protection</a>
-  <a href="growth-people.html" class="mn-sub">Growth People Advisory</a>
+  <a href="growth-people.html" class="mn-sub">Leadership &amp; Talent</a>
   <a href="bi-analytics.html" class="mn-sub">BI &amp; Strategic Analytics</a>
   <a href="business-optimization.html" class="mn-sub">Business Optimization</a>
   <div class="mn-divider"></div>
-  <a href="workshops.html">Workshops</a>
+  <a href="workshops.html">Talleres</a>
   <a href="index.html#contacto">Contacto</a>
-  <a href="index.html#contacto" style="background:var(--gold);color:var(--blue-deep);font-weight:700;text-align:center;border-radius:50px;margin-top:10px;">Agenda una consultoría</a>
+  <a href="index.html#contacto" style="background:var(--gold);color:var(--blue-deep);font-weight:700;text-align:center;border-radius:50px;margin-top:10px;">Cuéntanos tu caso</a>
 </div>
 
 <!-- Breadcrumb -->
 <div class="breadcrumb" style="background:rgba(4,30,53,.8);">
   <div class="wrap">
-    <a href="index.html"><i class="fas fa-home"></i></a>
+    <a href="index.html" aria-label="Inicio"><i class="fas fa-home"></i></a>
     <span>›</span>
     <a href="index.html#servicios">Servicios</a>
     <span>›</span>
@@ -170,17 +219,18 @@
 
 <!-- Page Hero -->
 <section class="page-hero">
-  <div class="page-hero-grid"></div>
   <div class="wrap">
     <div class="page-hero-inner">
       <div>
-        <span class="section-tag">Pilar 1</span>
-        <h1>Risk &amp; <em>Protection</em></h1>
-        <div class="divider-gold"></div>
-        <p class="hero-sub">Protección estratégica para personas, empresas y organizaciones. Diseñamos soluciones enfocadas en proteger el patrimonio, la salud, la estabilidad financiera y la continuidad de quienes más importan.</p>
-        <a href="index.html#contacto" class="btn-gold"><i class="fas fa-calendar-alt"></i> Agenda una Asesoría</a>
+        <p class="page-kicker">Risk &amp; Protection</p>
+        <h1>Seguros explicados antes de firmar, no después.</h1>
+        <p class="hero-sub">Vida, ahorro, retiro y gastos médicos para personas y empresas. Comparamos opciones entre aseguradoras, te traducimos la letra chiquita y te decimos con claridad qué conviene y qué no.</p>
+        <div class="hero-btns">
+          <a href="https://wa.me/529991178631?text=Hola%2C%20quiero%20revisar%20mis%20opciones%20de%20seguro%20%28vida%20/%20GMM%20/%20retiro%29." class="btn-gold" target="_blank" rel="noopener"><i class="fab fa-whatsapp"></i> Platicar mi caso</a>
+          <a href="index.html#empieza" class="btn-outline">Ver los comparativos</a>
+        </div>
       </div>
-      <div class="page-hero-icon">
+      <div class="page-hero-icon" aria-hidden="true">
         <i class="fas fa-shield-alt"></i>
         <i class="fas fa-shield-alt top-icon"></i>
       </div>
@@ -188,78 +238,64 @@
   </div>
 </section>
 
-<!-- Sub-services -->
+<!-- Situaciones -->
+<section class="situations">
+  <div class="wrap">
+    <h2 class="block-title">¿Te suena alguna de estas?</h2>
+    <p class="block-lead">Casi nadie llega pidiendo “un seguro”. Llegan con una duda concreta. Estas son las más comunes.</p>
+    <div class="sit-grid">
+      <div class="sit-col">
+        <h3>Para ti y tu familia</h3>
+        <a class="sit" href="https://wa.me/529991178631?text=Hola%2C%20me%20ofrecieron%20un%20seguro%20de%20vida%20con%20ahorro%20y%20quiero%20saber%20si%20me%20conviene." target="_blank" rel="noopener">Me ofrecieron un seguro de vida con ahorro y no sé si me conviene.</a>
+        <a class="sit" href="https://wa.me/529991178631?text=Hola%2C%20tengo%20un%20seguro%20de%20gastos%20m%C3%A9dicos%20y%20no%20entiendo%20bien%20qu%C3%A9%20cubre." target="_blank" rel="noopener">Tengo gastos médicos mayores y no entiendo qué cubre, ni qué hospitales.</a>
+        <a class="sit" href="https://wa.me/529991178631?text=Hola%2C%20quiero%20empezar%20a%20ahorrar%20para%20mi%20retiro%20y%20saber%20si%20un%20PPR%20me%20conviene." target="_blank" rel="noopener">Quiero ahorrar para mi retiro y no sé si un PPR tiene sentido para mí.</a>
+        <a class="sit" href="https://wa.me/529991178631?text=Hola%2C%20ya%20pago%20un%20seguro%20desde%20hace%20a%C3%B1os%20y%20quiero%20revisar%20si%20sigue%20siendo%20buena%20opci%C3%B3n." target="_blank" rel="noopener">Pago un seguro desde hace años y no sé si sigue siendo buena opción.</a>
+      </div>
+      <div class="sit-col">
+        <h3>Para tu empresa</h3>
+        <a class="sit" href="https://wa.me/529991178631?text=Hola%2C%20mi%20empresa%20paga%20Vida%20Grupo%20/%20GMM%20Colectivo%20y%20quiero%20revisarlo." target="_blank" rel="noopener">Pagamos Vida Grupo o GMM Colectivo y nadie en el equipo sabe bien qué cubre.</a>
+        <a class="sit" href="https://wa.me/529991178631?text=Hola%2C%20la%20renovaci%C3%B3n%20de%20los%20seguros%20de%20mi%20empresa%20subi%C3%B3%20y%20quiero%20comparar%20opciones." target="_blank" rel="noopener">La renovación subió y queremos comparar antes de aceptar.</a>
+        <a class="sit" href="https://wa.me/529991178631?text=Hola%2C%20queremos%20agregar%20una%20prestaci%C3%B3n%20de%20seguros%20para%20el%20equipo%20y%20no%20sabemos%20por%20d%C3%B3nde%20empezar." target="_blank" rel="noopener">Queremos ofrecer una prestación de protección y no sabemos por dónde empezar.</a>
+        <a class="sit" href="https://wa.me/529991178631?text=Hola%2C%20me%20interesa%20un%20seguro%20de%20hombre%20clave%20para%20mi%20empresa." target="_blank" rel="noopener">El negocio depende mucho de una o dos personas clave.</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Coberturas -->
 <section class="sub-services">
   <div class="wrap">
-    <div style="text-align:center;margin-bottom:54px;">
-      <span class="section-tag">Nuestras soluciones</span>
-      <h2 style="font-size:clamp(24px,3.5vw,36px);font-weight:700;">Elige tu área de <span class="gold">protección</span></h2>
-      <div class="divider-gold" style="margin:14px auto;"></div>
-      <p style="color:var(--text-soft);max-width:600px;margin:0 auto;font-size:16px;">Cubrimos cada aspecto de tu vida y negocio para que puedas crecer con tranquilidad y respaldo.</p>
-    </div>
-    <div class="sub-grid">
-      <div class="sub-card">
-        <div class="sub-card-img"><i class="fas fa-user-shield"></i></div>
-        <div class="sub-card-body">
-          <h3>Personas</h3>
-          <p>Protección y planeación para cada etapa de tu vida. Ayudamos a personas y familias a construir estabilidad financiera mediante soluciones de protección, ahorro y prevención adaptadas a sus objetivos y estilo de vida.</p>
-          <ul style="margin-top:12px;padding-left:16px;color:var(--text-soft);font-size:13px;line-height:1.8;">
-            <li>Seguros de vida y protección patrimonial</li>
-            <li>Planes de ahorro e inversión para el retiro</li>
-            <li>Gastos médicos mayores y seguros de salud</li>
-            <li>Seguros indemnizatorios</li>
-            <li>Seguros de viaje y para mascotas</li>
-            <li>Protección para el hogar</li>
-          </ul>
-          <!--a href="index.html#contacto" class="sub-card-link">Más información <i class="fas fa-arrow-right"></i></a-->
-        </div>
+    <h2 class="block-title">Con qué te podemos ayudar</h2>
+    <div class="cover-grid">
+      <div class="cover">
+        <h3><i class="fas fa-user-shield" aria-hidden="true"></i> Personas</h3>
+        <ul>
+          <li>Seguros de vida y protección patrimonial</li>
+          <li>Ahorro y retiro, incluyendo PPR</li>
+          <li>Gastos médicos mayores</li>
+          <li>Gastos médicos menores y prevención</li>
+          <li>Accidentes personales</li>
+          <li>Seguros indemnizatorios</li>
+          <li>Seguros de viaje y para mascotas</li>
+          <li>Protección para el hogar</li>
+        </ul>
       </div>
-
-      <div class="sub-card">
-        <div class="sub-card-img"><i class="fas fa-building"></i></div>
-        <div class="sub-card-body">
-          <h3>Soluciones Corporativas</h3>
-          <p>Soluciones estratégicas para empresas, equipos y colectivos. Diseñamos esquemas de protección y beneficios adaptados a las necesidades de cada organización.</p>
-          <ul style="margin-top:12px;padding-left:16px;color:var(--text-soft);font-size:13px;line-height:1.8;">
-            <li>Seguro de vida grupo</li>
-            <li>Gastos médicos mayores colectivo</li>
-            <li>Accidentes personales</li>
-            <li>Gastos médicos menores</li>
-            <li>Seguros indemnizatorios</li>
-            <li>Seguro de deudor y coberturas colectivas</li>
-          </ul>
-          <!--a href="index.html#contacto" class="sub-card-link">Más información <i class="fas fa-arrow-right"></i></a-->
-        </div>
+      <div class="cover">
+        <h3><i class="fas fa-building" aria-hidden="true"></i> Empresas</h3>
+        <ul>
+          <li>Vida Grupo</li>
+          <li>Gastos médicos mayores colectivo</li>
+          <li>Accidentes personales colectivo</li>
+          <li>Gastos médicos menores</li>
+          <li>Seguro de hombre clave</li>
+          <li>Seguros indemnizatorios</li>
+          <li>Seguro de deudor y coberturas colectivas</li>
+        </ul>
       </div>
-
-      <div class="sub-card">
-        <div class="sub-card-img"><i class="fas fa-calendar-check"></i></div>
-        <div class="sub-card-body">
-          <h3>Eventos Masivos &amp; Turismo</h3>
-          <p>Protección para experiencias, eventos y operaciones turísticas. Ayudamos a organizadores y operadores a proteger a sus asistentes y clientes.</p>
-          <ul style="margin-top:12px;padding-left:16px;color:var(--text-soft);font-size:13px;line-height:1.8;">
-            <li>Eventos deportivos y culturales</li>
-            <li>Espectáculos y conciertos</li>
-            <li>Tours y experiencias turísticas</li>
-            <li>Operadores turísticos</li>
-          </ul>
-          <!--a href="index.html#contacto" class="sub-card-link">Más información <i class="fas fa-arrow-right"></i></a-->
-        </div>
-      </div>
-
-      <div class="sub-card">
-        <div class="sub-card-img"><i class="fas fa-school"></i></div>
-        <div class="sub-card-body">
-          <h3>Escuelas</h3>
-          <p>Protección escolar para estudiantes y comunidades educativas. Soluciones de protección enfocadas en instituciones educativas.</p>
-          <ul style="margin-top:12px;padding-left:16px;color:var(--text-soft);font-size:13px;line-height:1.8;">
-            <li>Accidentes escolares dentro del plantel</li>
-            <li>Protección durante actividades escolares</li>
-            <li>Cobertura en trayectos y eventos</li>
-            <li>Continuidad educativa y respaldo familiar</li>
-          </ul>
-          <!--a href="index.html#contacto" class="sub-card-link">Más información <i class="fas fa-arrow-right"></i></a-->
-        </div>
+      <div class="cover cover-trust">
+        <h3>Cómo lo hacemos</h3>
+        <p>Comparamos propuestas en condiciones similares (misma edad, suma asegurada y plazo) y revisamos lo que casi nadie explica: valores garantizados, recargos por pago fraccionado, rescates, deducibles, coaseguros y tabuladores.</p>
+        <p class="trust-badge"><i class="fas fa-certificate" aria-hidden="true"></i> Asesoría con cédula vigente tipo B ante la CNSF</p>
       </div>
     </div>
   </div>
@@ -270,13 +306,12 @@
   <div class="wrap">
     <div class="cta-band-inner">
       <div class="cta-band-left">
-        <div class="cta-icon"><i class="fas fa-shield-alt"></i></div>
-        <h2>Creamos estrategias financieras que impulsan <em>tranquilidad y estabilidad</em></h2>
-        <p>Hablemos sobre tus opciones y metas. Nuestro equipo está listo para diseñar la solución ideal para ti.</p>
+        <h2>Un seguro no siempre es la solución. Primero hay que entender el problema.</h2>
+        <p>Cuéntanos qué tienes hoy y qué te preocupa. Si lo que tienes ya está bien, también te lo vamos a decir.</p>
       </div>
       <div class="cta-band-right">
-        <a href="index.html#contacto" class="btn-gold"><i class="fas fa-calendar-alt"></i> Agenda una asesoría</a>
-        <a href="index.html#servicios" class="btn-outline">Conoce más servicios</a>
+        <a href="https://wa.me/529991178631?text=Hola%2C%20quiero%20revisar%20mis%20opciones%20de%20seguro%20%28vida%20/%20GMM%20/%20retiro%29." class="btn-gold" target="_blank" rel="noopener"><i class="fab fa-whatsapp"></i> Platicar mi caso</a>
+        <a href="index.html#contacto" class="btn-outline">Prefiero que me contacten</a>
       </div>
     </div>
   </div>
@@ -287,21 +322,21 @@
     <div class="footer-grid">
       <div>
         <img src="assets/img/logo.png" alt="Rizkora" class="footer-logo-img">
-        <p class="footer-about-text">Rizkora es una firma de consultoría estratégica y asesoría experta que ayuda a personas y empresas a crecer con estructura, visión y respaldo.</p>
+        <p class="footer-about-text">Firma de consultoría que ayuda a personas y empresas a tomar mejores decisiones sobre protección, personas, datos y operación.</p>
         <div class="footer-social">
           <a href="https://wa.me/529991178631" class="social-btn"><i class="fab fa-whatsapp"></i></a>
           <a href="mailto:contacto@rizkora.com" class="social-btn"><i class="fas fa-envelope"></i></a>
-          <a href="#" class="social-btn"><i class="fab fa-linkedin-in"></i></a>
+          <a href="https://www.instagram.com/rizkoramx/" class="social-btn" aria-label="Instagram" target="_blank" rel="noopener"><i class="fab fa-instagram"></i></a>
         </div>
       </div>
       <div class="footer-col">
         <h4>Servicios</h4>
         <ul>
           <li><a href="risk-protection.html">Risk &amp; Protection</a></li>
-          <li><a href="growth-people.html">Growth People Advisory</a></li>
+          <li><a href="growth-people.html">Leadership &amp; Talent</a></li>
           <li><a href="bi-analytics.html">BI &amp; Strategic Analytics</a></li>
           <li><a href="business-optimization.html">Business Optimization</a></li>
-          <li><a href="workshops.html">Workshops</a></li>
+          <li><a href="workshops.html">Talleres</a></li>
         </ul>
       </div>
       <div class="footer-col">
@@ -313,9 +348,8 @@
       </div>
     </div>
     <div class="footer-bottom">
-      <span>© 2025 Rizkora. Todos los derechos reservados.</span>
+      <span>© 2026 Rizkora. Todos los derechos reservados.</span>
       <span>Mérida, Yucatán, México</span>
-      <span>Sitio desarrollado por <strong>Rizkora</strong></span>
     </div>
   </div>
 </footer>
@@ -325,5 +359,7 @@
   toggle.addEventListener('click', () => mobileNav.classList.toggle('open'));
   mobileNav.querySelectorAll('a').forEach(a => a.addEventListener('click', () => mobileNav.classList.remove('open')));
 </script>
+
+<a class="wa-float" href="https://wa.me/529991178631?text=Hola%2C%20quiero%20revisar%20mis%20opciones%20de%20seguro%20%28vida%20/%20GMM%20/%20retiro%29." target="_blank" rel="noopener" aria-label="Escríbenos por WhatsApp"><i class="fab fa-whatsapp"></i><span>Escríbenos</span></a>
 </body>
 </html>

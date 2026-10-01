@@ -1,1 +1,161 @@
 # rizkora-site
+
+Notas internas (movidas desde robots.txt, que es público):
+
+```
+════════════════════════════════════════
+ACTIVAR NOTIFICACIÓN POR EMAIL (EmailJS)
+════════════════════════════════════════
+Para que el sistema envíe un correo a contacto@rizkora.com
+cada vez que se completa un diagnóstico:
+
+1. Ve a https://emailjs.com y crea una cuenta gratuita
+   (gratis hasta 200 emails/mes)
+
+2. En tu panel de EmailJS:
+   a) "Add New Service" → conecta tu cuenta de Gmail o Outlook
+   b) "Create Email Template" con este contenido:
+
+   Asunto: Nuevo diagnóstico — {{cliente_nombre}}
+   Cuerpo:
+     Nuevo diagnóstico completado en Rizkora.
+
+     Cliente: {{cliente_nombre}}, {{cliente_edad}} años
+     Ingreso mensual: {{ingreso}}
+     Resultado: {{resultado}}
+     Metas: {{metas}}
+
+   c) En "Account" copia tu Public Key
+
+3. En asesoria-d8f3a91bc/index.html busca estas 3 líneas
+   y reemplaza los valores:
+
+   const EMAILJS_PUBLIC_KEY = 'TU_PUBLIC_KEY';
+   const EMAILJS_SERVICE_ID = 'TU_SERVICE_ID';
+   const EMAILJS_TEMPLATE_ID= 'TU_TEMPLATE_ID';
+
+¡Listo! El email se enviará automáticamente al terminar cada diagnóstico.
+
+
+════════════════════════════════════════
+OPCIONAL: AGENDADO EN TIEMPO REAL CON CALENDLY
+════════════════════════════════════════
+Por defecto, el agendado funciona por correo: el cliente elige
+fecha y horario (9:00-20:00) y te llega un correo para que tú confirmes.
+
+Si quieres que el cliente vea la disponibilidad EN VIVO y se agende solo:
+
+1. Crea cuenta gratis en https://calendly.com
+2. Crea un evento "Asesoría financiera Rizkora" con tu disponibilidad (9:00-20:00)
+3. Conecta tu Google Calendar u Outlook — Calendly bloquea automáticamente
+   los horarios que ya tengas ocupados (esto es la "disponibilidad en tiempo real")
+4. Copia tu enlace, por ejemplo: https://calendly.com/rizkora/asesoria
+5. En asesoria-d8f3a91bc/index.html busca esta línea:
+       var CALENDLY_URL = "";
+   y pon tu enlace entre las comillas:
+       var CALENDLY_URL = "https://calendly.com/rizkora/asesoria";
+
+Listo. Aparecerá el calendario de Calendly embebido bajo el formulario,
+con los horarios libres en tiempo real, y se agenda solo en tu calendario.
+
+
+════════════════════════════════════════
+IMPORTANTE: CONFIGURAR EL CORREO (Formspree)
+════════════════════════════════════════
+Si NO te están llegando los correos de agendado, es porque el endpoint
+de Formspree no es tuyo o no está confirmado. Haz esto:
+
+1. Entra a https://formspree.io y regístrate CON el correo contacto@rizkora.com
+   (así los envíos llegan directo a esa bandeja).
+2. Crea un formulario nuevo (botón "+ New form"). Ponle nombre "Asesorias Rizkora".
+3. Formspree te dará un endpoint que se ve así: https://formspree.io/f/abcdwxyz
+4. Abre asesoria-d8f3a91bc/index.html y busca esta línea:
+      var FORMSPREE_ENDPOINT = "https://formspree.io/f/mgvnylwy";
+   Reemplaza el enlace por el TUYO.
+5. Sube el cambio. La PRIMERA solicitud que envíes hará que Formspree te mande
+   un correo de "Confirm your email" — ábrelo y confirma. A partir de ahí
+   todos los correos llegarán automáticamente a contacto@rizkora.com.
+
+NOTA: el plan gratuito de Formspree permite 50 envíos/mes. Si necesitas más,
+tienen planes de pago, o puedes usar el botón de respaldo que abre el correo
+del cliente automáticamente (ya incluido si Formspree falla).
+
+
+
+════════════════════════════════════════════════════════════
+GUARDAR DIAGNOSTICOS EN GOOGLE SHEETS (base de datos de clientes)
+════════════════════════════════════════════════════════════
+Cada diagnostico terminado y cada cita agendada se guardan como una fila
+en tu Google Sheet. El usuario NO instala nada: entra al link, llena su
+diagnostico, y tu te quedas con el registro consultable como administrador.
+
+El correo (Formspree) SOLO envia las citas de agenda. El registro de datos
+va a Google Sheets.
+
+── CONFIGURACION (una sola vez, ~15 min) ──
+
+PASO 1. Entra a https://sheets.new y crea una hoja nueva. Nombrala, ej. "Clientes Rizkora".
+
+PASO 2. Menu: Extensiones -> Apps Script. Borra todo y pega EXACTAMENTE este codigo:
+
+----------------------------------------------------------------
+function doPost(e) {
+  try {
+    var hoja = SpreadsheetApp.getActiveSpreadsheet().getSheets()[0];
+    var d = JSON.parse(e.postData.contents);
+
+    var encabezados = [
+      "Fecha", "Evento", "Nombre", "Edad", "Perfil laboral", "Dependientes",
+      "Ingreso cuenta", "Ingresos adicionales", "Ingreso total",
+      "Gastos fijos", "Gastos variables", "Deuda fija/mes",
+      "Deuda tarjetas total", "Pago MSI/mes", "Flujo libre", "% flujo",
+      "Resultado", "Fondo emergencia", "Habito ahorro",
+      "Ahorro/inversion mensual", "Perfil inversionista", "Metas",
+      "Quiere asesoria", "Email contacto", "Telefono contacto"
+    ];
+    if (hoja.getLastRow() === 0) hoja.appendRow(encabezados);
+
+    hoja.appendRow([
+      d.fecha, d.evento, d.nombre, d.edad, d.perfil, d.dependientes,
+      d.ingreso_cuenta, d.ingresos_adicionales, d.ingreso_total,
+      d.gastos_fijos, d.gastos_variables, d.deuda_fija_mensual,
+      d.deuda_tarjetas_total, d.pago_msi_mensual, d.flujo_libre, d.porcentaje_flujo,
+      d.resultado, d.fondo_emergencia, d.habito_ahorro,
+      d.ahorro_inversion_mensual, d.perfil_inversionista, d.metas,
+      d.quiere_asesoria, d.contacto_email, d.contacto_telefono
+    ]);
+
+    return ContentService.createTextOutput("OK");
+  } catch (err) {
+    return ContentService.createTextOutput("Error: " + err);
+  }
+}
+----------------------------------------------------------------
+
+PASO 3. Guarda (Ctrl+S o el icono de diskette).
+
+PASO 4. Arriba a la derecha: "Implementar" -> "Nueva implementacion".
+        - Tipo (engrane): "Aplicacion web"
+        - Ejecutar como: "Yo" (tu cuenta)
+        - Quien tiene acceso: "Cualquier usuario"   <-- IMPORTANTE
+        Clic en "Implementar" y autoriza los permisos que pida.
+
+PASO 5. Copia la URL que termina en /exec
+        (ej. https://script.google.com/macros/s/AKfy.../exec)
+
+PASO 6. Abre asesoria-d8f3a91bc/index.html, busca la linea:
+           var SHEETS_ENDPOINT = "";
+        y pega tu URL entre comillas:
+           var SHEETS_ENDPOINT = "https://script.google.com/macros/s/AKfy.../exec";
+
+LISTO. Cada diagnostico aparecera como fila (Evento = "diagnostico"). Cuando
+alguien agende cita, se guarda otra fila (Evento = "cita_agendada") que ademas
+incluye su email y telefono.
+
+NOTAS:
+- Si actualizas el script despues, crea una "Nueva implementacion" o
+  gestiona la existente para que tome los cambios.
+- El plan de Google es gratuito para este uso.
+- Para consultar: solo abre tu Google Sheet. Puedes filtrar por Evento,
+  ordenar por fecha, o usar tablas dinamicas para analizar a tus clientes.
+```
