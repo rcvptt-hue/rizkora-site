@@ -19,256 +19,159 @@
 <meta property="og:image:width" content="1200" />
 <meta property="og:image:height" content="630" />
 <meta name="twitter:card" content="summary_large_image" />
-<link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&amp;display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<style>
-  :root {
-    --blue-deep:#041e35;--blue-mid:#063a5e;--blue-main:#064c78;--blue-card:#0a5a8a;
-    --blue-light:#0e7bb8;--gold:#fff59d;--gold-hover:#f5e642;--white:#ffffff;
-    --text-soft:rgba(255,255,255,0.82);--text-muted:rgba(255,255,255,0.55);
-    --card-bg:rgba(6,76,120,0.55);--card-border:rgba(255,255,255,0.12);
-    --radius:14px;--radius-sm:8px;
-  }
-  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-  html{scroll-behavior:smooth;}
-  body{font-family:'Poppins',sans-serif;background:var(--blue-deep);color:var(--white);line-height:1.65;overflow-x:hidden;}
-  .wrap{max-width:1200px;margin:0 auto;padding:0 24px;}
-  .gold{color:var(--gold);}
-  .btn-gold{display:inline-flex;align-items:center;gap:8px;background:var(--gold);color:var(--blue-deep);padding:13px 30px;border-radius:50px;font-weight:700;font-size:15px;text-decoration:none;border:none;cursor:pointer;transition:background .25s,transform .2s,box-shadow .2s;}
-  .btn-gold:hover{background:var(--gold-hover);transform:translateY(-2px);box-shadow:0 8px 24px rgba(255,245,157,.35);}
-  .btn-outline{display:inline-flex;align-items:center;gap:8px;background:transparent;color:var(--white);padding:12px 28px;border-radius:50px;font-weight:600;font-size:15px;text-decoration:none;border:2px solid rgba(255,255,255,.55);transition:border-color .25s,background .25s;}
-  .btn-outline:hover{border-color:var(--gold);color:var(--gold);}
-  .section-tag{display:inline-block;background:rgba(255,245,157,.18);color:var(--gold);font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:5px 14px;border-radius:50px;margin-bottom:16px;}
-  .divider-gold{width:60px;height:3px;background:var(--gold);border-radius:2px;margin:14px 0 24px;}
-
-  /* Header */
-  header{background:rgba(4,30,53,.97);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,.07);padding:0;position:sticky;top:0;z-index:1000;}
-  .header-inner{display:flex;align-items:center;justify-content:space-between;height:70px;}
-  .logo-wrap{display:flex;align-items:center;gap:12px;text-decoration:none;}
-  .logo-wrap img{height:46px;width:auto;}
-  .logo-tagline{font-size:12px;color:rgba(255,255,255,.5);line-height:1.3;}
-  nav{display:flex;align-items:center;gap:6px;}
-  nav a.nav-link{color:var(--white);font-size:14px;font-weight:500;text-decoration:none;padding:8px 14px;border-radius:6px;transition:color .2s,background .2s;}
-  nav a.nav-link:hover{color:var(--gold);background:rgba(255,255,255,.06);}
-  .nav-dropdown{position:relative;}
-  .nav-dropdown>.nav-link::after{content:' ▾';font-size:11px;}
-  .dropdown-menu{position:absolute;top:calc(100% + 8px);left:50%;transform:translateX(-50%);background:var(--blue-mid);border:1px solid rgba(255,255,255,.12);border-radius:var(--radius-sm);padding:8px;min-width:230px;opacity:0;visibility:hidden;pointer-events:none;transition:opacity .2s,transform .2s;transform:translateX(-50%) translateY(-6px);box-shadow:0 16px 40px rgba(0,0,0,.4);}
-  .nav-dropdown:hover .dropdown-menu{opacity:1;visibility:visible;pointer-events:all;transform:translateX(-50%) translateY(0);}
-  .dropdown-menu a{display:block;padding:9px 14px;color:var(--text-soft);font-size:13.5px;text-decoration:none;border-radius:6px;transition:background .2s,color .2s;}
-  .dropdown-menu a:hover{background:rgba(255,255,255,.08);color:var(--gold);}
-  .nav-cta{margin-left:8px;background:var(--gold)!important;color:var(--blue-deep)!important;font-weight:700!important;padding:9px 20px!important;border-radius:50px!important;}
-  .nav-cta:hover{background:var(--gold-hover)!important;transform:translateY(-1px);}
-  .nav-toggle{display:none;background:none;border:none;cursor:pointer;padding:6px;}
-  .nav-toggle span{display:block;width:24px;height:2px;background:var(--white);margin:5px 0;border-radius:2px;}
-  .mobile-nav{display:none;position:fixed;inset:70px 0 0;background:rgba(4,30,53,.98);backdrop-filter:blur(16px);z-index:999;padding:30px 24px;flex-direction:column;gap:6px;overflow-y:auto;}
-  .mobile-nav.open{display:flex;}
-  .mobile-nav a{color:var(--white);font-size:16px;font-weight:500;text-decoration:none;padding:12px 16px;border-radius:var(--radius-sm);transition:background .2s,color .2s;}
-  .mobile-nav a:hover{background:rgba(255,255,255,.08);color:var(--gold);}
-  .mobile-nav .mn-divider{height:1px;background:rgba(255,255,255,.1);margin:8px 0;}
-  .mobile-nav .mn-sub{padding-left:32px;font-size:14px;color:var(--text-soft);}
-
-  /* Breadcrumb */
-  .breadcrumb{padding:16px 0;border-bottom:1px solid rgba(255,255,255,.07);}
-  .breadcrumb a{color:var(--text-muted);text-decoration:none;font-size:13px;}
-  .breadcrumb a:hover{color:var(--gold);}
-  .breadcrumb span{color:var(--text-muted);font-size:13px;margin:0 8px;}
-  .breadcrumb .current{color:var(--gold);font-size:13px;font-weight:600;}
-
-  /* Page Hero */
-  .page-hero{padding:70px 0 60px;background:radial-gradient(ellipse 80% 70% at 70% 40%,#0d5c94 0%,var(--blue-deep) 70%);position:relative;overflow:hidden;}
-  .page-hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.02) 1px,transparent 1px);background-size:60px 60px;pointer-events:none;}
-  .page-hero-inner{display:grid;grid-template-columns:1fr auto;gap:40px;align-items:center;position:relative;z-index:1;}
-  .page-hero h1{font-size:clamp(32px,5vw,56px);font-weight:800;line-height:1.1;margin-bottom:16px;}
-  .page-hero h1 em{font-style:normal;color:var(--gold);}
-  .page-hero .hero-sub{font-size:18px;color:var(--text-soft);max-width:580px;margin-bottom:32px;line-height:1.7;}
-  .page-hero-icon{font-size:120px;color:rgba(255,245,157,.12);position:relative;}
-  .page-hero-icon .top-icon{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:70px;color:var(--gold);filter:drop-shadow(0 4px 20px rgba(255,245,157,.4));}
-
-  /* Sub-services cards */
-  .sub-services{padding:90px 0;background:var(--blue-deep);}
-  .sub-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:24px;}
-  .sub-card{background:var(--card-bg);border:1px solid var(--card-border);border-radius:var(--radius);overflow:hidden;text-decoration:none;color:inherit;display:flex;flex-direction:column;transition:transform .3s,border-color .3s,box-shadow .3s;backdrop-filter:blur(8px);}
-  .sub-card:hover{transform:translateY(-8px);border-color:rgba(255,245,157,.5);box-shadow:0 20px 50px rgba(0,0,0,.4);}
-  .sub-card-img{height:160px;background:linear-gradient(135deg,var(--blue-mid),var(--blue-card));display:flex;align-items:center;justify-content:center;}
-  .sub-card-img i{font-size:56px;color:var(--gold);filter:drop-shadow(0 4px 14px rgba(255,245,157,.4));transition:transform .3s;}
-  .sub-card:hover .sub-card-img i{transform:scale(1.12);}
-  .sub-card-body{padding:24px;flex:1;display:flex;flex-direction:column;}
-  .sub-card-body h3{font-size:17px;font-weight:700;color:var(--gold);margin-bottom:8px;}
-  .sub-card-body p{font-size:13.5px;color:var(--text-soft);flex:1;line-height:1.6;}
-  .sub-card-link{margin-top:16px;display:inline-flex;align-items:center;gap:6px;color:var(--white);font-size:13px;font-weight:600;background:rgba(255,255,255,.1);padding:8px 16px;border-radius:50px;border:1px solid rgba(255,255,255,.18);transition:background .2s;}
-  .sub-card:hover .sub-card-link{background:var(--gold);color:var(--blue-deep);border-color:var(--gold);}
-
-  /* CTA Band */
-  .cta-band{padding:70px 0;background:linear-gradient(135deg,var(--blue-mid),var(--blue-card));}
-  .cta-band-inner{display:flex;align-items:center;justify-content:space-between;gap:30px;flex-wrap:wrap;}
-  .cta-band-left .cta-icon{font-size:48px;color:var(--gold);margin-bottom:12px;}
-  .cta-band-left h2{font-size:24px;font-weight:700;max-width:540px;line-height:1.3;}
-  .cta-band-left h2 em{font-style:normal;color:var(--gold);}
-  .cta-band-left p{color:var(--text-soft);font-size:15px;margin-top:8px;max-width:500px;}
-  .cta-band-right{display:flex;gap:14px;flex-wrap:wrap;}
-
-  /* Footer */
-  footer{background:var(--blue-deep);border-top:1px solid rgba(255,255,255,.08);padding:60px 0 28px;}
-  .footer-grid{display:grid;grid-template-columns:1.6fr 1fr 1fr;gap:50px;margin-bottom:48px;}
-  .footer-logo-img{height:44px;width:auto;margin-bottom:14px;}
-  .footer-about-text{font-size:13.5px;color:var(--text-muted);line-height:1.7;max-width:300px;margin-bottom:20px;}
-  .footer-social{display:flex;gap:10px;}
-  .social-btn{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;color:var(--text-soft);font-size:14px;text-decoration:none;transition:background .2s,color .2s,border-color .2s;}
-  .social-btn:hover{background:var(--gold);color:var(--blue-deep);border-color:var(--gold);}
-  .footer-col h4{font-size:14px;font-weight:700;color:var(--gold);margin-bottom:18px;position:relative;}
-  .footer-col h4::after{content:'';display:block;width:30px;height:2px;background:var(--gold);margin-top:6px;border-radius:2px;}
-  .footer-col ul{list-style:none;}
-  .footer-col ul li{margin-bottom:10px;}
-  .footer-col ul li a{color:var(--text-muted);font-size:13.5px;text-decoration:none;transition:color .2s;}
-  .footer-col ul li a:hover{color:var(--gold);}
-  .footer-contact-item{display:flex;gap:10px;align-items:flex-start;margin-bottom:12px;}
-  .footer-contact-item i{color:var(--gold);margin-top:3px;font-size:13px;}
-  .footer-contact-item span,.footer-contact-item a{font-size:13px;color:var(--text-muted);text-decoration:none;}
-  .footer-contact-item a:hover{color:var(--gold);}
-  .footer-bottom{border-top:1px solid rgba(255,255,255,.07);padding-top:22px;display:flex;align-items:center;justify-content:space-between;font-size:13px;color:var(--text-muted);}
-
-  @media(max-width:960px){.page-hero-inner{grid-template-columns:1fr;}.page-hero-icon{display:none;}.footer-grid{grid-template-columns:1fr 1fr;}}
-  @media(max-width:680px){nav{display:none;}.nav-toggle{display:block;}.footer-grid{grid-template-columns:1fr;}.footer-bottom{flex-direction:column;gap:8px;text-align:center;}}
-
-  /* ─── Risk & Protection 2026 ─── */
-  .page-kicker{color:var(--gold);font-weight:600;font-size:14px;margin-bottom:14px;}
-  .page-hero h1{max-width:18ch;}
-  .hero-btns{display:flex;gap:14px;flex-wrap:wrap;}
-  .block-title{font-size:clamp(26px,3.2vw,36px);font-weight:800;line-height:1.2;margin-bottom:10px;}
-  .block-lead{color:var(--text-soft);font-size:16px;max-width:60ch;margin-bottom:40px;}
-  .situations{padding:90px 0;background:var(--blue-mid);}
-  .sit-grid{display:grid;grid-template-columns:1fr 1fr;gap:48px;}
-  .sit-col h3{font-size:15px;font-weight:700;color:var(--gold);margin-bottom:10px;}
-  .sit{display:block;padding:16px 36px 16px 0;border-bottom:1px solid rgba(255,255,255,.12);color:var(--white);
-    text-decoration:none;font-size:16px;position:relative;transition:color .2s;}
-  .sit::after{content:'\f232';font-family:'Font Awesome 6 Brands';position:absolute;right:4px;top:16px;color:var(--gold);opacity:.6;}
-  .sit:hover{color:var(--gold);} .sit:hover::after{opacity:1;}
-  .sub-services .block-title{margin-bottom:36px;}
-  .cover-grid{display:grid;grid-template-columns:1fr 1fr 1.2fr;gap:40px;}
-  .cover h3{font-size:18px;font-weight:700;margin-bottom:14px;display:flex;gap:10px;align-items:center;}
-  .cover h3 i{color:var(--gold);}
-  .cover ul{list-style:none;}
-  .cover li{padding:9px 0;border-bottom:1px solid rgba(255,255,255,.08);color:var(--text-soft);font-size:15px;}
-  .cover-trust{background:rgba(255,245,157,.07);border:1px solid rgba(255,245,157,.25);border-radius:var(--radius);padding:26px;}
-  .cover-trust p{color:var(--text-soft);font-size:15px;line-height:1.7;}
-  .trust-badge{margin-top:16px;color:var(--white) !important;font-weight:600;display:flex;gap:8px;align-items:center;}
-  .trust-badge i{color:var(--gold);}
-  .cta-band-left h2{max-width:620px;}
-  @media (max-width:960px){.sit-grid,.cover-grid{grid-template-columns:1fr;gap:36px;}}
-  /* ─── WhatsApp flotante ─── */
-  .wa-float{position:fixed;right:18px;bottom:18px;z-index:1200;display:flex;align-items:center;gap:10px;
-    background:#25d366;color:#05301a;font-weight:700;font-size:14px;text-decoration:none;
-    padding:12px 18px 12px 14px;border-radius:50px;box-shadow:0 10px 28px rgba(0,0,0,.35);
-    transition:transform .2s, box-shadow .2s;}
-  .wa-float i{font-size:22px;}
-  .wa-float:hover{transform:translateY(-2px);box-shadow:0 14px 32px rgba(0,0,0,.45);}
-  @media (max-width:680px){.wa-float span{display:none;}.wa-float{padding:14px;}}
-</style>
+<link rel="stylesheet" href="assets/css/site.css">
 </head>
 <body>
 
+<!-- ═══════════ HEADER ═══════════ -->
 <header>
   <div class="wrap header-inner">
     <a href="index.html" class="logo-wrap">
       <img src="assets/img/logo.png" alt="Rizkora">
       <div class="logo-tagline">Aliados estratégicos,<br>no proveedores</div>
     </a>
-    <nav>
-      <a href="index.html" class="nav-link">Inicio</a>
-      <a href="index.html#equipo" class="nav-link">Equipo</a>
+
+    <nav aria-label="Principal">
       <div class="nav-dropdown">
         <a href="index.html#servicios" class="nav-link">Servicios</a>
         <div class="dropdown-menu">
-          <a href="risk-protection.html"><i class="fas fa-shield-alt" style="color:var(--gold);margin-right:8px;"></i>Risk &amp; Protection</a>
+          <a href="risk-protection.html" aria-current="page"><i class="fas fa-shield-alt" style="color:var(--gold);margin-right:8px;"></i>Risk &amp; Protection</a>
           <a href="growth-people.html"><i class="fas fa-compass" style="color:var(--gold);margin-right:8px;"></i>Leadership &amp; Talent</a>
           <a href="bi-analytics.html"><i class="fas fa-chart-bar" style="color:var(--gold);margin-right:8px;"></i>BI &amp; Strategic Analytics</a>
           <a href="business-optimization.html"><i class="fas fa-cogs" style="color:var(--gold);margin-right:8px;"></i>Business Optimization</a>
         </div>
       </div>
+      <a href="index.html#empieza" class="nav-link">Empieza aquí</a>
+      <a href="index.html#como-trabajamos" class="nav-link">Cómo trabajamos</a>
+      <a href="index.html#equipo" class="nav-link">Equipo</a>
       <a href="workshops.html" class="nav-link">Talleres</a>
-      <a href="index.html#contacto" class="nav-link">Contacto</a>
       <a href="index.html#contacto" class="nav-link nav-cta">Cuéntanos tu caso</a>
     </nav>
-    <button class="nav-toggle" id="navToggle"><span></span><span></span><span></span></button>
+
+    <button class="nav-toggle" id="navToggle" aria-label="Abrir menú" aria-expanded="false" aria-controls="mobileNav">
+      <span></span><span></span><span></span>
+    </button>
   </div>
 </header>
+
 <div class="mobile-nav" id="mobileNav">
-  <a href="index.html">Inicio</a>
+  <a href="index.html#para-ti">Para ti</a>
+  <a href="index.html#para-empresas">Para tu empresa</a>
+  <a href="index.html#empieza">Empieza aquí</a>
+  <a href="index.html#como-trabajamos">Cómo trabajamos</a>
   <a href="index.html#equipo">Equipo</a>
-  <span style="color:var(--gold);font-size:12px;font-weight:700;padding:8px 16px;text-transform:uppercase;letter-spacing:1.5px;">Servicios</span>
-  <a href="risk-protection.html" class="mn-sub">Risk &amp; Protection</a>
+  <div class="mn-divider"></div>
+  <span class="mn-heading">Servicios</span>
+  <a href="risk-protection.html" aria-current="page" class="mn-sub">Risk &amp; Protection</a>
   <a href="growth-people.html" class="mn-sub">Leadership &amp; Talent</a>
   <a href="bi-analytics.html" class="mn-sub">BI &amp; Strategic Analytics</a>
   <a href="business-optimization.html" class="mn-sub">Business Optimization</a>
   <div class="mn-divider"></div>
   <a href="workshops.html">Talleres</a>
-  <a href="index.html#contacto">Contacto</a>
-  <a href="index.html#contacto" style="background:var(--gold);color:var(--blue-deep);font-weight:700;text-align:center;border-radius:50px;margin-top:10px;">Cuéntanos tu caso</a>
+  <a href="index.html#preguntas">Preguntas frecuentes</a>
+  <a href="index.html#contacto" class="mn-cta">Cuéntanos tu caso</a>
 </div>
 
-<!-- Breadcrumb -->
-<div class="breadcrumb" style="background:rgba(4,30,53,.8);">
-  <div class="wrap">
-    <a href="index.html" aria-label="Inicio"><i class="fas fa-home"></i></a>
-    <span>›</span>
-    <a href="index.html#servicios">Servicios</a>
-    <span>›</span>
-    <span class="current">Risk &amp; Protection</span>
-  </div>
-</div>
+<main>
 
-<!-- Page Hero -->
-<section class="page-hero">
-  <div class="wrap">
-    <div class="page-hero-inner">
-      <div>
-        <p class="page-kicker">Risk &amp; Protection</p>
-        <h1>Seguros explicados antes de firmar, no después.</h1>
-        <p class="hero-sub">Vida, ahorro, retiro y gastos médicos para personas y empresas. Comparamos opciones entre aseguradoras, te traducimos la letra chiquita y te decimos con claridad qué conviene y qué no.</p>
-        <div class="hero-btns">
-          <a href="https://wa.me/529991178631?text=Hola%2C%20quiero%20revisar%20mis%20opciones%20de%20seguro%20%28vida%20/%20GMM%20/%20retiro%29." class="btn-gold" target="_blank" rel="noopener"><i class="fab fa-whatsapp"></i> Platicar mi caso</a>
-          <a href="index.html#empieza" class="btn-outline">Ver los comparativos</a>
+<section class="hero">
+  <div class="wrap hero-inner">
+    <div class="hero-text">
+      <p class="hero-kicker">Risk &amp; Protection</p>
+      <h1>Seguros explicados antes de firmar, no después.</h1>
+      <p class="hero-sub">Vida, ahorro, retiro y gastos médicos para personas y empresas. Comparamos opciones entre aseguradoras, te traducimos la letra chiquita y te decimos con claridad qué conviene y qué no.</p>
+      <div class="hero-btns">
+        <a href="https://wa.me/529991178631?text=Hola%2C%20quiero%20revisar%20mis%20opciones%20de%20seguro%20%28vida%20/%20GMM%20/%20retiro%29." class="btn-gold" target="_blank" rel="noopener"><i class="fab fa-whatsapp"></i> Platicar mi caso</a>
+        <a href="#empieza" class="btn-outline">Ver los comparativos</a>
+      </div>
+    </div>
+    <figure class="sheet" aria-label="Comparativo de gastos médicos mayores">
+      <div class="sheet-head">
+        <div>
+          <p class="sheet-title">Comparativo de gastos médicos mayores</p>
+          <p class="sheet-meta">Lo que revisamos antes de recomendarte una póliza</p>
         </div>
       </div>
-      <div class="page-hero-icon" aria-hidden="true">
-        <i class="fas fa-shield-alt"></i>
-        <i class="fas fa-shield-alt top-icon"></i>
-      </div>
-    </div>
+      <ul class="sheet-list">
+        <li><span class="mark" aria-hidden="true">✓</span><span>Hospitales incluidos en tu nivel</span></li>
+        <li><span class="mark" aria-hidden="true">✓</span><span>Tabulador de honorarios médicos</span></li>
+        <li><span class="mark" aria-hidden="true">✓</span><span>Deducible, coaseguro y tope de coaseguro</span></li>
+        <li><span class="mark" aria-hidden="true">✓</span><span>Periodos de espera y preexistencias</span></li>
+        <li><span class="mark" aria-hidden="true">✓</span><span>Maternidad y cobertura en el extranjero</span></li>
+        <li><span class="mark" aria-hidden="true">✓</span><span>Cómo sube la prima con la edad</span></li>
+      </ul>
+      <figcaption class="sheet-foot">
+        <i class="fas fa-comment-dots" aria-hidden="true"></i>
+        <span>Dos pólizas con precio parecido pueden cubrir cosas muy distintas.</span>
+      </figcaption>
+    </figure>
   </div>
 </section>
 
-<!-- Situaciones -->
-<section class="situations">
+<section class="section mid">
   <div class="wrap">
     <h2 class="block-title">¿Te suena alguna de estas?</h2>
-    <p class="block-lead">Casi nadie llega pidiendo “un seguro”. Llegan con una duda concreta. Estas son las más comunes.</p>
-    <div class="sit-grid">
-      <div class="sit-col">
+    <p class="block-lead">Casi nadie llega pidiendo “un seguro”. Llegan con una duda concreta. Estas son las más comunes; toca la tuya y escríbenos.</p>
+    <div class="quotes">
+      <div>
         <h3>Para ti y tu familia</h3>
-        <a class="sit" href="https://wa.me/529991178631?text=Hola%2C%20me%20ofrecieron%20un%20seguro%20de%20vida%20con%20ahorro%20y%20quiero%20saber%20si%20me%20conviene." target="_blank" rel="noopener">Me ofrecieron un seguro de vida con ahorro y no sé si me conviene.</a>
-        <a class="sit" href="https://wa.me/529991178631?text=Hola%2C%20tengo%20un%20seguro%20de%20gastos%20m%C3%A9dicos%20y%20no%20entiendo%20bien%20qu%C3%A9%20cubre." target="_blank" rel="noopener">Tengo gastos médicos mayores y no entiendo qué cubre, ni qué hospitales.</a>
-        <a class="sit" href="https://wa.me/529991178631?text=Hola%2C%20quiero%20empezar%20a%20ahorrar%20para%20mi%20retiro%20y%20saber%20si%20un%20PPR%20me%20conviene." target="_blank" rel="noopener">Quiero ahorrar para mi retiro y no sé si un PPR tiene sentido para mí.</a>
-        <a class="sit" href="https://wa.me/529991178631?text=Hola%2C%20ya%20pago%20un%20seguro%20desde%20hace%20a%C3%B1os%20y%20quiero%20revisar%20si%20sigue%20siendo%20buena%20opci%C3%B3n." target="_blank" rel="noopener">Pago un seguro desde hace años y no sé si sigue siendo buena opción.</a>
+        <a class="quote" href="https://wa.me/529991178631?text=Hola%2C%20me%20ofrecieron%20un%20seguro%20de%20vida%20con%20ahorro%20y%20quiero%20saber%20si%20me%20conviene." target="_blank" rel="noopener">Me ofrecieron un seguro de vida con ahorro y no sé si me conviene.</a>
+        <a class="quote" href="https://wa.me/529991178631?text=Hola%2C%20tengo%20un%20seguro%20de%20gastos%20m%C3%A9dicos%20y%20no%20entiendo%20bien%20qu%C3%A9%20cubre." target="_blank" rel="noopener">Tengo gastos médicos mayores y no entiendo qué cubre, ni qué hospitales.</a>
+        <a class="quote" href="https://wa.me/529991178631?text=Hola%2C%20quiero%20empezar%20a%20ahorrar%20para%20mi%20retiro%20y%20saber%20si%20un%20PPR%20me%20conviene." target="_blank" rel="noopener">Quiero ahorrar para mi retiro y no sé si un PPR tiene sentido para mí.</a>
+        <a class="quote" href="https://wa.me/529991178631?text=Hola%2C%20ya%20pago%20un%20seguro%20desde%20hace%20a%C3%B1os%20y%20quiero%20revisar%20si%20sigue%20siendo%20buena%20opci%C3%B3n." target="_blank" rel="noopener">Pago un seguro desde hace años y no sé si sigue siendo buena opción.</a>
       </div>
-      <div class="sit-col">
+      <div>
         <h3>Para tu empresa</h3>
-        <a class="sit" href="https://wa.me/529991178631?text=Hola%2C%20mi%20empresa%20paga%20Vida%20Grupo%20/%20GMM%20Colectivo%20y%20quiero%20revisarlo." target="_blank" rel="noopener">Pagamos Vida Grupo o GMM Colectivo y nadie en el equipo sabe bien qué cubre.</a>
-        <a class="sit" href="https://wa.me/529991178631?text=Hola%2C%20la%20renovaci%C3%B3n%20de%20los%20seguros%20de%20mi%20empresa%20subi%C3%B3%20y%20quiero%20comparar%20opciones." target="_blank" rel="noopener">La renovación subió y queremos comparar antes de aceptar.</a>
-        <a class="sit" href="https://wa.me/529991178631?text=Hola%2C%20queremos%20agregar%20una%20prestaci%C3%B3n%20de%20seguros%20para%20el%20equipo%20y%20no%20sabemos%20por%20d%C3%B3nde%20empezar." target="_blank" rel="noopener">Queremos ofrecer una prestación de protección y no sabemos por dónde empezar.</a>
-        <a class="sit" href="https://wa.me/529991178631?text=Hola%2C%20me%20interesa%20un%20seguro%20de%20hombre%20clave%20para%20mi%20empresa." target="_blank" rel="noopener">El negocio depende mucho de una o dos personas clave.</a>
+        <a class="quote" href="https://wa.me/529991178631?text=Hola%2C%20mi%20empresa%20paga%20Vida%20Grupo%20/%20GMM%20Colectivo%20y%20quiero%20revisarlo." target="_blank" rel="noopener">Pagamos Vida Grupo o GMM Colectivo y nadie en el equipo sabe bien qué cubre.</a>
+        <a class="quote" href="https://wa.me/529991178631?text=Hola%2C%20la%20renovaci%C3%B3n%20de%20los%20seguros%20de%20mi%20empresa%20subi%C3%B3%20y%20quiero%20comparar%20opciones." target="_blank" rel="noopener">La renovación subió y queremos comparar antes de aceptar.</a>
+        <a class="quote" href="https://wa.me/529991178631?text=Hola%2C%20queremos%20agregar%20una%20prestaci%C3%B3n%20de%20seguros%20para%20el%20equipo%20y%20no%20sabemos%20por%20d%C3%B3nde%20empezar." target="_blank" rel="noopener">Queremos ofrecer una prestación de protección y no sabemos por dónde empezar.</a>
+        <a class="quote" href="https://wa.me/529991178631?text=Hola%2C%20me%20interesa%20un%20seguro%20de%20hombre%20clave%20para%20mi%20empresa." target="_blank" rel="noopener">El negocio depende mucho de una o dos personas clave.</a>
       </div>
     </div>
   </div>
 </section>
 
-<!-- Coberturas -->
-<section class="sub-services">
+<section class="paper" id="empieza">
+  <div class="wrap">
+    <div class="paper-head">
+      <h2>Empieza por aquí</h2>
+      <p>Sesiones con un entregable concreto para entender tu situación antes de decidir nada.</p>
+    </div>
+    <div class="offers">
+      <div class="offer">
+        <p class="offer-for">Personas</p>
+        <h3>Comparativo de vida y ahorro</h3>
+        <p>Comparamos propuestas de distintas aseguradoras en condiciones similares: valores garantizados, recargos por pago fraccionado, rendimiento y edades de cancelación.</p>
+        <p class="offer-get"><strong>Te llevas:</strong> el comparativo y una sesión para revisarlo contigo.</p>
+        <a href="https://wa.me/529991178631?text=Hola%2C%20me%20interesa%20el%20comparativo%20de%20seguro%20de%20vida%20y%20ahorro." target="_blank" rel="noopener">Pedir mi comparativo</a>
+      </div>
+      <div class="offer">
+        <p class="offer-for">Personas</p>
+        <h3>Comparativo de gastos médicos mayores</h3>
+        <p>Revisamos tabuladores, hospitales, coberturas, deducibles y condiciones para que sepas qué estás comprando, o qué tienes ya.</p>
+        <p class="offer-get"><strong>Te llevas:</strong> las diferencias relevantes explicadas en lenguaje claro.</p>
+        <a href="https://wa.me/529991178631?text=Hola%2C%20me%20interesa%20el%20comparativo%20de%20gastos%20m%C3%A9dicos%20mayores." target="_blank" rel="noopener">Pedir mi comparativo</a>
+      </div>
+      <div class="offer">
+        <p class="offer-for">Empresas</p>
+        <h3>Diagnóstico de prestaciones</h3>
+        <p>Qué ofreces hoy, cuánto cuesta, qué entienden tus colaboradores y qué usan. Una prestación no sirve de mucho si nadie sabe cómo usarla.</p>
+        <p class="offer-get"><strong>Te llevas:</strong> un mapa de tus prestaciones y qué ajustar primero.</p>
+        <a href="https://wa.me/529991178631?text=Hola%2C%20me%20interesa%20el%20diagn%C3%B3stico%20de%20prestaciones%20para%20mi%20empresa." target="_blank" rel="noopener">Solicitar diagnóstico</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section dark">
   <div class="wrap">
     <h2 class="block-title">Con qué te podemos ayudar</h2>
+    <p class="block-lead">Trabajamos con varias aseguradoras para poder comparar, no para venderte la de siempre.</p>
     <div class="cover-grid">
       <div class="cover">
-        <h3><i class="fas fa-user-shield" aria-hidden="true"></i> Personas</h3>
+        <h3>Personas</h3>
         <ul>
           <li>Seguros de vida y protección patrimonial</li>
           <li>Ahorro y retiro, incluyendo PPR</li>
@@ -281,7 +184,7 @@
         </ul>
       </div>
       <div class="cover">
-        <h3><i class="fas fa-building" aria-hidden="true"></i> Empresas</h3>
+        <h3>Empresas</h3>
         <ul>
           <li>Vida Grupo</li>
           <li>Gastos médicos mayores colectivo</li>
@@ -292,31 +195,31 @@
           <li>Seguro de deudor y coberturas colectivas</li>
         </ul>
       </div>
-      <div class="cover cover-trust">
-        <h3>Cómo lo hacemos</h3>
+      <div class="cover-note">
+        <h3 class="cover-note-title">Cómo lo hacemos</h3>
         <p>Comparamos propuestas en condiciones similares (misma edad, suma asegurada y plazo) y revisamos lo que casi nadie explica: valores garantizados, recargos por pago fraccionado, rescates, deducibles, coaseguros y tabuladores.</p>
-        <p class="trust-badge"><i class="fas fa-certificate" aria-hidden="true"></i> Asesoría con cédula vigente tipo B ante la CNSF</p>
+        <p class="person-badge"><i class="fas fa-certificate" aria-hidden="true"></i> Asesoría con cédula vigente tipo B ante la CNSF</p>
       </div>
     </div>
   </div>
 </section>
 
-<!-- CTA Band -->
-<section class="cta-band">
-  <div class="wrap">
-    <div class="cta-band-inner">
-      <div class="cta-band-left">
-        <h2>Un seguro no siempre es la solución. Primero hay que entender el problema.</h2>
-        <p>Cuéntanos qué tienes hoy y qué te preocupa. Si lo que tienes ya está bien, también te lo vamos a decir.</p>
-      </div>
-      <div class="cta-band-right">
-        <a href="https://wa.me/529991178631?text=Hola%2C%20quiero%20revisar%20mis%20opciones%20de%20seguro%20%28vida%20/%20GMM%20/%20retiro%29." class="btn-gold" target="_blank" rel="noopener"><i class="fab fa-whatsapp"></i> Platicar mi caso</a>
-        <a href="index.html#contacto" class="btn-outline">Prefiero que me contacten</a>
-      </div>
+<section class="cta-final">
+  <div class="wrap cta-final-inner">
+    <div>
+      <h2>Un seguro no siempre es la solución. Primero hay que entender el problema.</h2>
+      <p>Cuéntanos qué tienes hoy y qué te preocupa. Si lo que tienes ya está bien, también te lo vamos a decir.</p>
+    </div>
+    <div class="hero-btns">
+      <a href="https://wa.me/529991178631?text=Hola%2C%20quiero%20revisar%20mis%20opciones%20de%20seguro%20%28vida%20/%20GMM%20/%20retiro%29." class="btn-gold" target="_blank" rel="noopener"><i class="fab fa-whatsapp"></i> Platicar mi caso</a>
+      <a href="index.html#contacto" class="btn-outline">Prefiero que me contacten</a>
     </div>
   </div>
 </section>
 
+</main>
+
+<!-- ═══════════ FOOTER ═══════════ -->
 <footer>
   <div class="wrap">
     <div class="footer-grid">
@@ -324,21 +227,23 @@
         <img src="assets/img/logo.png" alt="Rizkora" class="footer-logo-img">
         <p class="footer-about-text">Firma de consultoría que ayuda a personas y empresas a tomar mejores decisiones sobre protección, personas, datos y operación.</p>
         <div class="footer-social">
-          <a href="https://wa.me/529991178631" class="social-btn"><i class="fab fa-whatsapp"></i></a>
-          <a href="mailto:contacto@rizkora.com" class="social-btn"><i class="fas fa-envelope"></i></a>
+          <a href="https://wa.me/529991178631" class="social-btn" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
           <a href="https://www.instagram.com/rizkoramx/" class="social-btn" aria-label="Instagram" target="_blank" rel="noopener"><i class="fab fa-instagram"></i></a>
+          <a href="mailto:contacto@rizkora.com" class="social-btn" aria-label="Email"><i class="fas fa-envelope"></i></a>
         </div>
       </div>
+
       <div class="footer-col">
         <h4>Servicios</h4>
         <ul>
-          <li><a href="risk-protection.html">Risk &amp; Protection</a></li>
+          <li><a href="risk-protection.html" aria-current="page">Risk &amp; Protection</a></li>
           <li><a href="growth-people.html">Leadership &amp; Talent</a></li>
           <li><a href="bi-analytics.html">BI &amp; Strategic Analytics</a></li>
           <li><a href="business-optimization.html">Business Optimization</a></li>
           <li><a href="workshops.html">Talleres</a></li>
         </ul>
       </div>
+
       <div class="footer-col">
         <h4>Contacto</h4>
         <div class="footer-contact-item"><i class="fas fa-map-marker-alt"></i><span>Mérida, Yucatán, México</span></div>
@@ -347,19 +252,27 @@
         <div class="footer-contact-item"><i class="fas fa-clock"></i><span>Lun – Vie 9:00 – 17:00</span></div>
       </div>
     </div>
+
     <div class="footer-bottom">
       <span>© 2026 Rizkora. Todos los derechos reservados.</span>
       <span>Mérida, Yucatán, México</span>
     </div>
   </div>
 </footer>
+
+<a class="wa-float" href="https://wa.me/529991178631?text=Hola%2C%20quiero%20revisar%20mis%20opciones%20de%20seguro%20%28vida%20/%20GMM%20/%20retiro%29." target="_blank" rel="noopener" aria-label="Escríbenos por WhatsApp"><i class="fab fa-whatsapp"></i><span>Escríbenos</span></a>
+
 <script>
   const toggle = document.getElementById('navToggle');
   const mobileNav = document.getElementById('mobileNav');
-  toggle.addEventListener('click', () => mobileNav.classList.toggle('open'));
-  mobileNav.querySelectorAll('a').forEach(a => a.addEventListener('click', () => mobileNav.classList.remove('open')));
+  toggle.addEventListener('click', () => {
+    const open = mobileNav.classList.toggle('open');
+    toggle.setAttribute('aria-expanded', open);
+  });
+  mobileNav.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
+    mobileNav.classList.remove('open');
+    toggle.setAttribute('aria-expanded', 'false');
+  }));
 </script>
-
-<a class="wa-float" href="https://wa.me/529991178631?text=Hola%2C%20quiero%20revisar%20mis%20opciones%20de%20seguro%20%28vida%20/%20GMM%20/%20retiro%29." target="_blank" rel="noopener" aria-label="Escríbenos por WhatsApp"><i class="fab fa-whatsapp"></i><span>Escríbenos</span></a>
 </body>
 </html>

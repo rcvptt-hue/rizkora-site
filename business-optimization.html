@@ -1,7 +1,8 @@
 <!doctype html>
 <html lang="es">
 <head>
-<meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Optimización de procesos, prestaciones y KPIs | Business Optimization — Rizkora</title>
 <meta name="description" content="Mapeo de procesos, diseño de prestaciones, análisis de rotación y KPIs para que tu operación sea más eficiente y tus decisiones más claras." />
 <link rel="canonical" href="https://rizkora.com/business-optimization.html" />
@@ -18,266 +19,153 @@
 <meta property="og:image:width" content="1200" />
 <meta property="og:image:height" content="630" />
 <meta name="twitter:card" content="summary_large_image" />
-<link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&amp;display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<style>
-  :root{--blue-deep:#041e35;--blue-mid:#063a5e;--blue-main:#064c78;--blue-card:#0a5a8a;--gold:#fff59d;--gold-hover:#f5e642;--white:#ffffff;--text-soft:rgba(255,255,255,0.82);--text-muted:rgba(255,255,255,0.55);--card-bg:rgba(6,76,120,0.55);--card-border:rgba(255,255,255,0.12);--radius:14px;--radius-sm:8px;}
-  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}html{scroll-behavior:smooth;}
-  body{font-family:'Poppins',sans-serif;background:var(--blue-deep);color:var(--white);line-height:1.65;overflow-x:hidden;}
-  .wrap{max-width:1200px;margin:0 auto;padding:0 24px;}
-  .gold{color:var(--gold);}
-  .btn-gold{display:inline-flex;align-items:center;gap:8px;background:var(--gold);color:var(--blue-deep);padding:13px 30px;border-radius:50px;font-weight:700;font-size:15px;text-decoration:none;border:none;cursor:pointer;transition:background .25s,transform .2s;}
-  .btn-gold:hover{background:var(--gold-hover);transform:translateY(-2px);}
-  .btn-outline{display:inline-flex;align-items:center;gap:8px;background:transparent;color:var(--white);padding:12px 28px;border-radius:50px;font-weight:600;font-size:15px;text-decoration:none;border:2px solid rgba(255,255,255,.55);transition:border-color .25s;}
-  .btn-outline:hover{border-color:var(--gold);color:var(--gold);}
-  .section-tag{display:inline-block;background:rgba(255,245,157,.18);color:var(--gold);font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:5px 14px;border-radius:50px;margin-bottom:16px;}
-  .divider-gold{width:60px;height:3px;background:var(--gold);border-radius:2px;margin:14px 0 24px;}
-  header{background:rgba(4,30,53,.97);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,.07);position:sticky;top:0;z-index:1000;}
-  .header-inner{display:flex;align-items:center;justify-content:space-between;height:70px;}
-  .logo-wrap{display:flex;align-items:center;gap:12px;text-decoration:none;}
-  .logo-wrap img{height:46px;width:auto;}
-  .logo-tagline{font-size:12px;color:rgba(255,255,255,.5);}
-  nav{display:flex;align-items:center;gap:6px;}
-  nav a.nav-link{color:var(--white);font-size:14px;font-weight:500;text-decoration:none;padding:8px 14px;border-radius:6px;transition:color .2s,background .2s;}
-  nav a.nav-link:hover{color:var(--gold);background:rgba(255,255,255,.06);}
-  .nav-dropdown{position:relative;}
-  .nav-dropdown>.nav-link::after{content:' ▾';font-size:11px;}
-  .dropdown-menu{position:absolute;top:calc(100% + 8px);left:50%;transform:translateX(-50%) translateY(-6px);background:var(--blue-mid);border:1px solid rgba(255,255,255,.12);border-radius:var(--radius-sm);padding:8px;min-width:230px;opacity:0;visibility:hidden;pointer-events:none;transition:opacity .2s,transform .2s;box-shadow:0 16px 40px rgba(0,0,0,.4);}
-  .nav-dropdown:hover .dropdown-menu{opacity:1;visibility:visible;pointer-events:all;transform:translateX(-50%) translateY(0);}
-  .dropdown-menu a{display:block;padding:9px 14px;color:var(--text-soft);font-size:13.5px;text-decoration:none;border-radius:6px;transition:background .2s,color .2s;}
-  .dropdown-menu a:hover{background:rgba(255,255,255,.08);color:var(--gold);}
-  .nav-cta{margin-left:8px;background:var(--gold)!important;color:var(--blue-deep)!important;font-weight:700!important;padding:9px 20px!important;border-radius:50px!important;}
-  .nav-cta:hover{background:var(--gold-hover)!important;}
-  .nav-toggle{display:none;background:none;border:none;cursor:pointer;padding:6px;}
-  .nav-toggle span{display:block;width:24px;height:2px;background:var(--white);margin:5px 0;border-radius:2px;}
-  .mobile-nav{display:none;position:fixed;inset:70px 0 0;background:rgba(4,30,53,.98);backdrop-filter:blur(16px);z-index:999;padding:30px 24px;flex-direction:column;gap:6px;overflow-y:auto;}
-  .mobile-nav.open{display:flex;}
-  .mobile-nav a{color:var(--white);font-size:16px;font-weight:500;text-decoration:none;padding:12px 16px;border-radius:var(--radius-sm);transition:background .2s,color .2s;}
-  .mobile-nav a:hover{background:rgba(255,255,255,.08);color:var(--gold);}
-  .mn-divider{height:1px;background:rgba(255,255,255,.1);margin:8px 0;}.mn-sub{padding-left:32px;font-size:14px;color:var(--text-soft);}
-  .breadcrumb{padding:16px 0;border-bottom:1px solid rgba(255,255,255,.07);background:rgba(4,30,53,.8);}
-  .breadcrumb a{color:var(--text-muted);text-decoration:none;font-size:13px;}
-  .breadcrumb a:hover{color:var(--gold);}
-  .breadcrumb span{color:var(--text-muted);font-size:13px;margin:0 8px;}
-  .breadcrumb .current{color:var(--gold);font-size:13px;font-weight:600;}
-  .page-hero{padding:70px 0 60px;background:radial-gradient(ellipse 80% 70% at 70% 40%,#0d5c94 0%,var(--blue-deep) 70%);position:relative;overflow:hidden;}
-  .page-hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.02) 1px,transparent 1px);background-size:60px 60px;pointer-events:none;}
-  .page-hero-inner{display:grid;grid-template-columns:1fr auto;gap:40px;align-items:center;position:relative;z-index:1;}
-  .page-hero h1{font-size:clamp(32px,5vw,56px);font-weight:800;line-height:1.1;margin-bottom:16px;}
-  .page-hero h1 em{font-style:normal;color:var(--gold);}
-  .page-hero .hero-sub{font-size:18px;color:var(--text-soft);max-width:580px;margin-bottom:32px;line-height:1.7;}
-  .page-hero-icon{font-size:120px;color:rgba(255,245,157,.1);position:relative;}
-  .page-hero-icon .top-icon{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:70px;color:var(--gold);filter:drop-shadow(0 4px 20px rgba(255,245,157,.4));}
-
-  /* Solutions grid */
-  .solutions-section{padding:90px 0;}
-  .sol-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:24px;}
-  .sol-card{background:var(--card-bg);border:1px solid var(--card-border);border-radius:var(--radius);padding:32px 28px;backdrop-filter:blur(8px);transition:border-color .25s,transform .25s;}
-  .sol-card:hover{border-color:rgba(255,245,157,.4);transform:translateY(-4px);}
-  .sol-icon{width:54px;height:54px;background:rgba(255,245,157,.15);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;color:var(--gold);margin-bottom:16px;}
-  .sol-card h3{font-size:18px;font-weight:700;color:var(--gold);margin-bottom:10px;}
-  .sol-card>.sol-desc{font-size:13.5px;color:var(--text-soft);margin-bottom:16px;}
-  .sol-sub-label{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--gold);margin-bottom:8px;}
-  .sol-list{list-style:none;margin:0;}
-  .sol-list li{font-size:13px;color:var(--text-soft);padding:4px 0;display:flex;gap:8px;align-items:flex-start;}
-  .sol-list li::before{content:'✓';color:var(--gold);font-weight:700;flex-shrink:0;}
-
-  /* Enfoque / CTA */
-  .enfoque-band{padding:80px 0;background:linear-gradient(180deg,var(--blue-deep) 0%,var(--blue-mid) 100%);}
-  .enfoque-inner{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;}
-  .enfoque-text h2{font-size:clamp(22px,3vw,30px);font-weight:700;margin-bottom:14px;}
-  .enfoque-text h2 em{font-style:normal;color:var(--gold);}
-  .enfoque-text p{color:var(--text-soft);font-size:15px;line-height:1.75;margin-bottom:14px;}
-  .cta-box{background:var(--card-bg);border:1px solid var(--card-border);border-radius:var(--radius);padding:40px;text-align:center;backdrop-filter:blur(8px);}
-  .cta-box .cta-icon{font-size:48px;color:var(--gold);margin-bottom:14px;}
-  .cta-box h3{font-size:20px;font-weight:700;margin-bottom:12px;}
-  .cta-box h3 em{font-style:normal;color:var(--gold);}
-  .cta-box p{color:var(--text-soft);font-size:14px;margin-bottom:24px;}
-  .cta-box-btns{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;}
-
-  footer{background:var(--blue-deep);border-top:1px solid rgba(255,255,255,.08);padding:60px 0 28px;}
-  .footer-grid{display:grid;grid-template-columns:1.6fr 1fr 1fr;gap:50px;margin-bottom:48px;}
-  .footer-logo-img{height:44px;width:auto;margin-bottom:14px;}
-  .footer-about-text{font-size:13.5px;color:var(--text-muted);line-height:1.7;max-width:300px;margin-bottom:20px;}
-  .footer-social{display:flex;gap:10px;}
-  .social-btn{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;color:var(--text-soft);font-size:14px;text-decoration:none;transition:background .2s,color .2s,border-color .2s;}
-  .social-btn:hover{background:var(--gold);color:var(--blue-deep);border-color:var(--gold);}
-  .footer-col h4{font-size:14px;font-weight:700;color:var(--gold);margin-bottom:18px;position:relative;}
-  .footer-col h4::after{content:'';display:block;width:30px;height:2px;background:var(--gold);margin-top:6px;border-radius:2px;}
-  .footer-col ul{list-style:none;}
-  .footer-col ul li{margin-bottom:10px;}
-  .footer-col ul li a{color:var(--text-muted);font-size:13.5px;text-decoration:none;transition:color .2s;}
-  .footer-col ul li a:hover{color:var(--gold);}
-  .footer-contact-item{display:flex;gap:10px;align-items:flex-start;margin-bottom:12px;}
-  .footer-contact-item i{color:var(--gold);margin-top:3px;font-size:13px;}
-  .footer-contact-item span,.footer-contact-item a{font-size:13px;color:var(--text-muted);text-decoration:none;}
-  .footer-contact-item a:hover{color:var(--gold);}
-  .footer-bottom{border-top:1px solid rgba(255,255,255,.07);padding-top:22px;display:flex;align-items:center;justify-content:space-between;font-size:13px;color:var(--text-muted);}
-  @media(max-width:960px){.page-hero-inner,.enfoque-inner{grid-template-columns:1fr;}.page-hero-icon{display:none;}.sol-grid{grid-template-columns:1fr;}.footer-grid{grid-template-columns:1fr 1fr;}}
-  @media(max-width:680px){nav{display:none;}.nav-toggle{display:block;}.footer-grid{grid-template-columns:1fr;}.footer-bottom{flex-direction:column;gap:8px;text-align:center;}}
-
-  /* ─── WhatsApp flotante ─── */
-  .wa-float{position:fixed;right:18px;bottom:18px;z-index:1200;display:flex;align-items:center;gap:10px;
-    background:#25d366;color:#05301a;font-weight:700;font-size:14px;text-decoration:none;
-    padding:12px 18px 12px 14px;border-radius:50px;box-shadow:0 10px 28px rgba(0,0,0,.35);
-    transition:transform .2s, box-shadow .2s;}
-  .wa-float i{font-size:22px;}
-  .wa-float:hover{transform:translateY(-2px);box-shadow:0 14px 32px rgba(0,0,0,.45);}
-  @media (max-width:680px){.wa-float span{display:none;}.wa-float{padding:14px;}}
-</style>
+<link rel="stylesheet" href="assets/css/site.css">
 </head>
 <body>
+
+<!-- ═══════════ HEADER ═══════════ -->
 <header>
   <div class="wrap header-inner">
     <a href="index.html" class="logo-wrap">
       <img src="assets/img/logo.png" alt="Rizkora">
       <div class="logo-tagline">Aliados estratégicos,<br>no proveedores</div>
     </a>
-    <nav>
-      <a href="index.html" class="nav-link">Inicio</a>
-      <a href="index.html#equipo" class="nav-link">Equipo</a>
+
+    <nav aria-label="Principal">
       <div class="nav-dropdown">
         <a href="index.html#servicios" class="nav-link">Servicios</a>
         <div class="dropdown-menu">
           <a href="risk-protection.html"><i class="fas fa-shield-alt" style="color:var(--gold);margin-right:8px;"></i>Risk &amp; Protection</a>
           <a href="growth-people.html"><i class="fas fa-compass" style="color:var(--gold);margin-right:8px;"></i>Leadership &amp; Talent</a>
           <a href="bi-analytics.html"><i class="fas fa-chart-bar" style="color:var(--gold);margin-right:8px;"></i>BI &amp; Strategic Analytics</a>
-          <a href="business-optimization.html"><i class="fas fa-cogs" style="color:var(--gold);margin-right:8px;"></i>Business Optimization</a>
+          <a href="business-optimization.html" aria-current="page"><i class="fas fa-cogs" style="color:var(--gold);margin-right:8px;"></i>Business Optimization</a>
         </div>
       </div>
+      <a href="index.html#empieza" class="nav-link">Empieza aquí</a>
+      <a href="index.html#como-trabajamos" class="nav-link">Cómo trabajamos</a>
+      <a href="index.html#equipo" class="nav-link">Equipo</a>
       <a href="workshops.html" class="nav-link">Talleres</a>
-      <a href="index.html#contacto" class="nav-link">Contacto</a>
       <a href="index.html#contacto" class="nav-link nav-cta">Cuéntanos tu caso</a>
     </nav>
-    <button class="nav-toggle" id="navToggle"><span></span><span></span><span></span></button>
+
+    <button class="nav-toggle" id="navToggle" aria-label="Abrir menú" aria-expanded="false" aria-controls="mobileNav">
+      <span></span><span></span><span></span>
+    </button>
   </div>
 </header>
+
 <div class="mobile-nav" id="mobileNav">
-  <a href="index.html">Inicio</a><a href="index.html#equipo">Equipo</a>
-  <span style="color:var(--gold);font-size:12px;font-weight:700;padding:8px 16px;text-transform:uppercase;letter-spacing:1.5px;">Servicios</span>
+  <a href="index.html#para-ti">Para ti</a>
+  <a href="index.html#para-empresas">Para tu empresa</a>
+  <a href="index.html#empieza">Empieza aquí</a>
+  <a href="index.html#como-trabajamos">Cómo trabajamos</a>
+  <a href="index.html#equipo">Equipo</a>
+  <div class="mn-divider"></div>
+  <span class="mn-heading">Servicios</span>
   <a href="risk-protection.html" class="mn-sub">Risk &amp; Protection</a>
   <a href="growth-people.html" class="mn-sub">Leadership &amp; Talent</a>
   <a href="bi-analytics.html" class="mn-sub">BI &amp; Strategic Analytics</a>
-  <a href="business-optimization.html" class="mn-sub">Business Optimization</a>
+  <a href="business-optimization.html" aria-current="page" class="mn-sub">Business Optimization</a>
   <div class="mn-divider"></div>
   <a href="workshops.html">Talleres</a>
-  <a href="index.html#contacto">Contacto</a>
-  <a href="index.html#contacto" style="background:var(--gold);color:var(--blue-deep);font-weight:700;text-align:center;border-radius:50px;margin-top:10px;">Cuéntanos tu caso</a>
-</div>
-<div class="breadcrumb">
-  <div class="wrap">
-    <a href="index.html" aria-label="Inicio"><i class="fas fa-home"></i></a><span>›</span>
-    <a href="index.html#servicios">Servicios</a><span>›</span>
-    <span class="current">Business Optimization</span>
-  </div>
+  <a href="index.html#preguntas">Preguntas frecuentes</a>
+  <a href="index.html#contacto" class="mn-cta">Cuéntanos tu caso</a>
 </div>
 
-<section class="page-hero">
-  <div class="page-hero-grid"></div>
-  <div class="wrap">
-    <div class="page-hero-inner">
-      <div>
-        <span class="section-tag">Pilar 4</span>
-        <h1>Business <em>Optimization</em></h1>
-        <div class="divider-gold"></div>
-        <p class="hero-sub">Optimizamos estructuras, procesos y estrategias para impulsar crecimiento sostenible. Identificamos áreas de oportunidad e implementamos mejoras medibles que fortalecen la eficiencia y el desempeño organizacional.</p>
-        <a href="index.html#contacto" class="btn-gold"><i class="fas fa-calendar-alt"></i> Agenda una Consultoría</a>
-      </div>
-      <div class="page-hero-icon">
-        <i class="fas fa-cogs"></i>
-        <i class="fas fa-cogs top-icon"></i>
-      </div>
-    </div>
-  </div>
-</section>
+<main>
 
-<section class="solutions-section">
-  <div class="wrap">
-    <div style="text-align:center;margin-bottom:50px;">
-      <span class="section-tag">¿Qué hacemos?</span>
-      <h2 style="font-size:clamp(24px,3.5vw,36px);font-weight:700;">Soluciones de <span class="gold">optimización empresarial</span></h2>
-      <div class="divider-gold" style="margin:14px auto;"></div>
-    </div>
-    <div class="sol-grid">
-      <div class="sol-card">
-        <div class="sol-icon"><i class="fas fa-gift"></i></div>
-        <h3>Diseño estratégico de beneficios</h3>
-        <p class="sol-desc">Analizamos el presupuesto y las necesidades de cada organización para desarrollar paquetes de beneficios alineados a la estructura, objetivos y cultura de la empresa.</p>
-        <div class="sol-sub-label">Incluye:</div>
-        <ul class="sol-list">
-          <li>Análisis de presupuesto</li>
-          <li>Diseño de beneficios adicionales</li>
-          <li>Estrategias de bienestar laboral</li>
-          <li>Optimización de prestaciones</li>
-          <li>Propuestas adaptadas al perfil del equipo</li>
-        </ul>
-      </div>
-      <div class="sol-card">
-        <div class="sol-icon"><i class="fas fa-search"></i></div>
-        <h3>Análisis organizacional</h3>
-        <p class="sol-desc">Evaluamos factores clave que impactan directamente en el desempeño y estabilidad de la empresa.</p>
-        <div class="sol-sub-label">Analizamos:</div>
-        <ul class="sol-list">
-          <li>Rotación de personal</li>
-          <li>Satisfacción del equipo</li>
-          <li>Áreas de oportunidad organizacional</li>
-          <li>Eficiencia operativa</li>
-          <li>Riesgos internos y administrativos</li>
-        </ul>
-      </div>
-      <div class="sol-card">
-        <div class="sol-icon"><i class="fas fa-sitemap"></i></div>
-        <h3>Mapeo y optimización de procesos</h3>
-        <p class="sol-desc">Documentamos y analizamos procesos internos para detectar oportunidades de mejora, optimizar flujos de trabajo y fortalecer la operación.</p>
-        <div class="sol-sub-label">Soluciones:</div>
-        <ul class="sol-list">
-          <li>Mapeo de procesos</li>
-          <li>Identificación de cuellos de botella</li>
-          <li>Optimización operativa</li>
-          <li>Estandarización de procesos</li>
-          <li>Seguimiento y mejora continua</li>
-        </ul>
-      </div>
-      <div class="sol-card">
-        <div class="sol-icon"><i class="fas fa-tachometer-alt"></i></div>
-        <h3>Data &amp; Performance Tracking</h3>
-        <p class="sol-desc">Transformamos información operativa en datos accionables que permitan tomar decisiones más inteligentes y medibles.</p>
-        <div class="sol-sub-label">Incluye:</div>
-        <ul class="sol-list">
-          <li>Seguimiento de indicadores</li>
-          <li>Dashboards y métricas</li>
-          <li>Estadísticas organizacionales</li>
-          <li>Análisis de desempeño</li>
-          <li>Reportes estratégicos</li>
-        </ul>
+<section class="hero">
+  <div class="wrap hero-inner">
+    <div class="hero-text">
+      <p class="hero-kicker">Business Optimization</p>
+      <h1>Ordenamos la operación para que decidir sea más fácil.</h1>
+      <p class="hero-sub">Procesos, prestaciones, estructura e indicadores. Revisamos cómo está armada tu operación, encontramos dónde se pierde tiempo o dinero y te acompañamos a ajustarlo.</p>
+      <div class="hero-btns">
+        <a href="https://wa.me/529991178631?text=Hola%2C%20me%20interesa%20revisar%20la%20operaci%C3%B3n%20/%20prestaciones%20de%20mi%20empresa." class="btn-gold" target="_blank" rel="noopener"><i class="fab fa-whatsapp"></i> Platicar mi caso</a>
+        <a href="#que-hacemos" class="btn-outline">Ver qué hacemos</a>
       </div>
     </div>
-  </div>
-</section>
-
-<section class="enfoque-band">
-  <div class="wrap">
-    <div class="enfoque-inner">
-      <div class="enfoque-text">
-        <span class="section-tag">Nuestro enfoque</span>
-        <h2>El crecimiento sostenible se construye con <em>estructura y decisiones inteligentes</em></h2>
-        <div class="divider-gold"></div>
-        <p>Creemos que el crecimiento sostenible no depende únicamente de aumentar ventas, sino de construir estructuras más eficientes, equipos más sólidos y procesos que permitan tomar decisiones con mayor claridad y control.</p>
-        <p>Por eso desarrollamos soluciones prácticas, medibles y adaptadas a las necesidades reales de cada organización.</p>
-      </div>
-      <div class="cta-box">
-        <div class="cta-icon"><i class="fas fa-rocket"></i></div>
-        <h3>Hagamos más eficiente y estratégica <em>tu operación</em></h3>
-        <p>Nuestro equipo está listo para analizar tu empresa e implementar soluciones con impacto real.</p>
-        <div class="cta-box-btns">
-          <a href="index.html#contacto" class="btn-gold"><i class="fas fa-calendar-alt"></i> Agenda una consultoría</a>
-          <a href="index.html#servicios" class="btn-outline">Conoce nuestras soluciones</a>
+    <figure class="sheet" aria-label="Señales de que conviene revisar">
+      <div class="sheet-head">
+        <div>
+          <p class="sheet-title">Señales de que conviene revisar</p>
+          <p class="sheet-meta">Si reconoces dos o más, vale la pena hablar</p>
         </div>
       </div>
+      <ul class="sheet-list">
+        <li><span class="mark" aria-hidden="true">!</span><span>Procesos que dependen de una sola persona</span></li>
+        <li><span class="mark" aria-hidden="true">!</span><span>Prestaciones que cuestan mucho y casi nadie usa</span></li>
+        <li><span class="mark" aria-hidden="true">!</span><span>Rotación alta sin un diagnóstico claro</span></li>
+        <li><span class="mark" aria-hidden="true">!</span><span>Indicadores que se reportan pero no cambian decisiones</span></li>
+        <li><span class="mark" aria-hidden="true">!</span><span>Un presupuesto que se arma copiando el del año pasado</span></li>
+      </ul>
+      <figcaption class="sheet-foot">
+        <i class="fas fa-comment-dots" aria-hidden="true"></i>
+        <span>Optimizar no siempre es recortar. A veces es dejar de hacer lo que no aporta.</span>
+      </figcaption>
+    </figure>
+  </div>
+</section>
+
+<section class="section dark" id="que-hacemos">
+  <div class="wrap">
+    <h2 class="block-title">Qué hacemos</h2>
+    <p class="block-lead">Cuatro frentes que suelen estar conectados. Podemos empezar por uno.</p>
+    <div class="rule-grid two">
+      <article class="rule"><h3>Diseño estratégico de prestaciones</h3><p>Analizamos el presupuesto y las necesidades de tu equipo para diseñar prestaciones alineadas a la estructura, objetivos y cultura de la empresa.</p><ul><li>Análisis de presupuesto</li><li>Diseño de beneficios adicionales</li><li>Estrategias de bienestar laboral</li><li>Optimización de prestaciones actuales</li></ul></article>
+      <article class="rule"><h3>Análisis organizacional</h3><p>Evaluamos los factores que más pesan en el desempeño y la estabilidad de la empresa.</p><ul><li>Rotación de personal</li><li>Satisfacción del equipo</li><li>Eficiencia operativa</li><li>Riesgos internos y administrativos</li></ul></article>
+      <article class="rule"><h3>Mapeo y optimización de procesos</h3><p>Documentamos cómo se trabaja hoy para detectar cuellos de botella y estandarizar lo que funciona.</p><ul><li>Mapeo de procesos</li><li>Identificación de cuellos de botella</li><li>Estandarización</li><li>Mejora continua</li></ul></article>
+      <article class="rule"><h3>Seguimiento de desempeño</h3><p>Convertimos la información operativa en indicadores que permiten decidir con más claridad y control.</p><ul><li>Definición de indicadores</li><li>Estadísticas organizacionales</li><li>Análisis de desempeño</li><li>Reportes para dirección</li></ul></article>
     </div>
   </div>
 </section>
 
+<section class="paper">
+  <div class="wrap split">
+    <h2>¿Esto es para ti, o es otra línea?</h2>
+    <div>
+      <p>Muchas veces un mismo problema toca varias áreas. Esta guía rápida te ayuda a ubicar por dónde empezar; si no estás seguro, empezamos con una conversación.</p>
+      <ul class="route">
+        <li><span>El reto es cómo lideran tus jefes y supervisores</span><a href="growth-people.html">Leadership &amp; Talent</a></li>
+        <li><span>Necesitas entender tus números y anticipar escenarios</span><a href="bi-analytics.html">BI &amp; Strategic Analytics</a></li>
+        <li><span>Quieres revisar los seguros y prestaciones de protección</span><a href="risk-protection.html">Risk &amp; Protection</a></li>
+        <li class="here"><span>El reto es cómo está armada la operación: procesos, prestaciones, estructura</span><a href="#que-hacemos">Business Optimization</a></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="steps">
+  <div class="wrap">
+    <h2>Cómo trabajamos</h2>
+    <p class="steps-lead">Primero entendemos cómo funciona hoy tu operación. Después proponemos.</p>
+    <ol class="steps-list">
+      <li><h3>Diagnóstico</h3><p>Entrevistas, datos y revisión de procesos para entender cómo opera tu empresa hoy.</p></li>
+      <li><h3>Propuesta</h3><p>Prioridades claras: qué ajustar primero, qué cuesta y qué se espera lograr.</p></li>
+      <li><h3>Implementación</h3><p>Te acompañamos a poner en marcha los cambios con tu equipo.</p></li>
+      <li><h3>Seguimiento</h3><p>Medimos con indicadores para saber si funcionó y ajustar.</p></li>
+    </ol>
+  </div>
+</section>
+
+<section class="cta-final">
+  <div class="wrap cta-final-inner">
+    <div>
+      <h2>Hagamos más clara tu operación.</h2>
+      <p>Cuéntanos qué te está costando más trabajo hoy. En una primera conversación te decimos por dónde empezaríamos.</p>
+    </div>
+    <div class="hero-btns">
+      <a href="https://wa.me/529991178631?text=Hola%2C%20me%20interesa%20revisar%20la%20operaci%C3%B3n%20/%20prestaciones%20de%20mi%20empresa." class="btn-gold" target="_blank" rel="noopener"><i class="fab fa-whatsapp"></i> Platicar mi caso</a>
+      <a href="index.html#contacto" class="btn-outline">Prefiero que me contacten</a>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- ═══════════ FOOTER ═══════════ -->
 <footer>
   <div class="wrap">
     <div class="footer-grid">
@@ -285,40 +173,52 @@
         <img src="assets/img/logo.png" alt="Rizkora" class="footer-logo-img">
         <p class="footer-about-text">Firma de consultoría que ayuda a personas y empresas a tomar mejores decisiones sobre protección, personas, datos y operación.</p>
         <div class="footer-social">
-          <a href="https://wa.me/529991178631" class="social-btn"><i class="fab fa-whatsapp"></i></a>
-          <a href="mailto:contacto@rizkora.com" class="social-btn"><i class="fas fa-envelope"></i></a>
+          <a href="https://wa.me/529991178631" class="social-btn" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
           <a href="https://www.instagram.com/rizkoramx/" class="social-btn" aria-label="Instagram" target="_blank" rel="noopener"><i class="fab fa-instagram"></i></a>
+          <a href="mailto:contacto@rizkora.com" class="social-btn" aria-label="Email"><i class="fas fa-envelope"></i></a>
         </div>
       </div>
+
       <div class="footer-col">
         <h4>Servicios</h4>
         <ul>
           <li><a href="risk-protection.html">Risk &amp; Protection</a></li>
           <li><a href="growth-people.html">Leadership &amp; Talent</a></li>
           <li><a href="bi-analytics.html">BI &amp; Strategic Analytics</a></li>
-          <li><a href="business-optimization.html">Business Optimization</a></li>
+          <li><a href="business-optimization.html" aria-current="page">Business Optimization</a></li>
           <li><a href="workshops.html">Talleres</a></li>
         </ul>
       </div>
+
       <div class="footer-col">
         <h4>Contacto</h4>
         <div class="footer-contact-item"><i class="fas fa-map-marker-alt"></i><span>Mérida, Yucatán, México</span></div>
         <div class="footer-contact-item"><i class="fas fa-envelope"></i><a href="mailto:contacto@rizkora.com">contacto@rizkora.com</a></div>
         <div class="footer-contact-item"><i class="fab fa-whatsapp"></i><a href="https://wa.me/529991178631">WhatsApp</a></div>
+        <div class="footer-contact-item"><i class="fas fa-clock"></i><span>Lun – Vie 9:00 – 17:00</span></div>
       </div>
     </div>
+
     <div class="footer-bottom">
       <span>© 2026 Rizkora. Todos los derechos reservados.</span>
       <span>Mérida, Yucatán, México</span>
     </div>
   </div>
 </footer>
-<script>
-  const toggle=document.getElementById('navToggle'),mobileNav=document.getElementById('mobileNav');
-  toggle.addEventListener('click',()=>mobileNav.classList.toggle('open'));
-  mobileNav.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>mobileNav.classList.remove('open')));
-</script>
 
 <a class="wa-float" href="https://wa.me/529991178631?text=Hola%2C%20me%20interesa%20revisar%20la%20operaci%C3%B3n%20/%20prestaciones%20de%20mi%20empresa." target="_blank" rel="noopener" aria-label="Escríbenos por WhatsApp"><i class="fab fa-whatsapp"></i><span>Escríbenos</span></a>
+
+<script>
+  const toggle = document.getElementById('navToggle');
+  const mobileNav = document.getElementById('mobileNav');
+  toggle.addEventListener('click', () => {
+    const open = mobileNav.classList.toggle('open');
+    toggle.setAttribute('aria-expanded', open);
+  });
+  mobileNav.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
+    mobileNav.classList.remove('open');
+    toggle.setAttribute('aria-expanded', 'false');
+  }));
+</script>
 </body>
 </html>
