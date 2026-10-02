@@ -624,3 +624,27 @@
     .chart-viz .actual{stroke-dashoffset:0 !important;animation:none !important;}
     .chart-viz .band{opacity:.16 !important;animation:none !important;}
   }
+
+  /* ═══════════ HOME — hoja animada ═══════════ */
+  .sheet-anim{animation:sheetIn 1s cubic-bezier(.2,.8,.2,1) both;}
+  .sheet-anim .sheet-title,.sheet-anim .sheet-meta{animation:riseIn .5s .45s both;}
+  .sheet-anim thead th{animation:riseIn .4s .65s both;}
+  .sheet-anim tbody tr{animation:rowIn .45s both;animation-delay:calc(.85s + var(--r) * .22s);}
+  .sheet-anim tbody tr:nth-child(1){--r:0;} .sheet-anim tbody tr:nth-child(2){--r:1;}
+  .sheet-anim tbody tr:nth-child(3){--r:2;} .sheet-anim tbody tr:nth-child(4){--r:3;}
+  .sheet-anim td:nth-of-type(1){--c:0;} .sheet-anim td:nth-of-type(2){--c:1;} .sheet-anim td:nth-of-type(3){--c:2;}
+  .sheet-anim .dot{animation:dotPop .35s cubic-bezier(.3,1.6,.5,1) both;animation-delay:calc(1.05s + var(--r) * .22s + var(--c) * .12s);}
+  .sheet-anim .sheet-stamp{animation:stampIn .45s 2.15s cubic-bezier(.3,1.5,.5,1) both;}
+  .sheet-anim .sheet-foot{animation:riseIn .55s 2.45s both;}
+  .sheet-anim tbody tr{transition:background-color .5s;}
+  .sheet-anim tbody tr.scan{background:#fff7c2;}
+  .sheet-anim tbody tr.scan th{box-shadow:inset 3px 0 0 var(--gold-hover);}
+  @keyframes sheetIn{from{opacity:0;transform:translateY(40px) rotate(7deg);}to{opacity:1;transform:rotate(1.6deg);}}
+  @keyframes riseIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+  @keyframes rowIn{from{opacity:0;transform:translateX(-14px);}to{opacity:1;transform:none;}}
+  @keyframes dotPop{from{transform:scale(0);}to{transform:scale(1);}}
+  @keyframes stampIn{from{opacity:0;transform:scale(1.9) rotate(-14deg);}to{opacity:1;transform:rotate(-4deg);}}
+  @media (max-width:960px){@keyframes sheetIn{from{opacity:0;transform:translateY(40px);}to{opacity:1;transform:none;}}}
+  @media (prefers-reduced-motion:reduce){
+    .sheet-anim,.sheet-anim *{animation:none !important;}
+  }
