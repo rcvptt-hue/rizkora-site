@@ -648,3 +648,12 @@
   @media (prefers-reduced-motion:reduce){
     .sheet-anim,.sheet-anim *{animation:none !important;}
   }
+
+  /* Equipo de cuatro y avatar con iniciales */
+  .team-grid.four{grid-template-columns:repeat(4,1fr);gap:32px;}
+  .person .avatar{width:112px;height:112px;border-radius:50%;border:3px solid var(--gold);margin-bottom:18px;
+    display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--blue-main),var(--blue-card));
+    color:var(--gold);font-size:34px;font-weight:800;letter-spacing:.02em;}
+  @media (max-width:960px){.team-grid.four{grid-template-columns:1fr 1fr;gap:36px;}}
+  @media (max-width:680px){.team-grid.four{grid-template-columns:1fr;}}
+  .person img{display:block;}
