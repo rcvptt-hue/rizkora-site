@@ -657,3 +657,13 @@
   @media (max-width:960px){.team-grid.four{grid-template-columns:1fr 1fr;gap:36px;}}
   @media (max-width:680px){.team-grid.four{grid-template-columns:1fr;}}
   .person img{display:block;}
+  .ws-company{margin-top:32px;font-size:16px;color:var(--ink-soft);}
+  .ws-company a{color:var(--ink);font-weight:700;text-decoration:none;background:linear-gradient(transparent 62%, var(--gold) 62%);}
+  /* Pestañas de talleres */
+  .ws-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:28px;}
+  .ws-tabs button{font-family:inherit;font-size:15px;font-weight:600;color:var(--ink);background:transparent;
+    border:2px solid var(--ink);border-radius:50px;padding:10px 22px;cursor:pointer;transition:background .2s,color .2s;}
+  .ws-tabs button:hover{background:rgba(11,37,64,.06);}
+  .ws-tabs button[aria-selected="true"]{background:var(--ink);color:var(--gold);}
+  .ws-panel[hidden]{display:none;}
+  .ws-panel .offers{animation:riseIn .35s both;}
