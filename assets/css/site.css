@@ -667,3 +667,36 @@
   .ws-tabs button[aria-selected="true"]{background:var(--ink);color:var(--gold);}
   .ws-panel[hidden]{display:none;}
   .ws-panel .offers{animation:riseIn .35s both;}
+
+  /* ═══════════ TALLERES — bloques numerados y CV ═══════════ */
+  .wsb-list{border-top:2px solid var(--gold);}
+  .wsb{display:grid;grid-template-columns:120px 1fr 270px;gap:36px;padding:44px 0;border-bottom:1px solid rgba(255,255,255,.12);align-items:start;}
+  .wsb-num{font-size:64px;font-weight:800;line-height:.9;color:var(--gold);letter-spacing:-.03em;}
+  .wsb-body h3{font-size:clamp(22px,2.4vw,28px);font-weight:800;line-height:1.2;margin-bottom:8px;}
+  .wsb-tags{color:var(--gold);font-weight:500;font-size:15px;margin-bottom:14px;}
+  .wsb-body p:not(.wsb-tags){color:var(--text-soft);font-size:15.5px;max-width:62ch;margin-bottom:12px;}
+  .wsb-cta{display:inline-flex;align-items:center;gap:8px;margin-top:8px;color:var(--white);font-weight:600;font-size:14.5px;text-decoration:none;border-bottom:2px solid var(--gold);padding-bottom:2px;}
+  .wsb-cta:hover{color:var(--gold);}
+  .wsb-who-label{font-size:13px;font-weight:700;color:var(--gold);margin-bottom:12px;}
+  .wsb-person{display:flex;align-items:center;gap:12px;margin-bottom:12px;color:var(--white);text-decoration:none;font-weight:600;font-size:15px;}
+  .wsb-person img{width:52px;height:52px;border-radius:50%;object-fit:cover;border:2px solid var(--gold);flex-shrink:0;}
+  .wsb-person:hover span{color:var(--gold);}
+  .cv-list{border-top:2px solid var(--ink);}
+  .cv{display:grid;grid-template-columns:150px 1fr;gap:36px;padding:36px 0;border-bottom:1px solid var(--rule);align-items:start;scroll-margin-top:90px;}
+  .cv img{width:150px;height:150px;border-radius:50%;object-fit:cover;border:3px solid var(--gold-hover);}
+  .cv h3{font-size:24px;font-weight:800;color:var(--ink);}
+  .cv-role{color:var(--blue-main);font-weight:600;font-size:15px;margin-bottom:12px;}
+  .cv p:not(.cv-role):not(.cv-badge){color:var(--ink-soft);font-size:15.5px;max-width:74ch;margin-bottom:10px;}
+  .cv-badge{display:inline-flex;gap:8px;align-items:center;margin-top:6px;font-size:13.5px;font-weight:600;color:var(--ink);background:#fffbd6;border:1px solid #e8d96a;border-radius:6px;padding:6px 10px;}
+  .cv-badge i{color:var(--gold-ink);}
+  @media (max-width:960px){
+    .wsb{grid-template-columns:80px 1fr;gap:20px 24px;}
+    .wsb-num{font-size:48px;}
+    .wsb-who{grid-column:2;}
+  }
+  @media (max-width:680px){
+    .wsb{grid-template-columns:1fr;gap:12px;padding:36px 0;}
+    .wsb-who{grid-column:1;margin-top:8px;}
+    .cv{grid-template-columns:1fr;gap:16px;}
+    .cv img{width:112px;height:112px;}
+  }
