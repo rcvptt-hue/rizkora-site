@@ -678,9 +678,8 @@
   .wsb-cta{display:inline-flex;align-items:center;gap:8px;margin-top:8px;color:var(--white);font-weight:600;font-size:14.5px;text-decoration:none;border-bottom:2px solid var(--gold);padding-bottom:2px;}
   .wsb-cta:hover{color:var(--gold);}
   .wsb-who-label{font-size:13px;font-weight:700;color:var(--gold);margin-bottom:12px;}
-  .wsb-person{display:flex;align-items:center;gap:12px;margin-bottom:12px;color:var(--white);text-decoration:none;font-weight:600;font-size:15px;}
-  .wsb-person img{width:52px;height:52px;border-radius:50%;object-fit:cover;border:2px solid var(--gold);flex-shrink:0;}
-  .wsb-person:hover span{color:var(--gold);}
+  .wsb-person{display:block;margin-bottom:8px;color:var(--white);text-decoration:none;font-weight:600;font-size:16px;}
+  .wsb-person:hover{color:var(--gold);}
   .cv-list{border-top:2px solid var(--ink);}
   .cv{display:grid;grid-template-columns:150px 1fr;gap:36px;padding:36px 0;border-bottom:1px solid var(--rule);align-items:start;scroll-margin-top:90px;}
   .cv img{width:150px;height:150px;border-radius:50%;object-fit:cover;border:3px solid var(--gold-hover);}
